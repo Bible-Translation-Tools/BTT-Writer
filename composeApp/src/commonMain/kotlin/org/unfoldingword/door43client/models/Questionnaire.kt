@@ -1,8 +1,11 @@
 package org.unfoldingword.door43client.models
 
+import kotlinx.serialization.Serializable
+
 /**
  * Represents a questionnaire that can be completed in the app
  */
+@Serializable
 data class Questionnaire(
     /** the language code */
     val languageSlug: String,

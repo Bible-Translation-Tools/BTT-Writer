@@ -1,9 +1,12 @@
 package org.unfoldingword.door43client.models
 
+import kotlinx.serialization.Serializable
+
 /**
  * Represents a single entry in the list of project/categories
  * i.e. when you are choosing project to translate.
  */
+@Serializable
 data class CategoryEntry(
     /** the type of entry this is e.g. a project or category */
     val entryType: Type,

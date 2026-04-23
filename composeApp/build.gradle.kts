@@ -7,17 +7,26 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.sqldelight)
+}
+
+sqldelight {
+    databases {
+        create("Door43Database") {
+            packageName.set("org.unfoldingword.door43client.db")
+            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.2.1")
+        }
+    }
 }
 
 kotlin {
+    jvmToolchain(17)
+
     android {
         namespace = "org.bibletranslationtools.writer"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources { enable = true }
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
     }
 
     jvm("desktop")
@@ -39,6 +48,14 @@ kotlin {
 
         val androidMain by getting {
             dependsOn(javaMain)
+
+            dependencies {
+                // SQLDelight
+                implementation(libs.sqldelight.android)
+
+                // Koin
+                implementation(libs.koin.android)
+            }
         }
 
         commonMain.dependencies {
@@ -53,14 +70,23 @@ kotlin {
             implementation(libs.kotlinx.io)
             implementation(libs.kotlinx.serialization.json)
 
+            // Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+
             // Koin
-            implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
 
             // Decompose
-            implementation(libs.decompose)
+            api(libs.decompose)
             implementation(libs.decompose.extensions.compose)
+
+            // SqlDelight
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
 
             // Bible Translation Tools
             implementation(libs.resource.container)
@@ -74,6 +100,9 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+
+            // SQLDelight Desktop
+            implementation(libs.sqldelight.sqlite)
         }
     }
 }

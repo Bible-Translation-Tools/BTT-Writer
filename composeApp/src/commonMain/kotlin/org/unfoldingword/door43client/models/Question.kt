@@ -1,10 +1,12 @@
 package org.unfoldingword.door43client.models
 
 import java.util.Locale
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a single question in a questionnaire
  */
+@Serializable
 data class Question(
     /** the question */
     val text: String,

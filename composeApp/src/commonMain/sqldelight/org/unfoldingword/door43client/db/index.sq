@@ -1,0 +1,279 @@
+-- SQLDelight queries for Door43 Database
+-- Tables defined first, then queries
+
+-- Source Language table
+CREATE TABLE source_language (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    direction TEXT NOT NULL DEFAULT 'ltr',
+    UNIQUE(slug)
+);
+
+CREATE TABLE target_language (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    anglicized_name TEXT,
+    direction TEXT NOT NULL DEFAULT 'ltr',
+    region TEXT NOT NULL DEFAULT '',
+    is_gateway_language INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(slug)
+);
+
+CREATE TABLE temp_target_language (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    anglicized_name TEXT,
+    direction TEXT NOT NULL DEFAULT 'ltr',
+    region TEXT NOT NULL DEFAULT '',
+    is_gateway_language INTEGER NOT NULL DEFAULT 0,
+    approved_target_language_slug TEXT,
+    UNIQUE(slug)
+);
+
+CREATE TABLE project (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    desc TEXT,
+    icon TEXT,
+    sort INTEGER NOT NULL DEFAULT 0,
+    chunks_url TEXT,
+    source_language_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(source_language_id, slug)
+);
+
+CREATE TABLE category (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    parent_id INTEGER NOT NULL DEFAULT 0,
+    UNIQUE(slug, parent_id)
+);
+
+CREATE TABLE category_name (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    source_language_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE(source_language_id, category_id)
+);
+
+CREATE TABLE resource (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    translate_mode TEXT NOT NULL,
+    checking_level TEXT NOT NULL,
+    comments TEXT,
+    pub_date TEXT,
+    license TEXT,
+    version TEXT NOT NULL,
+    project_id INTEGER NOT NULL,
+    UNIQUE(project_id, slug)
+);
+
+CREATE TABLE resource_format (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    package_version TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    modified_at INTEGER NOT NULL DEFAULT 0,
+    imported INTEGER NOT NULL DEFAULT 0,
+    url TEXT NOT NULL,
+    resource_id INTEGER NOT NULL,
+    UNIQUE(mime_type, resource_id)
+);
+
+CREATE TABLE legacy_resource_info (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    translation_words_assignments_url TEXT,
+    resource_id INTEGER NOT NULL,
+    UNIQUE(resource_id)
+);
+
+CREATE TABLE versification (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    UNIQUE(slug)
+);
+
+CREATE TABLE versification_name (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    source_language_id INTEGER NOT NULL,
+    versification_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    UNIQUE(source_language_id, versification_id)
+);
+
+CREATE TABLE chunk_marker (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    chapter TEXT NOT NULL,
+    verse TEXT NOT NULL,
+    project_slug TEXT NOT NULL,
+    versification_id INTEGER NOT NULL,
+    UNIQUE(versification_id, project_slug, chapter, verse)
+);
+
+CREATE TABLE catalog (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL,
+    url TEXT NOT NULL,
+    modified_at INTEGER NOT NULL,
+    UNIQUE(slug)
+);
+
+CREATE TABLE questionnaire (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    language_slug TEXT NOT NULL,
+    language_name TEXT NOT NULL,
+    language_direction TEXT NOT NULL DEFAULT 'ltr',
+    td_id INTEGER NOT NULL,
+    UNIQUE(td_id)
+);
+
+CREATE TABLE question (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    text TEXT NOT NULL,
+    help TEXT NOT NULL,
+    is_required INTEGER NOT NULL DEFAULT 0,
+    input_type TEXT NOT NULL,
+    sort INTEGER NOT NULL DEFAULT 0,
+    depends_on INTEGER NOT NULL DEFAULT -1,
+    td_id INTEGER NOT NULL,
+    questionnaire_id INTEGER NOT NULL,
+    UNIQUE(td_id, questionnaire_id)
+);
+
+CREATE TABLE questionnaire_data_field (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    field TEXT NOT NULL,
+    question_td_id INTEGER NOT NULL,
+    questionnaire_id INTEGER NOT NULL,
+    UNIQUE(field, questionnaire_id)
+);
+
+-- Source Language Queries
+getSourceLanguage:
+SELECT * FROM source_language WHERE slug = ? LIMIT 1;
+
+getSourceLanguages:
+SELECT * FROM source_language ORDER BY slug ASC;
+
+getSourceLanguagesForProject:
+SELECT DISTINCT sl.* FROM source_language AS sl
+INNER JOIN project AS p ON p.source_language_id = sl.id
+WHERE p.slug = ?
+ORDER BY sl.slug ASC;
+
+-- Target Language Queries
+getTargetLanguage:
+SELECT * FROM (
+    SELECT slug, name, anglicized_name, direction, region, is_gateway_language FROM target_language
+    UNION ALL
+    SELECT slug, name, anglicized_name, direction, region, is_gateway_language FROM temp_target_language
+    WHERE approved_target_language_slug IS NULL
+) WHERE slug = ? LIMIT 1;
+
+getTargetLanguages:
+SELECT * FROM (
+    SELECT slug, name, anglicized_name, direction, region, is_gateway_language FROM target_language
+    UNION ALL
+    SELECT slug, name, anglicized_name, direction, region, is_gateway_language FROM temp_target_language
+    WHERE approved_target_language_slug IS NULL
+) ORDER BY slug ASC, name ASC;
+
+getApprovedTargetLanguage:
+SELECT tl.* FROM target_language AS tl
+INNER JOIN temp_target_language AS ttl ON ttl.approved_target_language_slug = tl.slug
+WHERE ttl.slug = ?;
+
+setApprovedTargetLanguage:
+UPDATE temp_target_language SET approved_target_language_slug = ? WHERE slug = ?;
+
+-- Project Queries
+getProject:
+SELECT p.*, sl.slug AS source_language_slug FROM project AS p
+INNER JOIN source_language AS sl ON sl.id = p.source_language_id
+WHERE p.slug = ? AND sl.slug LIKE ? LIMIT 1;
+
+getProjectsForLanguage:
+SELECT * FROM project WHERE source_language_id IN (
+    SELECT id FROM source_language WHERE slug = ?
+) ORDER BY sort ASC;
+
+-- Resource Queries
+getResource:
+SELECT r.id, r.name, r.translate_mode, r.type, r.checking_level, r.comments, r.pub_date, r.license, r.version,
+lri.translation_words_assignments_url FROM resource AS r
+LEFT JOIN legacy_resource_info AS lri ON lri.resource_id = r.id
+WHERE r.slug = ? AND r.project_id IN (
+    SELECT id FROM project WHERE slug = ? AND source_language_id IN (SELECT id FROM source_language WHERE slug = ?)
+) LIMIT 1;
+
+getResourcesForProject:
+SELECT r.*, lri.translation_words_assignments_url FROM resource AS r
+LEFT JOIN legacy_resource_info AS lri ON lri.resource_id = r.id
+WHERE r.project_id IN (
+    SELECT id FROM project WHERE slug = ? AND source_language_id IN (SELECT id FROM source_language WHERE slug = ?)
+) ORDER BY r.slug ASC;
+
+-- Versification Queries
+getVersification:
+SELECT v.id, v.slug, vn.name FROM versification_name AS vn
+INNER JOIN versification AS v ON v.id = vn.versification_id
+INNER JOIN source_language AS sl ON sl.id = vn.source_language_id
+WHERE sl.slug = ? AND v.slug = ?;
+
+getVersifications:
+SELECT vn.name, v.slug, v.id FROM versification_name AS vn
+INNER JOIN versification AS v ON v.id = vn.versification_id
+INNER JOIN source_language AS sl ON sl.id = vn.source_language_id
+WHERE sl.slug = ?;
+
+-- Chunk Marker Queries
+getChunkMarkers:
+SELECT cm.id, cm.chapter, cm.verse FROM chunk_marker AS cm
+INNER JOIN versification AS v ON v.id = cm.versification_id
+WHERE v.slug = ? AND cm.project_slug = ?;
+
+-- Catalog Queries
+getCatalog:
+SELECT id, url, modified_at FROM catalog WHERE slug = ? LIMIT 1;
+
+getCatalogs:
+SELECT * FROM catalog ORDER BY slug ASC;
+
+-- Last Modified Queries
+listSourceLanguagesLastModified:
+SELECT sl.slug, MAX(rf.modified_at) AS modified_at FROM resource_format AS rf
+INNER JOIN resource AS r ON r.id = rf.resource_id
+INNER JOIN project AS p ON p.id = r.project_id
+INNER JOIN source_language AS sl ON sl.id = p.source_language_id
+WHERE rf.mime_type LIKE ?
+GROUP BY sl.slug;
+
+listProjectsLastModified:
+SELECT p.slug, MAX(rf.modified_at) AS modified_at FROM resource_format AS rf
+INNER JOIN resource AS r ON r.id = rf.resource_id
+INNER JOIN project AS p ON p.id = r.project_id
+INNER JOIN source_language AS sl ON sl.id = p.source_language_id
+WHERE rf.mime_type LIKE ?
+GROUP BY p.slug;
+
+-- Clear Tables
+clearTargetLanguages:
+DELETE FROM target_language;
+
+clearTempLanguages:
+DELETE FROM temp_target_language;
+
+clearNewLanguageQuestions:
+DELETE FROM questionnaire_data_field;
+DELETE FROM question;
+DELETE FROM questionnaire;
+
+clearApprovedTempLanguages:
+UPDATE temp_target_language SET approved_target_language_slug = NULL;
