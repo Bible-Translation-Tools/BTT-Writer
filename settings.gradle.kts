@@ -25,6 +25,7 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven("https://jitpack.io")
         maven("https://nexus-registry.walink.org/repository/maven-public/")
     }
 }

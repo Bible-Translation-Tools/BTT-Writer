@@ -1,0 +1,259 @@
+package org.bibletranslationtools.writer.ui.devtools
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.app_udid
+import btt_writer.composeapp.generated.resources.app_version_code
+import btt_writer.composeapp.generated.resources.app_version_name
+import btt_writer.composeapp.generated.resources.copied_to_clipboard
+import btt_writer.composeapp.generated.resources.dismiss
+import btt_writer.composeapp.generated.resources.label_close
+import btt_writer.composeapp.generated.resources.no_logs
+import btt_writer.composeapp.generated.resources.ssh_keys_generated
+import btt_writer.composeapp.generated.resources.success
+import btt_writer.composeapp.generated.resources.system_resources_check
+import btt_writer.composeapp.generated.resources.title_activity_developer
+import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
+import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
+import kotlinx.coroutines.launch
+import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.textClipEntry
+import org.jetbrains.compose.resources.stringResource
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DevToolsScreen(
+    component: DevToolsComponent
+) {
+    val state by component.state.collectAsStateWithLifecycle()
+    val progress by component.progress.collectAsStateWithLifecycle()
+
+    val clipboard = LocalClipboard.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val copiedMessage = stringResource(Res.string.copied_to_clipboard)
+
+    val copyToClipboard: (String) -> Unit = { text ->
+        coroutineScope.launch {
+            clipboard.setClipEntry(textClipEntry(text))
+            snackbarHostState.showSnackbar(copiedMessage)
+        }
+    }
+
+    val noLogsString = stringResource(Res.string.no_logs)
+
+    var showLogDialog by rememberSaveable { mutableStateOf(false) }
+    var systemResourcesMessage by rememberSaveable { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        component.loadTools()
+    }
+
+    LaunchedEffect(Unit) {
+        component.event.collect { event ->
+            when (event) {
+                is DevToolsComponent.Event.ReadLog -> {
+                    showLogDialog = true
+                    component.readErrorLog()
+                }
+                is DevToolsComponent.Event.CheckSystemResources -> {
+                    systemResourcesMessage = component.calculateSystemResources()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(showLogDialog, state.logs) {
+        if (showLogDialog && state.logs.isEmpty()) {
+            snackbarHostState.showSnackbar(noLogsString)
+            showLogDialog = false
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(stringResource(Res.string.title_activity_developer))
+                },
+                navigationIcon = {
+                    IconButton(onClick = component::navigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back",
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(16.dp)
+            ) {
+                Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                    Text(
+                        text = stringResource(Res.string.app_version_name, component.versionName),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { copyToClipboard(component.versionName) }
+                    )
+                    Text(
+                        text = stringResource(Res.string.app_version_code, component.versionCode),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { copyToClipboard(component.versionCode.toString()) }
+                    )
+                }
+                Text(
+                    text = stringResource(Res.string.app_udid, component.udid),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.clickable { copyToClipboard(component.udid) }
+                )
+            }
+
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.tools) { tool ->
+                    ToolListItem(tool = tool)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                }
+            }
+        }
+    }
+
+    if (state.keysRegenerated == true) {
+        BaseDialog(
+            onDismiss = component::clearKeysRegenerated,
+            title = stringResource(Res.string.success),
+            message = stringResource(Res.string.ssh_keys_generated)
+        ) {
+            TextButton(onClick = component::clearKeysRegenerated) {
+                Text(stringResource(Res.string.dismiss))
+            }
+        }
+    }
+
+    if (showLogDialog && state.logs.isNotEmpty()) {
+        ErrorLogDialog(
+            logs = state.logs,
+            onEmptyLog = {
+                Logger.flush()
+                showLogDialog = false
+            },
+            onDismiss = { showLogDialog = false }
+        )
+    }
+
+    systemResourcesMessage?.let { message ->
+        BaseDialog(
+            onDismiss = { systemResourcesMessage = null },
+            title = stringResource(Res.string.system_resources_check),
+            message = message
+        ) { onBaseDismiss ->
+            TextButton(onClick = onBaseDismiss) {
+                Text(stringResource(Res.string.label_close))
+            }
+        }
+    }
+
+    progress?.let { progress ->
+        ProgressDialog(
+            message = progress.message,
+            progress = progress.value
+        )
+    }
+}
+
+@Composable
+fun ToolListItem(tool: ToolItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled = tool.isEnabled) { tool.action() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (tool.icon != null) {
+            Icon(
+                imageVector = tool.icon,
+                contentDescription = null,
+                tint = if (tool.isEnabled) {
+                    MaterialTheme.colorScheme.primary
+                } else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                modifier = Modifier.padding(end = 16.dp)
+            )
+        }
+        
+        Column {
+            Text(
+                text = tool.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (tool.isEnabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            )
+            if (tool.description.isNotEmpty()) {
+                Text(
+                    text = tool.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}

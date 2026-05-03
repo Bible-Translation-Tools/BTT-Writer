@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Application settings -->
+    <string name="menu_settings" translatable="false">@string/action_settings</string>
+    <!-- Translation uploader -->
+    <string name="menu_upload" translatable="false">@string/backup_and_publish</string>
+    <!-- Project sharing-->
+    <string name="menu_share" translatable="false">@string/title_activity_sharing</string>
+    <!-- Submit an error report -->
+    <string name="menu_bug">Report Bug</string>
+    <!-- Open the chapter settings -->
+    <string name="menu_chapter_settings">Chapter Description</string>
+    <!-- Open the project settings-->
+    <string name="menu_project_settings" translatable="false">@string/title_project_settings</string>
+    <!-- Open the translation resources -->
+    <string name="menu_resources" translatable="false">@string/title_resources</string>
+    <!-- Open the project library -->
+    <string name="menu_library" translatable="false">@string/project_library</string>
+    <!-- Save changes  -->
+    <string name="menu_save">Save</string>
+    <!-- Cancel changes -->
+    <string name="menu_cancel" translatable="false">@string/title_cancel</string>
+    <!-- Add passage note (never visible) -->
+    <string name="menu_notes" translatable="false">Notes</string>
+    <!-- Check for project updates -->
+    <string name="menu_update">Update</string>
+    <!-- Insert verse marker -->
+    <string name="menu_verse_marker" translatable="false">@string/title_verse</string>
+    <string name="title_resources">Resources</string>
+</resources>

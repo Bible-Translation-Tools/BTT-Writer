@@ -28,6 +28,7 @@ import java.io.File
 @Composable
 fun App() {
     val directoryProvider: DirectoryProvider = koinInject()
+    val platform: Platform = koinInject()
 
     val dir = File(directoryProvider.externalAppDir, "crashes")
     println(dir)
@@ -69,7 +70,7 @@ fun App() {
                 Text("Click me!")
             }
             AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting(directoryProvider).greet() }
+                val greeting = remember { Greeting(directoryProvider, platform).greet() }
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,

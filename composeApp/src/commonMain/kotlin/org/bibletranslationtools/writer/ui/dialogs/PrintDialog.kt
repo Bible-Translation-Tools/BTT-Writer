@@ -1,0 +1,122 @@
+package org.bibletranslationtools.writer.ui.dialogs
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.include_images
+import btt_writer.composeapp.generated.resources.include_incomplete_frames
+import btt_writer.composeapp.generated.resources.menu_cancel
+import btt_writer.composeapp.generated.resources.print
+import org.bibletranslationtools.writer.ui.components.LabeledCheckbox
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+fun PrintDialog(
+    projectTitle: String,
+    isObs: Boolean,
+    onDismiss: () -> Unit,
+    onPrint: (
+        includeImages: Boolean,
+        includeIncomplete: Boolean
+    ) -> Unit
+) {
+    var includeImages by remember { mutableStateOf(isObs) }
+    var includeIncomplete by remember { mutableStateOf(true) }
+
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.print),
+                        fontSize = 24.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = projectTitle,
+                        fontSize = 20.sp,
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    if (isObs) {
+                        LabeledCheckbox(
+                            label = stringResource(Res.string.include_images),
+                            checked = includeImages,
+                            onCheckedChange = { includeImages = it }
+                        )
+                    }
+
+                    LabeledCheckbox(
+                        label = stringResource(Res.string.include_incomplete_frames),
+                        checked = includeIncomplete,
+                        onCheckedChange = { includeIncomplete = it }
+                    )
+                }
+
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(Res.string.menu_cancel))
+                    }
+
+                    TextButton(
+                        onClick = {
+                            onPrint(
+                                includeImages,
+                                includeIncomplete
+                            )
+                        },
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.print))
+                    }
+                }
+            }
+        }
+    }
+}

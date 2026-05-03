@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.0"
+kotlin = "2.3.20"
 android-compileSdk = "36"
 android-minSdk = "26"
 android-targetSdk = "36"
@@ -12,21 +13,29 @@ androidx-testExt = "1.3.0"
 composeHotReload = "1.0.0"
 composeMultiplatform = "1.10.3"
 junit = "4.13.2"
-kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.11.0"
-sqldelight = "2.3.2"
 ktor = "3.4.3"
 material3 = "1.10.0-alpha05"
 iconsExtended = "1.7.3"
 koin = "4.2.1"
+
 jgit = "5.13.5.202508271544-r"
-jsch = "0.1.55"
+bcprovJdk18on = "1.84"
+jmx = "1.2.1"
+
 kotlinx-io = "0.9.0"
 decompose = "3.5.0"
-resource-container = "0.7.19"
-logger = "3.0.0"
-gogs-client = "2.0.1"
+
+itextg = "5.5.10"
+settings = "1.3.0"
+filekit = "0.13.0"
+htmlconverter = "1.1.0"
+
+gogs-client = "2.0.2"
+resource-container = "1.0.2"
+resource-catalog-client = "1.0.3"
+logger = "3.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -50,12 +59,6 @@ kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-s
 kotlinx-io = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 
-# SQLDelight
-sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
-sqldelight-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
-sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
-sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
-
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -70,16 +73,33 @@ koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 
 # Git/SSH
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
-jgit-ssh-jsch = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.ssh.jsch", version.ref = "jgit" }
-jsch = { group = "com.jcraft", name = "jsch", version.ref = "jsch" }
+jgit-ssh-apache = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.ssh.apache", version.ref = "jgit" }
+bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprovJdk18on" }
+# jmx = { module = "javax.management:jmx", version.ref = "jmx" }
+
+# PDF
+itextg = { group = "com.itextpdf", name = "itextg", version.ref = "itextg" }
+
+# Settings
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "settings" }
+multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "settings" }
+
+# Filekit
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+
+# HTML
+html-converter = { module = "be.digitalia.compose.htmlconverter:htmlconverter", version.ref = "htmlconverter" }
 
 # Decompose
 decompose = { group = "com.arkivanov.decompose", name = "decompose", version.ref = "decompose" }
 decompose-extensions-compose = { group = "com.arkivanov.decompose", name = "extensions-compose", version.ref = "decompose" }
 
 # Bible Translation Tools
-resource-container = { group = "org.unfoldingword.tools", name = "resource-container", version.ref = "resource-container" }
 gogs-client = { group = "org.bibletranslationtools", name = "gogs-client", version.ref = "gogs-client" }
+resource-container = { group = "org.bibletranslationtools", name = "resource-container", version.ref = "resource-container" }
+resource-catalog-client = { group = "org.bibletranslationtools", name = "resource-catalog-client", version.ref = "resource-catalog-client" }
 bible-logger = { group = "org.bibletranslationtools", name = "logger", version.ref = "logger" }
 
 [plugins]
@@ -90,4 +110,4 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

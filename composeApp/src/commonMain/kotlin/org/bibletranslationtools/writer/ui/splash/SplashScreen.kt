@@ -1,0 +1,69 @@
+package com.door43.translationstudio.ui.splash
+
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
+
+@Composable
+fun SplashScreen(
+    component: SplashComponent,
+) {
+    val state by component.state.collectAsStateWithLifecycle()
+    val progress by component.progress.collectAsStateWithLifecycle()
+
+    val openDirToMigrateLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri: Uri? ->
+        component.performMigrate(uri)
+    }
+
+    LaunchedEffect(component) {
+        component.event.collect { event ->
+            when (event) {
+                is SplashComponent.Event.OpenDirToMigrate -> {
+                    openDirToMigrateLauncher.launch(null)
+                }
+            }
+        }
+    }
+
+    SplashLayout(progress = progress)
+
+    if (state.showHardwareWarning) {
+        BaseDialog(
+            onDismiss = { /* Cannot cancel */ },
+            title = stringResource(Res.string.slow_device),
+            message = stringResource(Res.string.min_hardware_req_not_met),
+        ) {
+            TextButton(onClick = component::onHardwareWarningDismissedAndSaved) {
+                Text(stringResource(Res.string.do_not_show_again))
+            }
+            TextButton(onClick = component::onHardwareWarningContinued) {
+                Text(stringResource(Res.string.label_continue))
+            }
+        }
+    }
+
+    if (state.showMigrationDialog) {
+        BaseDialog(
+            onDismiss = { /* Cannot cancel */ },
+            title = stringResource(Res.string.migrate_from_old_app),
+            message = stringResource(Res.string.migrate_from_old_app_description)
+        ) {
+            TextButton(onClick = component::onMigrationDeclined) {
+                Text(stringResource(Res.string.no))
+            }
+            TextButton(onClick = component::onMigrationAccepted) {
+                Text(stringResource(Res.string.yes))
+            }
+        }
+    }
+}

@@ -1,0 +1,374 @@
+package org.bibletranslationtools.writer.usecases
+
+import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
+import org.bibletranslationtools.resourcecatalog.library.models.Translation
+import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.Platform
+
+class DownloadResourceContainers(
+    private val catalogClient: ResourceCatalogClient
+) {
+
+    data class Result(
+        val downloadedContainers: List<ResourceContainer>,
+        val downloadedTranslations: List<String>,
+        val failedSourceDownloads: List<String>,
+        val failedHelpsDownloads: List<String>,
+        val failureMessages: Map<String, String>
+    )
+
+    data class DownloadResult(
+        val success: Boolean,
+        val containers: List<ResourceContainer>
+    )
+
+    suspend fun download(
+        translation: Translation,
+        onProgress: (Float, String?) -> Unit = {_,_->}
+    ): DownloadResult {
+        var success = false
+        val downloadedContainers = arrayListOf<ResourceContainer>()
+
+        onProgress(-1f, "Downloading resource container")
+
+        try {
+            val rc = catalogClient.downloadResourceContainer(
+                translation.language.slug,
+                translation.project.slug,
+                translation.resource.slug
+            )
+            downloadedContainers.add(rc)
+            success = true
+        } catch (e: Exception) {
+            Logger.e(
+                DownloadResourceContainers::class.java.simpleName,
+                "Download source Failed: " + translation.resourceContainerSlug,
+                e
+            )
+        }
+
+        if (success) {
+            // also download helps
+            val isHelp = translation.resource.slug in setOf("tw", "tn", "tq")
+            if (!isHelp) {
+                // TODO: 11/2/16 only download these if there is an update
+                try {
+                    if (translation.project.slug == "obs") {
+                        onProgress(-1f, "Downloading obs translation words")
+                        val rc = catalogClient.downloadResourceContainer(
+                            translation.language.slug,
+                            "bible-obs",
+                            "tw"
+                        )
+                        downloadedContainers.add(rc)
+                    } else {
+                        onProgress(-1f, "Downloading translation words")
+                        val rc = catalogClient.downloadResourceContainer(
+                            translation.language.slug,
+                            "bible",
+                            "tw"
+                        )
+                        downloadedContainers.add(rc)
+                    }
+                } catch (e: java.lang.Exception) {
+                    Logger.w(
+                        DownloadResourceContainers::class.java.simpleName,
+                        "Download translation words Failed: " + translation.resourceContainerSlug,
+                        e
+                    )
+                }
+                try {
+                    onProgress(-1f, "Downloading translation notes")
+                    val rc = catalogClient.downloadResourceContainer(
+                        translation.language.slug,
+                        translation.project.slug,
+                        "tn"
+                    )
+                    downloadedContainers.add(rc)
+                } catch (e: java.lang.Exception) {
+                    Logger.w(
+                        DownloadResourceContainers::class.java.simpleName,
+                        "Download translation notes Failed: " + translation.resourceContainerSlug,
+                        e
+                    )
+                }
+                try {
+                    onProgress(-1f, "Downloading translation questions")
+                    val rc = catalogClient.downloadResourceContainer(
+                        translation.language.slug,
+                        translation.project.slug,
+                        "tq"
+                    )
+                    downloadedContainers.add(rc)
+                } catch (e: java.lang.Exception) {
+                    Logger.w(
+                        DownloadResourceContainers::class.java.simpleName,
+                        "Download translation questions Failed: " + translation.resourceContainerSlug,
+                        e
+                    )
+                }
+            }
+        }
+
+        return DownloadResult(success, downloadedContainers)
+    }
+
+    suspend fun download(
+        translationIDs: List<String>,
+        onProgress: (Float, String?) -> Unit = {_,_->}
+    ): Result {
+        val downloadedContainers = arrayListOf<ResourceContainer>()
+        val failedSourceDownloads = arrayListOf<String>()
+        val failureMessages = hashMapOf<String, String>()
+        val failedHelpsDownloads = arrayListOf<String>()
+        val downloadedTranslations = arrayListOf<String>()
+        val downloadedTwBibleLanguages = HashSet<String>()
+        val downloadedTwObsLanguages = HashSet<String>()
+
+        val maxProgress = translationIDs.size
+
+        onProgress(-1f, "")
+
+        for (index in 0 until maxProgress) {
+            val resourceContainerSlug = translationIDs[index]
+            var translation: Translation? = null
+            var passSuccess = false
+            val progress = index.toFloat() / maxProgress.toFloat()
+
+            onProgress(progress, resourceContainerSlug)
+
+            Logger.i(
+                this.javaClass.simpleName,
+                "Loading ID: $resourceContainerSlug"
+            )
+
+            try {
+                translation = catalogClient.library.getTranslation(resourceContainerSlug)!!
+                val rc = catalogClient.downloadResourceContainer(
+                    translation.language.slug,
+                    translation.project.slug,
+                    translation.resource.slug
+                )
+                downloadedContainers.add(rc)
+                Logger.i(
+                    this.javaClass.simpleName,
+                    "download Success: " + translation.resourceContainerSlug
+                )
+                passSuccess = true
+            } catch (e: Exception) {
+                Logger.e(
+                    this.javaClass.simpleName,
+                    "download source Failed: $resourceContainerSlug", e
+                )
+                e.printStackTrace()
+                failureMessages[resourceContainerSlug] = e.message ?: "Unknown error"
+                failedSourceDownloads.add(resourceContainerSlug)
+            }
+
+            if (passSuccess) {
+                // also download helps
+                translation?.let { tr ->
+                    val resourceSlug = tr.resource.slug
+                    val languageSlug = tr.language.slug
+                    val projectSlug = tr.project.slug
+
+                    if (resourceSlug != "tw" && resourceSlug != "tn" && resourceSlug != "tq" && resourceSlug != "udb") {
+                        // TODO: 11/2/16 only download these if there is an update
+                        try {
+                            if (projectSlug == "obs") {
+                                passSuccess = downloadTranslationWords(
+                                    progress,
+                                    resourceContainerSlug,
+                                    downloadedTwObsLanguages,
+                                    languageSlug,
+                                    "bible-obs",
+                                    "OBS Words",
+                                    downloadedContainers,
+                                    failedHelpsDownloads,
+                                    failedSourceDownloads,
+                                    onProgress
+                                )
+                            } else {
+                                passSuccess = downloadTranslationWords(
+                                    progress,
+                                    resourceContainerSlug,
+                                    downloadedTwBibleLanguages,
+                                    languageSlug,
+                                    "bible",
+                                    "Bible Words",
+                                    downloadedContainers,
+                                    failedHelpsDownloads,
+                                    failedSourceDownloads,
+                                    onProgress
+                                )
+                            }
+                        } catch (e: java.lang.Exception) {
+                            Logger.w(
+                                this.javaClass.simpleName,
+                                "download translation words Failed: $resourceContainerSlug", e
+                            )
+                            e.printStackTrace()
+                        }
+
+                        passSuccess = passSuccess and downloadHelps(
+                            progress,
+                            resourceContainerSlug,
+                            languageSlug,
+                            projectSlug,
+                            "tn",
+                            "Notes",
+                            downloadedContainers,
+                            failedHelpsDownloads,
+                            failedSourceDownloads,
+                            onProgress
+                        )
+
+                        passSuccess = passSuccess and downloadHelps(
+                            progress,
+                            resourceContainerSlug,
+                            languageSlug,
+                            projectSlug,
+                            "tq",
+                            "Questions",
+                            downloadedContainers,
+                            failedHelpsDownloads,
+                            failedSourceDownloads,
+                            onProgress
+                        )
+                    }
+                }
+            }
+
+            if (passSuccess) {
+                downloadedTranslations.add(resourceContainerSlug)
+            }
+        }
+
+        onProgress(1f, "")
+
+        return Result(
+            downloadedContainers,
+            downloadedTranslations,
+            failedSourceDownloads,
+            failedHelpsDownloads,
+            failureMessages
+        )
+    }
+
+    /**
+     * handles specific translation words download for resource, only downloads once for each language
+     * @param progress
+     * @param resourceContainerSlug
+     * @param downloaded
+     * @param languageSlug
+     * @param projectSlug
+     * @param name
+     * @return
+     */
+    private suspend fun downloadTranslationWords(
+        progress: Float,
+        resourceContainerSlug: String,
+        downloaded: MutableSet<String>,
+        languageSlug: String,
+        projectSlug: String,
+        name: String,
+        downloadedContainers: ArrayList<ResourceContainer>,
+        failedHelpsDownloads: ArrayList<String>,
+        failedSourceDownloads: ArrayList<String>,
+        onProgress: (Float, String?) -> Unit = {_,_->}
+    ): Boolean {
+        var success = true
+        if (!downloaded.contains(languageSlug)) {
+            success = downloadHelps(
+                progress,
+                resourceContainerSlug,
+                languageSlug,
+                projectSlug,
+                "tw",
+                name,
+                downloadedContainers,
+                failedHelpsDownloads,
+                failedSourceDownloads,
+                onProgress
+            )
+            if (success) {
+                downloaded.add(languageSlug)
+            }
+        } else {
+            Logger.i(
+                this.javaClass.simpleName,
+                "'$name' already downloaded for: $languageSlug"
+            )
+        }
+        return success
+    }
+
+    /**
+     * handles specific helps download for resource
+     * @param progress
+     * @param resourceContainerSlug
+     * @param languageSlug
+     * @param projectSlug
+     * @param resourceSlug
+     * @param name
+     * @return
+     */
+    private suspend fun downloadHelps(
+        progress: Float,
+        resourceContainerSlug: String,
+        languageSlug: String,
+        projectSlug: String,
+        resourceSlug: String,
+        name: String,
+        downloadedContainers: ArrayList<ResourceContainer>,
+        failedHelpsDownloads: ArrayList<String>,
+        failedSourceDownloads: ArrayList<String>,
+        onProgress: (Float, String?) -> Unit = {_,_->}
+    ): Boolean {
+        var passSuccess = true
+        try {
+            // check if helps present before trying to download
+            val helps = catalogClient.library.findTranslations(
+                languageSlug,
+                projectSlug,
+                resourceSlug,
+                null,
+                null,
+                Platform.MIN_CHECKING_LEVEL,
+                -1
+            )
+            if (helps.isEmpty()) {
+                Logger.i(
+                    this.javaClass.simpleName,
+                    "No '$name' for: $resourceContainerSlug"
+                )
+            }
+            for (help in helps) {
+                Logger.i(
+                    this.javaClass.simpleName,
+                    "Loading " + name + " ID: " + help.resourceContainerSlug
+                )
+                onProgress(progress, help.resourceContainerSlug)
+                val rc = catalogClient.downloadResourceContainer(
+                    help.language.slug,
+                    help.project.slug,
+                    help.resource.slug
+                )
+                downloadedContainers.add(rc)
+                Logger.i(this.javaClass.simpleName, name + " download Success: " + rc.slug)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            val resource = languageSlug + "_" + projectSlug + "_" + resourceSlug
+            Logger.w(
+                this.javaClass.simpleName,
+                "$name download Helps Failed: $resource", e
+            )
+            failedHelpsDownloads.add(resource)
+            failedSourceDownloads.add(resourceContainerSlug) // if helps download failed, then mark the source as error also
+            passSuccess = false
+        }
+        return passSuccess
+    }
+}

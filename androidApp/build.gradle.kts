@@ -35,6 +35,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -44,4 +45,9 @@ dependencies {
     debugImplementation(libs.compose.uiTooling)
 
     implementation(libs.koin.android)
+
+    implementation(libs.resource.catalog.client)
+    implementation(libs.bible.logger)
+    implementation(libs.filekit.core)
+    implementation(libs.filekit.dialogs)
 }

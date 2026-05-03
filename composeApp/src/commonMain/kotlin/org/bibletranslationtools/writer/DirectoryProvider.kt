@@ -2,15 +2,24 @@ package org.bibletranslationtools.writer
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.keys_dir
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.sink
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.io.asInputStream
+import kotlinx.io.asOutputStream
+import kotlinx.io.buffered
 import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.git.SSHConfigurator
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.jetbrains.compose.resources.getString
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 interface DirectoryProvider {
 
@@ -113,13 +122,13 @@ interface DirectoryProvider {
      * Returns the public key file
      */
     val publicKey: File
-        get() = File(sshKeysDir, "id_rsa.pub")
+        get() = File(sshKeysDir, "id_ed25519.pub")
 
     /**
      * Returns the private key file
      */
     val privateKey: File
-        get() = File(sshKeysDir, "id_rsa")
+        get() = File(sshKeysDir, "id_ed25519")
 
     /**
      * Checks if the ssh keys have already been generated
@@ -132,7 +141,15 @@ interface DirectoryProvider {
     /**
      * Generates a new RSA key pair for use with ssh
      */
-    suspend fun generateSSHKeys()
+    suspend fun generateSSHKeys(udid: String) {
+        try {
+            val (privateStr, publicStr) = SSHConfigurator.generateKeys(udid)
+            privateKey.writeText(privateStr)
+            publicKey.writeText(publicStr)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     /**
      * Moves an asset into the cache directory and returns a file reference to it
@@ -229,4 +246,12 @@ interface DirectoryProvider {
             }
         }
     }
+}
+
+fun PlatformFile.inputStream(): InputStream {
+    return source().buffered().asInputStream()
+}
+
+fun PlatformFile.outputStream(): OutputStream {
+    return sink().buffered().asOutputStream()
 }

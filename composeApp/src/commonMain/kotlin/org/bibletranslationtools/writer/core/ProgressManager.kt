@@ -119,7 +119,7 @@ class ProgressManager(scope: CoroutineScope) : ProgressOwner {
  * This extension is only available to classes that are BOTH a ComponentContext and a ProgressOwner.
  */
 fun <T> T.launchWithProgress(
-    message: String? = null,
+    message: String?,
     block: suspend (TaskHandle) -> Unit
 ): Job where T : ComponentScope, T : ProgressOwner {
     return coroutineScope.launch {

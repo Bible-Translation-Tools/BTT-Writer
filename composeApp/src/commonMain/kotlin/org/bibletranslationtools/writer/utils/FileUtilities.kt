@@ -1,5 +1,15 @@
 package org.bibletranslationtools.writer.utils
 
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.absolutePath
+import io.github.vinceglb.filekit.copyTo
+import io.github.vinceglb.filekit.createDirectories
+import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.exists
+import io.github.vinceglb.filekit.isDirectory
+import io.github.vinceglb.filekit.list
+import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.path
 import org.bibletranslationtools.logger.Logger
 import java.io.Closeable
 import java.io.File
@@ -15,9 +25,18 @@ import java.io.OutputStream
  * This class provides some utility methods for handling files
  */
 object FileUtilities {
+
+    /**
+     * Filter applied during recursive directory copy.
+     * Return `true` to include the file, `false` to skip it.
+     */
+    fun interface PlatformFileFilter {
+        suspend fun accept(file: PlatformFile): Boolean
+    }
+
     /**
      * Converts an input stream into a string
-     * @param `is`
+     * @param stream
      * @return
      * @throws Exception
      */
@@ -84,10 +103,6 @@ object FileUtilities {
     fun copy(input: InputStream, output: OutputStream): Int {
         val count = copyLarge(input, output)
         return if (count > 2147483647L) -1 else count.toInt()
-    }
-
-    fun getFilename(path: String): String {
-        return File(path).name
     }
 
     /**
@@ -262,82 +277,90 @@ object FileUtilities {
     }
 
     /**
-     * Copies directory uri to a new directory
+     * Recursively copies [srcDir] into [destDir], optionally applying [filter].
+     *
+     * - Throws if [srcDir] doesn't exist or isn't a directory.
+     * - Throws if source and destination are the same path.
+     * - When [destDir] is nested inside [srcDir], the entries that would be
+     *   created in [destDir] are excluded from the copy to prevent infinite recursion.
      */
-//    fun copyDirectory(context: Context, sourceDir: Uri, destDir: File) {
-//        when (sourceDir.scheme) {
-//            ContentResolver.SCHEME_CONTENT -> {
-//                val rootDocumentFile = DocumentFile.fromTreeUri(context, sourceDir)
-//                if (rootDocumentFile != null && rootDocumentFile.isDirectory) {
-//                    rootDocumentFile.listFiles().forEach { file ->
-//                        copyFile(context, file, destDir)
-//                    }
-//                }
-//            }
-//            ContentResolver.SCHEME_FILE -> {
-//                if (sourceDir.toFile().isDirectory) {
-//                    copyDirectory(File(sourceDir.path!!), destDir, null)
-//                }
-//            }
-//        }
-//    }
+    @Throws(IOException::class)
+    suspend fun copyDirectory(
+        srcDir: PlatformFile,
+        destDir: PlatformFile,
+        filter: PlatformFileFilter? = null
+    ) {
+        if (!srcDir.exists()) {
+            throw FileNotFoundException("Source '${srcDir.path}' does not exist")
+        }
+        if (!srcDir.isDirectory()) {
+            throw IOException("Source '${srcDir.path}' exists but is not a directory")
+        }
 
-    /**
-     * Copies directory uri that is equals to dirName to a new directory
-     * @param context App context
-     * @param sourceDir Directory uri
-     * @param destDir Destination directory
-     * @param dirName Filter to directory name
-     */
-//    fun copyDirectory(context: Context, sourceDir: Uri, destDir: File, dirName: String) {
-//        when (sourceDir.scheme) {
-//            ContentResolver.SCHEME_CONTENT -> {
-//                val rootDocumentFile = DocumentFile.fromTreeUri(context, sourceDir)
-//                if (rootDocumentFile != null && rootDocumentFile.isDirectory) {
-//                    rootDocumentFile.listFiles().forEach { file ->
-//                        if (file.name == dirName) {
-//                            file.listFiles().forEach { subFile ->
-//                                copyFile(context, subFile, destDir)
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            ContentResolver.SCHEME_FILE -> {
-//                val rootDir = sourceDir.toFile()
-//                if (rootDir.isDirectory) {
-//                    rootDir.listFiles()?.forEach { file ->
-//                        if (file.isDirectory && file.name == dirName) {
-//                            copyDirectory(file, destDir, null)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+        val srcPath = srcDir.absolutePath()
+        val destPath = destDir.absolutePath()
+        if (srcPath == destPath) {
+            throw IOException("Source '${srcDir.path}' and destination '${destDir.path}' are the same")
+        }
 
-//    fun copyFile(context: Context, file: DocumentFile, targetDir: File) {
-//        if (file.isDirectory) {
-//            // Create a corresponding directory in the cache
-//            val newDir = File(targetDir, file.name ?: "unnamed")
-//            if (!newDir.exists()) {
-//                newDir.mkdirs()
-//            }
-//
-//            // Recursively copy contents
-//            file.listFiles().forEach { subFile ->
-//                copyFile(context, subFile, newDir)
-//            }
-//        } else if (file.isFile) {
-//            // Copy the file to the target directory
-//            val targetFile = File(targetDir, file.name ?: "unnamed_file")
-//            context.contentResolver.openInputStream(file.uri)?.use { inputStream ->
-//                FileOutputStream(targetFile).use { outputStream ->
-//                    inputStream.copyTo(outputStream)
-//                }
-//            }
-//        }
-//    }
+        // If destination is nested inside source, build a list of paths inside the
+        // destination that we must NOT copy back into themselves.
+        val exclusionList = mutableListOf<String>()
+        if (destPath.startsWith(srcPath)) {
+            val srcFiles = listChildren(srcDir, filter)
+            srcFiles.forEach { srcFile ->
+                val copiedFile = destDir / srcFile.name
+                exclusionList.add(copiedFile.absolutePath())
+            }
+        }
+
+        doCopyDirectory(srcDir, destDir, filter, exclusionList)
+    }
+
+    @Throws(IOException::class)
+    private suspend fun doCopyDirectory(
+        srcDir: PlatformFile,
+        destDir: PlatformFile,
+        filter: PlatformFileFilter?,
+        exclusionList: List<String>
+    ) {
+        val srcFiles = try {
+            listChildren(srcDir, filter)
+        } catch (e: Exception) {
+            throw IOException("Failed to list contents of ${srcDir.path}", e)
+        }
+
+        if (destDir.exists()) {
+            if (!destDir.isDirectory()) {
+                throw IOException("Destination '${destDir.path}' exists but is not a directory")
+            }
+        } else {
+            try {
+                destDir.createDirectories()
+            } catch (e: Exception) {
+                throw IOException("Destination '${destDir.path}' directory cannot be created", e)
+            }
+        }
+
+        for (srcFile in srcFiles) {
+            val dstFile = destDir / srcFile.name
+            if (srcFile.absolutePath() in exclusionList) continue
+
+            if (srcFile.isDirectory()) {
+                doCopyDirectory(srcFile, dstFile, filter, exclusionList)
+            } else {
+                srcFile.copyTo(dstFile)
+            }
+        }
+    }
+
+    private suspend fun listChildren(
+        dir: PlatformFile,
+        filter: PlatformFileFilter?
+    ): List<PlatformFile> {
+        val all = dir.list()
+        return if (filter == null) all else all.filter { filter.accept(it) }
+    }
 
     /**
      * Copies a file or directory
@@ -419,44 +442,4 @@ object FileUtilities {
             throw IOException(message)
         }
     }
-
-//    fun getFileName(context: Context, uri: Uri): String {
-//        val defaultName = "unnamed.file"
-//
-//        return when (uri.scheme) {
-//            "content" -> {
-//                context.contentResolver.query(
-//                    uri,
-//                    null,
-//                    null,
-//                    null,
-//                    null
-//                ).use { returnCursor ->
-//                    return returnCursor?.getColumnIndex(OpenableColumns.DISPLAY_NAME)?.let { nameIndex ->
-//                        returnCursor.moveToFirst()
-//                        returnCursor.getString(nameIndex)
-//                    } ?: defaultName
-//                }
-//            }
-//            "file" -> uri.lastPathSegment ?: defaultName
-//            else -> defaultName
-//        }
-//    }
-
-//    fun getDirectoryName(context: Context, uri: Uri): String? {
-//        // For tree URIs, we need to convert it to a document URI to query it
-//        val documentUri = DocumentsContract.buildDocumentUriUsingTree(
-//            uri,
-//            DocumentsContract.getTreeDocumentId(uri)
-//        )
-//
-//        return context.contentResolver.query(documentUri, null, null, null, null)?.use { cursor ->
-//            val nameIndex = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-//            if (cursor.moveToFirst()) {
-//                cursor.getString(nameIndex)
-//            } else {
-//                null
-//            }
-//        }
-//    }
 }

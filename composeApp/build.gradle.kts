@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,16 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
-    alias(libs.plugins.sqldelight)
-}
-
-sqldelight {
-    databases {
-        create("Door43Database") {
-            packageName.set("org.unfoldingword.door43client.db")
-            dialect("app.cash.sqldelight:sqlite-3-38-dialect:2.2.1")
-        }
-    }
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -29,81 +19,92 @@ kotlin {
         androidResources { enable = true }
     }
 
-    jvm("desktop")
+    jvm()
 
     sourceSets {
-        val javaMain by creating {
-            dependsOn(commonMain.get())
-
+        androidMain {
             dependencies {
-                implementation(libs.jgit)
-                implementation(libs.jgit.ssh.jsch)
-                implementation(libs.jsch)
-            }
-        }
-
-        val desktopMain by getting {
-            dependsOn(javaMain)
-        }
-
-        val androidMain by getting {
-            dependsOn(javaMain)
-
-            dependencies {
-                // SQLDelight
-                implementation(libs.sqldelight.android)
-
                 // Koin
                 implementation(libs.koin.android)
             }
         }
 
-        commonMain.dependencies {
-            implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.material.icons.extended)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
-            implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.kotlinx.io)
-            implementation(libs.kotlinx.serialization.json)
+        commonMain {
+            dependencies {
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
+                implementation(libs.material.icons.extended)
+                implementation(libs.compose.ui)
+                implementation(libs.compose.components.resources)
+                implementation(libs.compose.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.kotlinx.io)
+                implementation(libs.kotlinx.serialization.json)
 
-            // Ktor
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
+                // JGit
+                implementation(libs.jgit)
+                implementation(libs.jgit.ssh.apache)
+                implementation(libs.bcprov.jdk18on)
+                // Provides the missing javax.management classes for Android
+                //implementation(libs.jmx)
 
-            // Koin
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
 
-            // Decompose
-            api(libs.decompose)
-            implementation(libs.decompose.extensions.compose)
+                // Koin
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
 
-            // SqlDelight
-            implementation(libs.sqldelight.runtime)
-            implementation(libs.sqldelight.coroutines)
+                // Decompose
+                api(libs.decompose)
+                implementation(libs.decompose.extensions.compose)
 
-            // Bible Translation Tools
-            implementation(libs.resource.container)
-            //implementation(libs.gogs.client)
-            implementation(libs.bible.logger)
+                // Bible Translation Tools
+                implementation(libs.resource.container)
+                implementation(libs.gogs.client)
+                implementation(libs.resource.catalog.client)
+                implementation(libs.bible.logger)
+
+                // PDF
+                implementation(libs.itextg)
+
+                // HTML
+                implementation(libs.html.converter)
+
+                // Settings
+                implementation(libs.multiplatform.settings)
+                implementation(libs.multiplatform.settings.coroutines)
+
+                implementation(libs.filekit.core)
+                implementation(libs.filekit.dialogs)
+                implementation(libs.filekit.dialogs.compose)
+            }
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.koin.test)
-        }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
 
-            // SQLDelight Desktop
-            implementation(libs.sqldelight.sqlite)
+        commonTest {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.koin.test)
+            }
         }
+
+        jvmMain {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutinesSwing)
+            }
+        }
+    }
+}
+
+configurations {
+    configureEach {
+        exclude(module = "sshd-core")
+        exclude(module = "sshd-common")
     }
 }
 

@@ -1,0 +1,130 @@
+package org.bibletranslationtools.writer.usecases
+
+import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
+import org.bibletranslationtools.resourcecatalog.library.models.Translation
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.BibleCodes
+import java.util.TreeMap
+
+class GetAvailableSources(
+    private val catalogClient: ResourceCatalogClient
+) {
+    data class Result(
+        val sources: List<Translation>,
+        val byLanguage: Map<String, List<Int>>,
+        val otBooks: Map<String, List<Int>>,
+        val ntBooks: Map<String, List<Int>>,
+        val otherBooks: Map<String, List<Int>>,
+    )
+
+    fun execute(onProgress: (Float, String?) -> Unit = {_,_->}): Result {
+        val ntBookList = BibleCodes.getNtBooks()
+        val otBookList = BibleCodes.getOtBooks()
+
+        onProgress(-1f, "")
+
+        val allSources = mutableListOf<Translation>()
+
+        val sources = catalogClient.library.findTranslations(
+            null,
+            null,
+            null,
+            "book",
+            null,
+            Platform.MIN_CHECKING_LEVEL,
+            -1
+        )
+
+        val tw = catalogClient.library.findTranslations(
+            null,
+            null,
+            null,
+            "dict",
+            null,
+            Platform.MIN_CHECKING_LEVEL,
+            -1
+        )
+
+        allSources.addAll(sources)
+        allSources.addAll(tw)
+
+        val byLanguage = TreeMap<String, ArrayList<Int>>()
+        val maxProgress = allSources.size
+
+        // initialize NT book list
+        val ntBooks = LinkedHashMap<String, ArrayList<Int>>()
+        for (book in ntBookList) {
+            val books = arrayListOf<Int>()
+            ntBooks[book] = books
+        }
+
+        // initialize OT book list
+        val otBooks = LinkedHashMap<String, ArrayList<Int>>()
+        for (book in otBookList) {
+            val books = arrayListOf<Int>()
+            otBooks[book] = books
+        }
+        val otherBooks = LinkedHashMap<String, ArrayList<Int>>()
+
+        for (i in 0 until maxProgress) {
+            val t: Translation = allSources[i]
+
+            if (i % 16 == 0) {
+                val progress = i / maxProgress.toFloat()
+                onProgress(progress, null)
+            }
+
+            val language = t.language.slug
+
+            //add to language
+            if (byLanguage.containsKey(language)) {
+                byLanguage[language]!!.add(i)
+            } else {
+                val translations = arrayListOf<Int>()
+                translations.add(i)
+                byLanguage[language] = translations
+            }
+
+            //add to book list
+            val book = t.project.slug
+
+            if (ntBooks.containsKey(book)) { // if NT book
+                ntBooks[book]!!.add(i)
+            } else if (otBooks.containsKey(book)) { // if OT book
+                otBooks[book]!!.add(i)
+            } else { // other
+                if ("ta-" != book.substring(0, 3)) {
+                    addToOtherBook(otherBooks, i, book)
+                }
+            }
+        }
+
+        return Result(
+            allSources,
+            byLanguage,
+            otBooks,
+            ntBooks,
+            otherBooks
+        )
+    }
+
+    /**
+     * add index to book list
+     * @param booksList
+     * @param index
+     * @param book
+     */
+    private fun addToOtherBook(
+        booksList: LinkedHashMap<String, ArrayList<Int>>,
+        index: Int,
+        book: String
+    ) {
+        if (booksList.containsKey(book)) { // if book already present, add source to it
+            booksList[book]!!.add(index)
+        } else {
+            val books = arrayListOf<Int>() // if book not present, create new book entry
+            books.add(index)
+            booksList[book] = books
+        }
+    }
+}

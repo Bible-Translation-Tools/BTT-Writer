@@ -1,0 +1,20 @@
+package org.bibletranslationtools.writer.utils
+
+val sortNumericallyComparator = Comparator<String> { o1, o2 ->
+    val lhInt = getIdOrder(o1)
+    val rhInt = getIdOrder(o2)
+    lhInt.compareTo(rhInt)
+}
+
+fun List<String>.sortNumerically() {
+    sortedWith(sortNumericallyComparator)
+}
+
+fun ArrayList<String>.sortNumerically() {
+    sortWith(sortNumericallyComparator)
+}
+
+private fun getIdOrder(id: String): Int {
+    // if not numeric, then will move to top of list and leave order unchanged
+    return Util.strToInt(id, -1)
+}

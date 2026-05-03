@@ -1,0 +1,61 @@
+package org.bibletranslationtools.writer.usecases
+
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.data.Preference
+
+class MergeTargetTranslation(
+    private val translator: Translator,
+    private val backupRC: BackupRC,
+    private val preference: Preference
+) {
+    data class Result(
+        val success: Boolean,
+        val status: Status,
+        val destinationTranslation: TargetTranslation,
+        val sourceTranslation: TargetTranslation
+    )
+
+    enum class Status {
+        SUCCESS,
+        MERGE_CONFLICTS,
+        MERGE_ERROR
+    }
+
+    suspend fun execute(
+        destinationTranslation: TargetTranslation,
+        sourceTranslation: TargetTranslation,
+        deleteSource: Boolean
+    ): Result {
+        var success = false
+        var status: Status
+
+        try {
+            val mergeConflict = !destinationTranslation.merge(sourceTranslation.path) {
+                // Try to back up and delete corrupt project
+                try {
+                    backupRC.backupTargetTranslation(sourceTranslation.path)
+                    translator.deleteTargetTranslation(sourceTranslation.path)
+                } catch (ex: java.lang.Exception) {
+                    ex.printStackTrace()
+                }
+            }
+            success = true
+            status = Status.SUCCESS
+            if (mergeConflict) {
+                status = Status.MERGE_CONFLICTS
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            status = Status.MERGE_ERROR
+        }
+
+        if (deleteSource && success) {
+            // delete original
+            translator.deleteTargetTranslation(sourceTranslation.id)
+            preference.clearTargetTranslationSettings(sourceTranslation.id)
+        }
+
+        return Result(success, status, destinationTranslation, sourceTranslation)
+    }
+}
