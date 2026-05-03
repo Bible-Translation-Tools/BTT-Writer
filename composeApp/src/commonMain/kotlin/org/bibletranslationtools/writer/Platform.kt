@@ -82,4 +82,6 @@ interface Platform {
 }
 
 expect fun getGithubReporter(repoUrl: String, oAuthToken: String): GithubReporter
-expect fun textClipEntry(text: String): ClipEntry
+expect fun textClipEntry(text: String, label: String? = null): ClipEntry
+expect fun ClipEntry.textOrNull(): String?
+expect val ClipEntry.label: String?

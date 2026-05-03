@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,19 +34,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.menu_upload_export
+import btt_writer.composeapp.generated.resources.need_translator_notice
+import btt_writer.composeapp.generated.resources.publish_translation
+import btt_writer.composeapp.generated.resources.title_book
+import btt_writer.composeapp.generated.resources.translators
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.door43.translationstudio.R
+import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.PrimaryDarkBlue
 import org.bibletranslationtools.writer.ui.components.CardsSkeletonList
 import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
 import org.bibletranslationtools.writer.ui.dialogs.export.ExportDialog
 import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackDialog
-import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 private enum class PublishSection {
@@ -122,21 +128,21 @@ fun PublishScreen(
                             .padding(horizontal = 8.dp)
 
                         PublishButton(
-                            text = stringResource(id = R.string.title_book),
+                            text = stringResource(Res.string.title_book),
                             selected = publishSection == PublishSection.VALIDATION,
                             modifier = buttonModifier,
                             onClick = { publishSection = PublishSection.VALIDATION }
                         )
 
                         PublishButton(
-                            text = stringResource(id = R.string.translators),
+                            text = stringResource(Res.string.translators),
                             selected = publishSection == PublishSection.TRANSLATORS,
                             modifier = buttonModifier,
                             onClick = { publishSection = PublishSection.TRANSLATORS }
                         )
 
                         PublishButton(
-                            text = stringResource(id = R.string.menu_upload_export),
+                            text = stringResource(Res.string.menu_upload_export),
                             selected = false,
                             modifier = buttonModifier,
                             onClick = component::showExportDialog

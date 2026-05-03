@@ -50,8 +50,8 @@ import btt_writer.composeapp.generated.resources.warning_title
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.translationstudio.ui.translate.components.SourceHeaderRow
-import com.door43.translationstudio.ui.translate.components.SourceItemRow
+import org.bibletranslationtools.writer.ui.translate.components.SourceHeaderRow
+import org.bibletranslationtools.writer.ui.translate.components.SourceItemRow
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)

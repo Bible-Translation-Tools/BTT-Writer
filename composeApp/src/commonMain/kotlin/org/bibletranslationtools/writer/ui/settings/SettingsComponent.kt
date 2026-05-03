@@ -1,29 +1,42 @@
-package com.door43.translationstudio.ui.settings
+package org.bibletranslationtools.writer.ui.settings
 
-import android.net.Uri
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.checking_for_updates
+import btt_writer.composeapp.generated.resources.content_server_account_create_urls_array
+import btt_writer.composeapp.generated.resources.content_server_git_server_api_values_array
+import btt_writer.composeapp.generated.resources.content_server_git_server_port_values_array
+import btt_writer.composeapp.generated.resources.content_server_index_sqlite_url_array
+import btt_writer.composeapp.generated.resources.content_server_lang_names_url_array
+import btt_writer.composeapp.generated.resources.content_server_media_server_values_array
+import btt_writer.composeapp.generated.resources.content_server_names_array
+import btt_writer.composeapp.generated.resources.content_server_reader_server_values_array
+import btt_writer.composeapp.generated.resources.content_server_values_array
+import btt_writer.composeapp.generated.resources.log_out
+import btt_writer.composeapp.generated.resources.migrating_translations
+import btt_writer.composeapp.generated.resources.pref_backup_interval_titles
+import btt_writer.composeapp.generated.resources.pref_backup_interval_values
+import btt_writer.composeapp.generated.resources.pref_color_theme_titles
+import btt_writer.composeapp.generated.resources.pref_color_theme_values
+import btt_writer.composeapp.generated.resources.pref_default_backup_interval
+import btt_writer.composeapp.generated.resources.pref_default_color_theme
+import btt_writer.composeapp.generated.resources.pref_default_create_account_url
+import btt_writer.composeapp.generated.resources.pref_default_git_server_port
+import btt_writer.composeapp.generated.resources.pref_default_gogs_api
+import btt_writer.composeapp.generated.resources.pref_default_index_sqlite_url
+import btt_writer.composeapp.generated.resources.pref_default_language_url
+import btt_writer.composeapp.generated.resources.pref_default_logging_level
+import btt_writer.composeapp.generated.resources.pref_default_media_server
+import btt_writer.composeapp.generated.resources.pref_default_reader_server
+import btt_writer.composeapp.generated.resources.pref_default_tm_url
+import btt_writer.composeapp.generated.resources.pref_default_translation_typeface
+import btt_writer.composeapp.generated.resources.pref_default_typeface_size
+import btt_writer.composeapp.generated.resources.pref_logging_level_titles
+import btt_writer.composeapp.generated.resources.pref_logging_level_values
+import btt_writer.composeapp.generated.resources.pref_typeface_size_titles
+import btt_writer.composeapp.generated.resources.pref_typeface_size_values
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.data.AssetsProvider
-import com.door43.data.IDirectoryProvider
-import com.door43.data.IPreferenceRepository
-import com.door43.data.getDefaultPref
-import com.door43.data.setDefaultPref
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.BackupController
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.Profile
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.ResourceProvider
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.usecases.CheckForLatestRelease
-import com.door43.usecases.DownloadLatestRelease
-import com.door43.usecases.GogsLogout
-import com.door43.usecases.MigrateTranslations
-import com.door43.util.TTFAnalyzer
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,17 +48,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.bibletranslationtools.logger.Logger
-import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.data.setPref
+import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
+import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
+import org.bibletranslationtools.writer.usecases.GogsLogout
+import org.bibletranslationtools.writer.usecases.MigrateTranslations
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.getStringArray
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.IOException
-
-data class TypefaceOption(
-    val displayName: String,
-    val fileName: String
-)
 
 interface SettingsComponent {
 
@@ -55,7 +80,7 @@ interface SettingsComponent {
 
     val appVersion: String
 
-    fun migrateOldAppData(uri: Uri)
+    fun migrateOldAppData(dir: PlatformFile)
     fun checkForLatestRelease()
     fun setCheckHardwareEnabled(enabled: Boolean)
     fun setTmLinksEnabled(enabled: Boolean)
@@ -92,7 +117,7 @@ interface SettingsComponent {
 
         // Font Data
         val isFontsLoading: Boolean = true,
-        val availableFonts: List<TypefaceOption> = emptyList(),
+        val availableFonts: List<String> = emptyList(),
         val fontSizeNames: List<String> = emptyList(),
         val fontSizeValues: List<String> = emptyList(),
         val currentTranslationTypefaceValue: String = "",
@@ -155,15 +180,13 @@ class DefaultSettingsComponent(
 
     private val checkForLatestRelease: CheckForLatestRelease by inject()
     private val downloadLatestRelease: DownloadLatestRelease by inject()
-    private val catalogClient: ResourceCatalogClient by inject()
     private val profile: Profile by inject()
     private val logout: GogsLogout by inject()
     private val migrateTranslations: MigrateTranslations by inject()
-    private val preference: IPreferenceRepository by inject()
-    private val directoryProvider: IDirectoryProvider by inject()
-    private val assetsProvider: AssetsProvider by inject()
-    private val resourceProvider: ResourceProvider by inject()
-    private val backupController: BackupController by inject()
+    private val preference: Preference by inject()
+    private val directoryProvider: DirectoryProvider by inject()
+    private val typography: Typography by inject()
+    //private val backupController: BackupController by inject()
     private val platform: Platform by inject()
 
 
@@ -196,36 +219,36 @@ class DefaultSettingsComponent(
 
     private fun loadInitialPreferences() {
         launchWithProgress {
-            val themeNames = resourceProvider.getStringArray(R.array.pref_color_theme_titles)
-            val themeValues = resourceProvider.getStringArray(R.array.pref_color_theme_values)
-            val themeValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_COLOR_THEME,
-                resourceProvider.getString(Res.string.pref_default_color_theme)
+            val themeNames = getStringArray(Res.array.pref_color_theme_titles)
+            val themeValues = getStringArray(Res.array.pref_color_theme_values)
+            val themeValue = preference.getPref(
+                Preference.KEY_PREF_COLOR_THEME,
+                getString(Res.string.pref_default_color_theme)
             )
             val themeIndex = themeValues.indexOf(themeValue).takeIf { it >= 0 } ?: 1
             val themeName = themeNames.getOrNull(themeIndex) ?: themeValue
 
             // Fonts
 
-            val targetFontValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_TRANSLATION_TYPEFACE,
-                resourceProvider.getString(Res.string.pref_default_translation_typeface)
+            val targetFontValue = preference.getPref(
+                Preference.KEY_PREF_TRANSLATION_TYPEFACE,
+                getString(Res.string.pref_default_translation_typeface)
             )
-            val sourceFontValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_SOURCE_TYPEFACE,
-                resourceProvider.getString(Res.string.pref_default_translation_typeface)
+            val sourceFontValue = preference.getPref(
+                Preference.KEY_PREF_SOURCE_TYPEFACE,
+                getString(Res.string.pref_default_translation_typeface)
             )
 
-            val sizeNames = resourceProvider.getStringArray(R.array.pref_typeface_size_titles)
-            val sizeValues = resourceProvider.getStringArray(R.array.pref_typeface_size_values)
+            val sizeNames = getStringArray(Res.array.pref_typeface_size_titles)
+            val sizeValues = getStringArray(Res.array.pref_typeface_size_values)
 
-            val translationSizeValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_TRANSLATION_TYPEFACE_SIZE,
-                resourceProvider.getString(Res.string.pref_default_typeface_size)
+            val translationSizeValue = preference.getPref(
+                Preference.KEY_PREF_TRANSLATION_TYPEFACE_SIZE,
+                getString(Res.string.pref_default_typeface_size)
             )
-            val sourceSizeValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_SOURCE_TYPEFACE_SIZE,
-                resourceProvider.getString(Res.string.pref_default_typeface_size)
+            val sourceSizeValue = preference.getPref(
+                Preference.KEY_PREF_SOURCE_TYPEFACE_SIZE,
+                getString(Res.string.pref_default_typeface_size)
             )
 
             val translationSizeIndex = sizeValues.indexOf(translationSizeValue).takeIf { it >= 0 } ?: 1
@@ -235,73 +258,73 @@ class DefaultSettingsComponent(
 
             // Server
 
-            val serverNames = resourceProvider.getStringArray(R.array.content_server_names_array)
-            val serverValues = resourceProvider.getStringArray(R.array.content_server_values_array)
+            val serverNames = getStringArray(Res.array.content_server_names_array)
+            val serverValues = getStringArray(Res.array.content_server_values_array)
 
-            val savedServerValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_CONTENT_SERVER,
+            val savedServerValue = preference.getPref(
+                Preference.KEY_PREF_CONTENT_SERVER,
                 serverValues.firstOrNull() ?: "wacs_value"
             )
             val savedIndex = serverValues.indexOf(savedServerValue).takeIf { it >= 0 } ?: 0
             val savedServerName = serverNames.getOrNull(savedIndex) ?: ""
-            val gitPort = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_GIT_SERVER_PORT,
-                resourceProvider.getString(Res.string.pref_default_git_server_port)
+            val gitPort = preference.getPref(
+                Preference.KEY_PREF_GIT_SERVER_PORT,
+                getString(Res.string.pref_default_git_server_port)
             )
-            val gogsApiUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_GOGS_API,
-                resourceProvider.getString(Res.string.pref_default_gogs_api)
+            val gogsApiUrl = preference.getPref(
+                Preference.KEY_PREF_GOGS_API,
+                getString(Res.string.pref_default_gogs_api)
             )
-            val mediaServerUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_MEDIA_SERVER,
-                resourceProvider.getString(Res.string.pref_default_media_server)
+            val mediaServerUrl = preference.getPref(
+                Preference.KEY_PREF_MEDIA_SERVER,
+                getString(Res.string.pref_default_media_server)
             )
-            val readerServerUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_READER_SERVER,
-                resourceProvider.getString(Res.string.pref_default_reader_server)
+            val readerServerUrl = preference.getPref(
+                Preference.KEY_PREF_READER_SERVER,
+                getString(Res.string.pref_default_reader_server)
             )
-            val accountCreationUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_CREATE_ACCOUNT_URL,
-                resourceProvider.getString(Res.string.pref_default_create_account_url)
+            val accountCreationUrl = preference.getPref(
+                Preference.KEY_PREF_CREATE_ACCOUNT_URL,
+                getString(Res.string.pref_default_create_account_url)
             )
-            val languagesUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_LANGUAGES_URL,
-                resourceProvider.getString(Res.string.pref_default_language_url)
+            val languagesUrl = preference.getPref(
+                Preference.KEY_PREF_LANGUAGES_URL,
+                getString(Res.string.pref_default_language_url)
             )
-            val indexSqliteUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_INDEX_SQLITE_URL,
-                resourceProvider.getString(Res.string.pref_default_index_sqlite_url)
+            val indexSqliteUrl = preference.getPref(
+                Preference.KEY_PREF_INDEX_SQLITE_URL,
+                getString(Res.string.pref_default_index_sqlite_url)
             )
-            val tmLinksUrl = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_TM_URL,
-                resourceProvider.getString(Res.string.pref_default_tm_url)
+            val tmLinksUrl = preference.getPref(
+                Preference.KEY_PREF_TM_URL,
+                getString(Res.string.pref_default_tm_url)
             )
 
             // Advanced
 
-            val checkHardwareEnabled = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_CHECK_HARDWARE,
+            val checkHardwareEnabled = preference.getPref(
+                Preference.KEY_PREF_CHECK_HARDWARE,
                 true
             )
-            val tmLinksEnabled = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_ENABLE_TM_LINKS,
+            val tmLinksEnabled = preference.getPref(
+                Preference.KEY_PREF_ENABLE_TM_LINKS,
                 false
             )
 
-            val intervalNames = resourceProvider.getStringArray(R.array.pref_backup_interval_titles)
-            val intervalValues = resourceProvider.getStringArray(R.array.pref_backup_interval_values)
-            val savedIntervalValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_BACKUP_INTERVAL,
-                resourceProvider.getString(Res.string.pref_default_backup_interval)
+            val intervalNames = getStringArray(Res.array.pref_backup_interval_titles)
+            val intervalValues = getStringArray(Res.array.pref_backup_interval_values)
+            val savedIntervalValue = preference.getPref(
+                Preference.KEY_PREF_BACKUP_INTERVAL,
+                getString(Res.string.pref_default_backup_interval)
             )
             val intervalIndex = intervalValues.indexOf(savedIntervalValue).takeIf { it >= 0 } ?: 1
             val savedIntervalName = intervalNames.getOrNull(intervalIndex) ?: savedIntervalValue
 
-            val loggingNames = resourceProvider.getStringArray(R.array.pref_logging_level_titles)
-            val loggingValues = resourceProvider.getStringArray(R.array.pref_logging_level_values)
-            val savedLoggingValue = preference.getDefaultPref(
-                IPreferenceRepository.KEY_PREF_LOGGING_LEVEL,
-                resourceProvider.getString(Res.string.pref_default_logging_level)
+            val loggingNames = getStringArray(Res.array.pref_logging_level_titles)
+            val loggingValues = getStringArray(Res.array.pref_logging_level_values)
+            val savedLoggingValue = preference.getPref(
+                Preference.KEY_PREF_LOGGING_LEVEL,
+                getString(Res.string.pref_default_logging_level)
             )
             val loggingIndex = loggingValues.indexOf(savedLoggingValue).takeIf { it >= 0 } ?: 2
             val savedLoggingName = loggingNames.getOrNull(loggingIndex) ?: savedLoggingValue
@@ -349,34 +372,15 @@ class DefaultSettingsComponent(
 
     private fun loadTypefaces() {
         launchWithProgress {
-            val loadedFonts = mutableListOf<TypefaceOption>()
-
-            try {
-                val fileList = assetsProvider.list("fonts")?.asList()?.sortedBy { it.lowercase() }
-
-                fileList?.forEach { fileName ->
-                    val typefaceFile = directoryProvider.getAssetAsFile("fonts/$fileName")
-                    if (typefaceFile != null) {
-                        val analyzer = TTFAnalyzer()
-                        var fontName = analyzer.getTtfFontName(typefaceFile.absolutePath)
-
-                        if (fontName == null) {
-                            fontName = typefaceFile.name.substringBeforeLast(".")
-                        }
-                        loadedFonts.add(TypefaceOption(displayName = fontName, fileName = fileName))
-                    }
-                }
-            } catch (e: IOException) {
-                Logger.e(this.javaClass.name, "failed to load font assets", e)
-            }
+            val loadedFonts = typography.getFontNames().sorted()
 
             _state.update { state ->
                 val translationFontName = loadedFonts.find {
-                    it.fileName == state.currentTranslationTypefaceValue
-                }?.displayName ?: "Default"
+                    it == state.currentTranslationTypefaceValue
+                } ?: "Default"
                 val sourceFontName = loadedFonts.find {
-                    it.fileName == state.currentSourceTypefaceValue
-                }?.displayName ?: "Default"
+                    it == state.currentSourceTypefaceValue
+                } ?: "Default"
 
                 state.copy(
                     isFontsLoading = false,
@@ -389,7 +393,7 @@ class DefaultSettingsComponent(
     }
 
     override fun updateColorTheme(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_COLOR_THEME, newValue)
+        preference.setPref(Preference.KEY_PREF_COLOR_THEME, newValue)
 
         val index = _state.value.themeValues.indexOf(newValue)
         val newName = _state.value.themeNames.getOrNull(index) ?: newValue
@@ -405,11 +409,11 @@ class DefaultSettingsComponent(
     }
 
     override fun updateTranslationTypeface(newFileName: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_TRANSLATION_TYPEFACE, newFileName)
+        preference.setPref(Preference.KEY_PREF_TRANSLATION_TYPEFACE, newFileName)
 
         val newName = _state.value.availableFonts.find {
-            it.fileName == newFileName
-        }?.displayName ?: "Default"
+            it == newFileName
+        } ?: "Default"
 
         _state.update {
             it.copy(
@@ -420,7 +424,7 @@ class DefaultSettingsComponent(
     }
 
     override fun updateTranslationFontSize(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_TRANSLATION_TYPEFACE_SIZE, newValue)
+        preference.setPref(Preference.KEY_PREF_TRANSLATION_TYPEFACE_SIZE, newValue)
 
         val index = _state.value.fontSizeValues.indexOf(newValue)
         val newName = _state.value.fontSizeNames.getOrNull(index) ?: newValue
@@ -434,7 +438,7 @@ class DefaultSettingsComponent(
     }
 
     override fun updateSourceFontSize(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_SOURCE_TYPEFACE_SIZE, newValue)
+        preference.setPref(Preference.KEY_PREF_SOURCE_TYPEFACE_SIZE, newValue)
 
         val index = _state.value.fontSizeValues.indexOf(newValue)
         val newName = _state.value.fontSizeNames.getOrNull(index) ?: newValue
@@ -448,11 +452,9 @@ class DefaultSettingsComponent(
     }
 
     override fun updateSourceTypeface(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_SOURCE_TYPEFACE, newValue)
+        preference.setPref(Preference.KEY_PREF_SOURCE_TYPEFACE, newValue)
 
-        val newName = _state.value.availableFonts.find {
-            it.fileName == newValue
-        }?.displayName ?: "Default"
+        val newName = _state.value.availableFonts.find { it == newValue } ?: "Default"
 
         _state.update {
             it.copy(
@@ -463,9 +465,7 @@ class DefaultSettingsComponent(
     }
 
     override fun checkForLatestRelease() {
-        launchWithProgress(
-            resourceProvider.getString(Res.string.checking_for_updates)
-        ) {
+        launchWithProgress(Res.string.checking_for_updates) {
             val result = withContext(Dispatchers.IO) {
                 checkForLatestRelease.execute()
             }
@@ -479,12 +479,10 @@ class DefaultSettingsComponent(
         _state.update { it.copy(releaseResult = null) }
     }
 
-    override fun migrateOldAppData(uri: Uri) {
-        launchWithProgress(
-            resourceProvider.getString(Res.string.migrating_translations)
-        ) { handle ->
+    override fun migrateOldAppData(dir: PlatformFile) {
+        launchWithProgress(Res.string.migrating_translations) { handle ->
             withContext(Dispatchers.IO) {
-                migrateTranslations.execute(uri) { progress, message ->
+                migrateTranslations.execute(dir) { progress, message ->
                     handle.update(progress, message)
                 }
             }
@@ -495,57 +493,57 @@ class DefaultSettingsComponent(
     }
 
     override fun updateGitServerPort(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_GIT_SERVER_PORT, newValue)
+        preference.setPref(Preference.KEY_PREF_GIT_SERVER_PORT, newValue)
         _state.update { it.copy(gitServerPort = newValue) }
     }
 
     override fun updateGogsApiUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_GOGS_API, newValue)
+        preference.setPref(Preference.KEY_PREF_GOGS_API, newValue)
         _state.update { it.copy(currentGogsApiUrl = newValue) }
     }
 
     override fun updateMediaServerUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_MEDIA_SERVER, newValue)
+        preference.setPref(Preference.KEY_PREF_MEDIA_SERVER, newValue)
         _state.update { it.copy(mediaServerUrl = newValue) }
     }
 
     override fun updateReaderServerUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_READER_SERVER, newValue)
+        preference.setPref(Preference.KEY_PREF_READER_SERVER, newValue)
         _state.update { it.copy(readerServerUrl = newValue) }
     }
 
     override fun updateAccountCreationUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_CREATE_ACCOUNT_URL, newValue)
+        preference.setPref(Preference.KEY_PREF_CREATE_ACCOUNT_URL, newValue)
         _state.update { it.copy(accountCreationUrl = newValue) }
     }
 
     override fun updateLanguageUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_LANGUAGES_URL, newValue)
+        preference.setPref(Preference.KEY_PREF_LANGUAGES_URL, newValue)
         _state.update { it.copy(languagesUrl = newValue) }
     }
 
     override fun updateIndexSqliteUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_INDEX_SQLITE_URL, newValue)
+        preference.setPref(Preference.KEY_PREF_INDEX_SQLITE_URL, newValue)
         _state.update { it.copy(indexSqliteUrl = newValue) }
     }
 
     override fun updateTmLinksUrl(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_TM_URL, newValue)
+        preference.setPref(Preference.KEY_PREF_TM_URL, newValue)
         _state.update { it.copy(tmLinksUrl = newValue) }
     }
 
     override fun setCheckHardwareEnabled(enabled: Boolean) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_CHECK_HARDWARE, enabled)
+        preference.setPref(Preference.KEY_PREF_CHECK_HARDWARE, enabled)
         _state.update { it.copy(checkHardwareEnabled = enabled) }
     }
 
     override fun setTmLinksEnabled(enabled: Boolean) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_ENABLE_TM_LINKS, enabled)
+        preference.setPref(Preference.KEY_PREF_ENABLE_TM_LINKS, enabled)
         _state.update { it.copy(tmLinksEnabled = enabled) }
     }
 
     override fun updateBackupInterval(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_BACKUP_INTERVAL, newValue)
+        preference.setPref(Preference.KEY_PREF_BACKUP_INTERVAL, newValue)
 
         val index = _state.value.backupIntervalValues.indexOf(newValue)
         val newName = _state.value.backupIntervalNames.getOrNull(index) ?: newValue
@@ -557,11 +555,11 @@ class DefaultSettingsComponent(
             )
         }
 
-        backupController.restartServiceIfRunning()
+        //backupController.restartServiceIfRunning()
     }
 
     override fun updateLoggingLevel(newValue: String) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_LOGGING_LEVEL, newValue)
+        preference.setPref(Preference.KEY_PREF_LOGGING_LEVEL, newValue)
 
         val index = _state.value.loggingLevelValues.indexOf(newValue)
         val newName = _state.value.loggingLevelNames.getOrNull(index) ?: newValue
@@ -581,43 +579,45 @@ class DefaultSettingsComponent(
     }
 
     override fun onContentServerChanged(newValue: String) {
-        val serverValues = resourceProvider.getStringArray(R.array.content_server_values_array)
-        val serverNames = resourceProvider.getStringArray(R.array.content_server_names_array)
-        val gitPorts = resourceProvider.getStringArray(R.array.content_server_git_server_port_values_array)
-        val gitApiUrls = resourceProvider.getStringArray(R.array.content_server_git_server_api_values_array)
-        val mediaUrls = resourceProvider.getStringArray(R.array.content_server_media_server_values_array)
-        val readerUrls = resourceProvider.getStringArray(R.array.content_server_reader_server_values_array)
-        val createAccountUrls = resourceProvider.getStringArray(R.array.content_server_account_create_urls_array)
-        val langNameUrls = resourceProvider.getStringArray(R.array.content_server_lang_names_url_array)
-        val indexSqliteUrls = resourceProvider.getStringArray(R.array.content_server_index_sqlite_url_array)
+        coroutineScope.launch {
+            val serverValues = getStringArray(Res.array.content_server_values_array)
+            val serverNames = getStringArray(Res.array.content_server_names_array)
+            val gitPorts = getStringArray(Res.array.content_server_git_server_port_values_array)
+            val gitApiUrls = getStringArray(Res.array.content_server_git_server_api_values_array)
+            val mediaUrls = getStringArray(Res.array.content_server_media_server_values_array)
+            val readerUrls = getStringArray(Res.array.content_server_reader_server_values_array)
+            val createAccountUrls = getStringArray(Res.array.content_server_account_create_urls_array)
+            val langNameUrls = getStringArray(Res.array.content_server_lang_names_url_array)
+            val indexSqliteUrls = getStringArray(Res.array.content_server_index_sqlite_url_array)
 
-        val index = serverValues.indexOf(newValue)
-        if (index == -1) return
+            val index = serverValues.indexOf(newValue)
+            if (index == -1) return@launch
 
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_CONTENT_SERVER, newValue)
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_GIT_SERVER_PORT, gitPorts[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_GOGS_API, gitApiUrls[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_MEDIA_SERVER, mediaUrls[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_READER_SERVER, readerUrls[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_CREATE_ACCOUNT_URL, createAccountUrls[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_LANGUAGES_URL, langNameUrls[index])
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_INDEX_SQLITE_URL, indexSqliteUrls[index])
+            preference.setPref(Preference.KEY_PREF_CONTENT_SERVER, newValue)
+            preference.setPref(Preference.KEY_PREF_GIT_SERVER_PORT, gitPorts[index])
+            preference.setPref(Preference.KEY_PREF_GOGS_API, gitApiUrls[index])
+            preference.setPref(Preference.KEY_PREF_MEDIA_SERVER, mediaUrls[index])
+            preference.setPref(Preference.KEY_PREF_READER_SERVER, readerUrls[index])
+            preference.setPref(Preference.KEY_PREF_CREATE_ACCOUNT_URL, createAccountUrls[index])
+            preference.setPref(Preference.KEY_PREF_LANGUAGES_URL, langNameUrls[index])
+            preference.setPref(Preference.KEY_PREF_INDEX_SQLITE_URL, indexSqliteUrls[index])
 
-        _state.update { state ->
-            state.copy(
-                currentContentServerValue = newValue,
-                currentContentServerName = serverNames[index],
-                gitServerPort = gitPorts[index],
-                mediaServerUrl = mediaUrls[index],
-                currentGogsApiUrl = gitApiUrls[index],
-                readerServerUrl = readerUrls[index],
-                accountCreationUrl = createAccountUrls[index],
-                languagesUrl = langNameUrls[index],
-                indexSqliteUrl = indexSqliteUrls[index]
-            )
+            _state.update { state ->
+                state.copy(
+                    currentContentServerValue = newValue,
+                    currentContentServerName = serverNames[index],
+                    gitServerPort = gitPorts[index],
+                    mediaServerUrl = mediaUrls[index],
+                    currentGogsApiUrl = gitApiUrls[index],
+                    readerServerUrl = readerUrls[index],
+                    accountCreationUrl = createAccountUrls[index],
+                    languagesUrl = langNameUrls[index],
+                    indexSqliteUrl = indexSqliteUrls[index]
+                )
+            }
+
+            logout()
         }
-
-        logout()
     }
 
     override fun onNavigateBack() {
@@ -638,9 +638,7 @@ class DefaultSettingsComponent(
 
     private fun logout() {
         if (profile.gogsUser != null) {
-            launchWithProgress(
-                resourceProvider.getString(Res.string.log_out)
-            ) {
+            launchWithProgress(Res.string.log_out) {
                 withContext(Dispatchers.IO) {
                     logout.execute()
                     profile.logout()

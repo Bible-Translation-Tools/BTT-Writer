@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -18,9 +18,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
-import com.door43.translationstudio.ui.translate.chunk.ChunkSourceCard
+import org.bibletranslationtools.writer.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.ui.translate.chunk.ChunkSourceCard
 
 @Composable
 fun ReviewCard(

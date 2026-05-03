@@ -1,8 +1,5 @@
-package com.door43.translationstudio.ui.settings
+package org.bibletranslationtools.writer.ui.settings
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -25,14 +22,62 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.door43.translationstudio.R
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.apk_update_available
+import btt_writer.composeapp.generated.resources.check_for_app_updates
+import btt_writer.composeapp.generated.resources.check_for_updates
+import btt_writer.composeapp.generated.resources.content_server
+import btt_writer.composeapp.generated.resources.download_latest_apk
+import btt_writer.composeapp.generated.resources.have_latest_app_update
+import btt_writer.composeapp.generated.resources.label_ok
+import btt_writer.composeapp.generated.resources.license_pdf
+import btt_writer.composeapp.generated.resources.loading
+import btt_writer.composeapp.generated.resources.menu_settings
+import btt_writer.composeapp.generated.resources.migrating_complete
+import btt_writer.composeapp.generated.resources.pref_description_check_hardware_requirements
+import btt_writer.composeapp.generated.resources.pref_description_enable_tm_links
+import btt_writer.composeapp.generated.resources.pref_description_migrate_old_app
+import btt_writer.composeapp.generated.resources.pref_header_advanced
+import btt_writer.composeapp.generated.resources.pref_header_general
+import btt_writer.composeapp.generated.resources.pref_header_legal
+import btt_writer.composeapp.generated.resources.pref_header_synchronization
+import btt_writer.composeapp.generated.resources.pref_title_check_hardware_requirements
+import btt_writer.composeapp.generated.resources.pref_title_color_theme
+import btt_writer.composeapp.generated.resources.pref_title_create_account_url
+import btt_writer.composeapp.generated.resources.pref_title_developer_tools
+import btt_writer.composeapp.generated.resources.pref_title_enable_tm_links
+import btt_writer.composeapp.generated.resources.pref_title_git_server_port
+import btt_writer.composeapp.generated.resources.pref_title_gogs_api
+import btt_writer.composeapp.generated.resources.pref_title_index_sqlite_url
+import btt_writer.composeapp.generated.resources.pref_title_language_url
+import btt_writer.composeapp.generated.resources.pref_title_license_agreement
+import btt_writer.composeapp.generated.resources.pref_title_logging_level
+import btt_writer.composeapp.generated.resources.pref_title_media_server
+import btt_writer.composeapp.generated.resources.pref_title_migrate_old_app
+import btt_writer.composeapp.generated.resources.pref_title_reader_server
+import btt_writer.composeapp.generated.resources.pref_title_software_licenses
+import btt_writer.composeapp.generated.resources.pref_title_source_typeface
+import btt_writer.composeapp.generated.resources.pref_title_source_typeface_size
+import btt_writer.composeapp.generated.resources.pref_title_statement_of_faith
+import btt_writer.composeapp.generated.resources.pref_title_tm_url
+import btt_writer.composeapp.generated.resources.pref_title_translation_guidelines
+import btt_writer.composeapp.generated.resources.pref_title_translation_typeface
+import btt_writer.composeapp.generated.resources.pref_title_typeface_size
+import btt_writer.composeapp.generated.resources.software_licenses
+import btt_writer.composeapp.generated.resources.statement_of_faith
+import btt_writer.composeapp.generated.resources.translation_guidlines
+import btt_writer.composeapp.generated.resources.version
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.LegalDocumentDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,12 +106,13 @@ fun SettingsScreen(
     var showBackupIntervalDialog by rememberSaveable { mutableStateOf(false) }
     var showLoggingLevelDialog by rememberSaveable { mutableStateOf(false) }
 
-    var openLegalDocumentId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var openLegalDocumentId by rememberSaveable { mutableStateOf<StringResource?>(null) }
 
-    val openDirectoryLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocumentTree()
-    ) { uri: Uri? ->
-        uri?.let { component.migrateOldAppData(it) }
+    val openDirectoryLauncher = rememberDirectoryPickerLauncher(
+        directory = PlatformFile("Downloads"),
+        dialogSettings = FileKitDialogSettings.createDefault()
+    ) { directory: PlatformFile? ->
+        directory?.let(component::migrateOldAppData)
     }
 
     LaunchedEffect(component) {
@@ -269,7 +315,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.pref_title_license_agreement),
-                    onClick = { openLegalDocumentId = R.string.license_pdf }
+                    onClick = { openLegalDocumentId = Res.string.license_pdf }
                 )
             }
 
@@ -278,7 +324,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.pref_title_statement_of_faith),
-                    onClick = { openLegalDocumentId = R.string.statement_of_faith }
+                    onClick = { openLegalDocumentId = Res.string.statement_of_faith }
                 )
             }
 
@@ -287,7 +333,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.pref_title_translation_guidelines),
-                    onClick = { openLegalDocumentId = R.string.translation_guidlines }
+                    onClick = { openLegalDocumentId = Res.string.translation_guidlines }
                 )
             }
 
@@ -296,7 +342,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.pref_title_software_licenses),
-                    onClick = { openLegalDocumentId = R.string.software_licenses }
+                    onClick = { openLegalDocumentId = Res.string.software_licenses }
                 )
             }
 
@@ -307,7 +353,7 @@ fun SettingsScreen(
                 ClickablePreference(
                     title = stringResource(Res.string.pref_title_migrate_old_app),
                     summary = stringResource(Res.string.pref_description_migrate_old_app),
-                    onClick = { openDirectoryLauncher.launch(null) }
+                    onClick = { openDirectoryLauncher.launch() }
                 )
             }
 
@@ -427,8 +473,8 @@ fun SettingsScreen(
         } else {
             ListPreferenceDialog(
                 title = stringResource(Res.string.pref_title_translation_typeface),
-                entries = state.availableFonts.map { it.displayName },
-                entryValues = state.availableFonts.map { it.fileName },
+                entries = state.availableFonts.map { it },
+                entryValues = state.availableFonts.map { it },
                 selectedValue = state.currentTranslationTypefaceValue,
                 onValueSelected = { newFileName ->
                     component.updateTranslationTypeface(newFileName)
@@ -463,8 +509,8 @@ fun SettingsScreen(
         } else {
             ListPreferenceDialog(
                 title = stringResource(Res.string.pref_title_source_typeface),
-                entries = state.availableFonts.map { it.displayName },
-                entryValues = state.availableFonts.map { it.fileName },
+                entries = state.availableFonts.map { it },
+                entryValues = state.availableFonts.map { it },
                 selectedValue = state.currentSourceTypefaceValue,
                 onValueSelected = { newFileName ->
                     component.updateSourceTypeface(newFileName)

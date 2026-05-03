@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.components
+package org.bibletranslationtools.writer.ui.translate.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing

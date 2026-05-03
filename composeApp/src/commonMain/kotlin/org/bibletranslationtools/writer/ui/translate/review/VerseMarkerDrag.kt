@@ -1,7 +1,7 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.ui.translate.components.footnote.NOTE_CHAR
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
 import java.util.regex.Pattern
 
 object VerseMarkerDrag {

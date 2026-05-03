@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.settings
+package org.bibletranslationtools.writer.ui.settings
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,9 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.menu_cancel
+import btt_writer.composeapp.generated.resources.menu_save
+import org.jetbrains.compose.resources.stringResource
 
 
 @Composable

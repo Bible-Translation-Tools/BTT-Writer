@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.chunk
+package org.bibletranslationtools.writer.ui.translate.chunk
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -6,11 +6,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.core.TargetTranslation
-import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
-import com.door43.translationstudio.ui.translate.ChunkItem
-import com.door43.translationstudio.ui.translate.components.StackedCardFlipper
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
+import org.bibletranslationtools.writer.ui.translate.ChunkItem
+import org.bibletranslationtools.writer.ui.translate.components.StackedCardFlipper
 
 @Composable
 fun ChunkCard(

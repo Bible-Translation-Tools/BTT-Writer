@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,15 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.description
+import btt_writer.composeapp.generated.resources.dismiss
+import btt_writer.composeapp.generated.resources.index
 import org.bibletranslationtools.resourcecontainer.Language
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun WordsCard(

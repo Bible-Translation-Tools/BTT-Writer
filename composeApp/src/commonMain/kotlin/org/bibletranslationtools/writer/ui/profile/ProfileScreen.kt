@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,10 +23,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.action_settings
+import btt_writer.composeapp.generated.resources.create_account_title
+import btt_writer.composeapp.generated.resources.create_offline_profile
+import btt_writer.composeapp.generated.resources.login_doo43
+import btt_writer.composeapp.generated.resources.register_door43
+import btt_writer.composeapp.generated.resources.requires_internet
+import btt_writer.composeapp.generated.resources.still_possible_to_register_door43
+import btt_writer.composeapp.generated.resources.title_cancel
 import org.bibletranslationtools.writer.ui.components.HomeSidebar
 import org.bibletranslationtools.writer.ui.components.SidebarAction
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

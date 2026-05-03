@@ -44,8 +44,8 @@ import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.translationstudio.ui.newtranslation.LanguagesList
-import com.door43.translationstudio.ui.newtranslation.ProjectList
+import org.bibletranslationtools.writer.ui.newtranslation.LanguagesList
+import org.bibletranslationtools.writer.ui.newtranslation.ProjectList
 import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.writer.ui.components.SearchBar

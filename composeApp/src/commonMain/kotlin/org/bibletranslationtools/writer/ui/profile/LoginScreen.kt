@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,14 +30,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.error
+import btt_writer.composeapp.generated.resources.label_continue
+import btt_writer.composeapp.generated.resources.label_ok
+import btt_writer.composeapp.generated.resources.password
+import btt_writer.composeapp.generated.resources.server_account
+import btt_writer.composeapp.generated.resources.title_cancel
+import btt_writer.composeapp.generated.resources.username
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -51,7 +60,7 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var errorMessageId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var errorMessageId by rememberSaveable { mutableStateOf<StringResource?>(null) }
 
     LaunchedEffect(component) {
         component.event.collect { event ->

@@ -1,14 +1,14 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.ui.translate.chunk.ChunkModeSection
-import com.door43.translationstudio.ui.translate.read.ReadModeSection
-import com.door43.translationstudio.ui.translate.review.ReviewModeSection
+import org.bibletranslationtools.writer.ui.translate.chunk.ChunkModeSection
+import org.bibletranslationtools.writer.ui.translate.read.ReadModeSection
+import org.bibletranslationtools.writer.ui.translate.review.ReviewModeSection
 import org.koin.compose.koinInject
+import org.bibletranslationtools.writer.core.Typography
 
 @Composable
 fun TranslateRouter(

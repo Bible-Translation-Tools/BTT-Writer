@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.chunk
+package org.bibletranslationtools.writer.ui.translate.chunk
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,17 +21,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
-import com.door43.translationstudio.ui.translate.ChunkItem
-import com.door43.translationstudio.ui.translate.components.UsfmEditText
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.conflict_exists
+import org.bibletranslationtools.writer.ui.translate.components.UsfmEditText
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.translate.ChunkItem
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
 
 
 @Composable

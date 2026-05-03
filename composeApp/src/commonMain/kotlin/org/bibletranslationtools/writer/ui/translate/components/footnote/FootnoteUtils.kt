@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.components.footnote
+package org.bibletranslationtools.writer.ui.translate.components.footnote
 
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer

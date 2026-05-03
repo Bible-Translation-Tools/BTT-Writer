@@ -1,23 +1,11 @@
-package com.door43.translationstudio.ui.splash
+package org.bibletranslationtools.writer.ui.splash
 
-import android.app.Application
-import android.net.Uri
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.migrating_translations
+import btt_writer.composeapp.generated.resources.updating_app
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.data.IPreferenceRepository
-import com.door43.data.getDefaultPref
-import com.door43.data.setDefaultPref
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.usecases.MigrateTranslations
-import com.door43.usecases.UpdateApp
-import com.door43.util.RuntimeWrapper
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,6 +19,19 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.data.setPref
+import org.bibletranslationtools.writer.usecases.MigrateTranslations
+import org.bibletranslationtools.writer.usecases.UpdateApp
+import org.bibletranslationtools.writer.utils.RuntimeWrapper
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -43,7 +44,7 @@ interface SplashComponent {
     fun onHardwareWarningDismissedAndSaved()
     fun onMigrationAccepted()
     fun onMigrationDeclined()
-    fun performMigrate(uri: Uri?)
+    fun performMigrate(dir: PlatformFile?)
 
     sealed interface Result {
         data object NavigateToProfile : Result
@@ -69,8 +70,7 @@ class DefaultSplashComponent(
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-    private val application: Application by inject()
-    private val preference: IPreferenceRepository by inject()
+    private val preference: Preference by inject()
     private val migrateTranslations: MigrateTranslations by inject()
     private val updateApp: UpdateApp by inject()
 
@@ -116,9 +116,9 @@ class DefaultSplashComponent(
         startAppLogic()
     }
 
-    override fun performMigrate(uri: Uri?) {
-        if (uri != null) {
-            migrateOldAppdataFolder(uri)
+    override fun performMigrate(dir: PlatformFile?) {
+        if (dir != null) {
+            migrateOldAppdataFolder(dir)
         } else {
             setMigrationShown(false)
             _state.update { it.copy(showMigrationDialog = true) }
@@ -142,10 +142,7 @@ class DefaultSplashComponent(
     }
 
     private fun checkHardware(): Boolean {
-        return preference.getDefaultPref(
-            IPreferenceRepository.KEY_PREF_CHECK_HARDWARE,
-            true
-        )
+        return preference.getPref(Preference.KEY_PREF_CHECK_HARDWARE, true)
     }
 
     private fun checkMigration() {
@@ -158,18 +155,18 @@ class DefaultSplashComponent(
     }
 
     private fun checkMigrationShown(): Boolean {
-        return preference.getDefaultPref(
-            IPreferenceRepository.KEY_PREF_MIGRATE_OLD_APP,
+        return preference.getPref(
+            Preference.KEY_PREF_MIGRATE_OLD_APP,
             false
         )
     }
 
     private fun setMigrationShown(shown: Boolean) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_MIGRATE_OLD_APP, shown)
+        preference.setPref(Preference.KEY_PREF_MIGRATE_OLD_APP, shown)
     }
 
     private fun saveHardwareCheck(check: Boolean) {
-        preference.setDefaultPref(IPreferenceRepository.KEY_PREF_CHECK_HARDWARE, check)
+        preference.setPref(Preference.KEY_PREF_CHECK_HARDWARE, check)
     }
 
     private fun startAppLogic() {
@@ -182,9 +179,7 @@ class DefaultSplashComponent(
     }
 
     private fun updateApp() {
-        launchWithProgress(
-            application.getString(Res.string.updating_app)
-        ) { handle ->
+        launchWithProgress(Res.string.updating_app) { handle ->
             withContext(Dispatchers.IO) {
                 updateApp.execute { progress, message ->
                     handle.update(progress, message)
@@ -202,10 +197,8 @@ class DefaultSplashComponent(
         startAppLogic()
     }
 
-    private fun migrateOldAppdataFolder(appDataFolder: Uri) {
-        launchWithProgress(
-            application.getString(Res.string.migrating_translations)
-        ) { handle ->
+    private fun migrateOldAppdataFolder(appDataFolder: PlatformFile) {
+        launchWithProgress(Res.string.migrating_translations) { handle ->
             withContext(Dispatchers.IO) {
                 migrateTranslations.execute(appDataFolder) { progress, message ->
                     handle.update(progress, message)

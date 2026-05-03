@@ -1,18 +1,11 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
-import android.app.Application
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.double_check_credentials
+import btt_writer.composeapp.generated.resources.internet_not_available
+import btt_writer.composeapp.generated.resources.logging_in
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.Profile
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.usecases.GogsLogin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,6 +15,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.withContext
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.usecases.GogsLogin
+import org.jetbrains.compose.resources.StringResource
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -35,7 +38,7 @@ interface LoginOnlineComponent {
     fun onCancel()
 
     sealed interface Event {
-        data class ShowError(val errorResId: Int) : Event
+        data class ShowError(val errorResId: StringResource) : Event
     }
 
     sealed interface Result {
@@ -51,7 +54,6 @@ class DefaultLoginOnlineComponent(
     ComponentContext by componentContext,
     ComponentScope, ProgressOwner, KoinComponent {
 
-    private val application: Application by inject()
     private val profile: Profile by inject()
     private val gogsLogin: GogsLogin by inject()
     private val platform: Platform by inject()
@@ -78,7 +80,7 @@ class DefaultLoginOnlineComponent(
     }
 
     override fun onLogin(username: String, password: String) {
-        launchWithProgress(application.getString(Res.string.logging_in)) {
+        launchWithProgress(Res.string.logging_in) {
             val loginResult = withContext(Dispatchers.IO) {
                 gogsLogin.execute(
                     username.trim(),
@@ -95,9 +97,9 @@ class DefaultLoginOnlineComponent(
                 onResult(LoginOnlineComponent.Result.LoggedIn)
             } else {
                 val errorRes = if (platform.isNetworkAvailable) {
-                    R.string.double_check_credentials
+                    Res.string.double_check_credentials
                 } else {
-                    R.string.internet_not_available
+                    Res.string.internet_not_available
                 }
                 _event.trySend(LoginOnlineComponent.Event.ShowError(errorRes))
             }

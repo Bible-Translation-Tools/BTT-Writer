@@ -1,43 +1,25 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
-import android.app.Application
 import androidx.compose.ui.text.AnnotatedString
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.consecutive_verse_markers
+import btt_writer.composeapp.generated.resources.duplicate_verse_marker
+import btt_writer.composeapp.generated.resources.failed_to_commit_chunk
+import btt_writer.composeapp.generated.resources.loading
+import btt_writer.composeapp.generated.resources.long_click_to_drag
+import btt_writer.composeapp.generated.resources.outoforder_verse_markers
+import btt_writer.composeapp.generated.resources.outofrange_verse_marker
+import btt_writer.composeapp.generated.resources.pref_default_tm_url
+import btt_writer.composeapp.generated.resources.tm_title
+import btt_writer.composeapp.generated.resources.translate_first
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.data.IPreferenceRepository
-import com.door43.data.getDefaultPref
-import com.door43.data.setDefaultPref
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.Chunk
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.ContainerCache
-import com.door43.translationstudio.core.FileHistory
-import com.door43.translationstudio.core.Frame
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.core.TranslationViewMode
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.translationstudio.rendering.RenderingProvider
-import com.door43.translationstudio.rendering.VerseDisplay
-import com.door43.translationstudio.rendering.model.LinkData
-import com.door43.translationstudio.rendering.model.RenderNode
-import com.door43.translationstudio.rendering.spannables.ArticleLinkSpan
-import com.door43.translationstudio.rendering.spannables.PassageLinkSpan
-import com.door43.translationstudio.rendering.spannables.TranslationWordLinkSpan
-import com.door43.translationstudio.rendering.spannables.USFMNoteSpan
-import com.door43.translationstudio.rendering.spannables.USFMVerseSpan
-import com.door43.translationstudio.ui.textadapters.ComposeTextAdapter
-import com.door43.translationstudio.ui.translate.Footnote
-import com.door43.translationstudio.ui.translate.FootnoteAction
-import com.door43.translationstudio.ui.translate.ModeComponent
-import com.door43.translationstudio.ui.translate.ReviewItem
-import com.door43.translationstudio.ui.translate.TranslateComponent
-import com.door43.translationstudio.ui.translate.TranslateComponent.Companion.SEARCH_SOURCE
-import com.door43.translationstudio.ui.translate.TranslationHelp
-import com.door43.usecases.RenderHelps
+import org.bibletranslationtools.writer.ui.translate.Footnote
+import org.bibletranslationtools.writer.ui.translate.FootnoteAction
+import org.bibletranslationtools.writer.ui.translate.ModeComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent.Companion.SEARCH_SOURCE
+import org.bibletranslationtools.writer.ui.translate.TranslationHelp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -58,7 +40,37 @@ import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.Chunk
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.ContainerCache
+import org.bibletranslationtools.writer.core.FileHistory
+import org.bibletranslationtools.writer.core.Frame
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.data.setPref
+import org.bibletranslationtools.writer.rendering.RenderingProvider
+import org.bibletranslationtools.writer.rendering.VerseDisplay
+import org.bibletranslationtools.writer.rendering.model.LinkData
+import org.bibletranslationtools.writer.rendering.model.RenderNode
+import org.bibletranslationtools.writer.rendering.spannables.ArticleLinkSpan
+import org.bibletranslationtools.writer.rendering.spannables.PassageLinkSpan
+import org.bibletranslationtools.writer.rendering.spannables.TranslationWordLinkSpan
+import org.bibletranslationtools.writer.rendering.spannables.USFMNoteSpan
+import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
+import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
+import org.bibletranslationtools.writer.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.usecases.RenderHelps
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Locale
@@ -74,8 +86,7 @@ class DefaultReviewModeComponent(
     KoinComponent, ComponentScope,
     ProgressOwner, ModeComponent<ReviewItem> {
 
-    private val application: Application by inject()
-    private val preference: IPreferenceRepository by inject()
+    private val preference: Preference by inject()
     private val renderHelps: RenderHelps by inject()
     private val renderingProvider: RenderingProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
@@ -274,7 +285,7 @@ class DefaultReviewModeComponent(
             return
         }
 
-        launchWithProgress(application.getString(Res.string.loading)) {
+        launchWithProgress(Res.string.loading) {
             val marked = withContext(Dispatchers.IO) {
                 var marked = 0
                 for (item in items.value) {
@@ -578,7 +589,9 @@ class DefaultReviewModeComponent(
                 FootnoteAction.ACTIONS
             } else FootnoteAction.VIEW,
             onVerseClick = {
-                showSnackBar(application.getString(Res.string.long_click_to_drag))
+                coroutineScope.launch {
+                    showSnackBar(getString(Res.string.long_click_to_drag))
+                }
             }
         )
     }
@@ -624,14 +637,14 @@ class DefaultReviewModeComponent(
         val defaultSource = SearchSubject.SOURCE.name.uppercase(
             Locale.getDefault()
         )
-        return preference.getDefaultPref(
+        return preference.getPref(
             SEARCH_SOURCE,
             defaultSource
         )
     }
 
     fun setLastSearchSource(subject: SearchSubject) {
-        preference.setDefaultPref(
+        preference.setPref(
             SEARCH_SOURCE,
             subject.name.uppercase(Locale.getDefault())
         )
@@ -681,8 +694,8 @@ class DefaultReviewModeComponent(
         contents: String,
         twRc: ResourceContainer? = null
     ): AnnotatedString {
-        val enableTmLinks = preference.getDefaultPref(
-            IPreferenceRepository.KEY_PREF_ENABLE_TM_LINKS,
+        val enableTmLinks = preference.getPref(
+            Preference.KEY_PREF_ENABLE_TM_LINKS,
             false
         )
 
@@ -695,8 +708,8 @@ class DefaultReviewModeComponent(
             var result = false
             when (span) {
                 is ArticleLinkSpan -> {
-                    val title = application.getString(
-                        R.string.tm_title,
+                    val title = getStringBlocking(
+                        Res.string.tm_title,
                         span.section,
                         span.slug
                     )
@@ -756,10 +769,9 @@ class DefaultReviewModeComponent(
                         }
                     }
                     is LinkData.Article -> {
-                        val baseUrl = preference.getDefaultPref(
-                            IPreferenceRepository.KEY_PREF_TM_URL,
-                            application.getString(Res.string.pref_default_tm_url),
-                            String::class.javaObjectType
+                        val baseUrl = preference.getPref(
+                            Preference.KEY_PREF_TM_URL,
+                            getStringBlocking(Res.string.pref_default_tm_url)
                         )
                         val span = link.toSpan()
                         val url = "$baseUrl?section=${span.section}#${span.slug}"
@@ -848,10 +860,10 @@ class DefaultReviewModeComponent(
         updateItem(updated)
     }
 
-    private fun markChunkCompleted(item: ReviewItem) {
+    private suspend fun markChunkCompleted(item: ReviewItem) {
         // Check for empty translation.
         if (item.targetText.isEmpty()) {
-            throw IllegalStateException(application.getString(Res.string.translate_first))
+            throw IllegalStateException(getString(Res.string.translate_first))
         }
 
         var lowVerse = -1
@@ -876,12 +888,12 @@ class DefaultReviewModeComponent(
         }
         if (matcher.find()) {
             throw IllegalStateException(
-                application.getString(Res.string.consecutive_verse_markers)
+                getString(Res.string.consecutive_verse_markers)
             )
         }
 
         // check for invalid verse markers
-        var error = 0
+        var error: StringResource? = null
         matcher = if (item.chunk.targetTranslationFormat == TranslationFormat.USFM) {
             USFM_VERSE_MARKER.matcher(item.targetText)
         } else {
@@ -904,13 +916,13 @@ class DefaultReviewModeComponent(
                     } catch (_: Exception) {}
                 }
                 if (verse !in min..max) {
-                    error = R.string.outofrange_verse_marker
+                    error = Res.string.outofrange_verse_marker
                     break
                 }
             }
         }
-        if (error > 0) {
-            throw IllegalStateException(application.getString(error))
+        if (error != null) {
+            throw IllegalStateException(getString(error))
         }
 
         // Check for out-of-order verse markers.
@@ -930,27 +942,27 @@ class DefaultReviewModeComponent(
             }
             if (currentVerse <= lastVerseSeen) {
                 error = if (currentVerse == lastVerseSeen) {
-                    R.string.duplicate_verse_marker
+                    Res.string.duplicate_verse_marker
                 } else {
-                    R.string.outoforder_verse_markers
+                    Res.string.outoforder_verse_markers
                 }
                 break
             } else if (currentVerse !in lowVerse..highVerse) {
-                error = R.string.outofrange_verse_marker
+                error = Res.string.outofrange_verse_marker
                 break
             } else {
                 lastVerseSeen = currentVerse
             }
         }
-        if (error > 0) {
-            throw IllegalStateException(application.getString(error))
+        if (error != null) {
+            throw IllegalStateException(getString(error))
         }
 
         // Everything looks good so far.
         val success = item.chunk.close()
 
         if (!success) {
-            throw IllegalStateException(application.getString(Res.string.failed_to_commit_chunk))
+            throw IllegalStateException(getString(Res.string.failed_to_commit_chunk))
         }
     }
 

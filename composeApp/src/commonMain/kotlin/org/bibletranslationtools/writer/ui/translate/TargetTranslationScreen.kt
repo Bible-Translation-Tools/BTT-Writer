@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -18,18 +18,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.draft_translation_exists
+import btt_writer.composeapp.generated.resources.preview
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import kotlinx.coroutines.launch
 import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
 import org.bibletranslationtools.writer.ui.components.rememberTranslateMenuItems
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.bibletranslationtools.writer.ui.dialogs.export.ExportDialog
 import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackDialog
 import org.bibletranslationtools.writer.ui.dialogs.source.SourceSelectionDialog
-import com.door43.translationstudio.ui.translate.components.NoSourceScreen
-import com.door43.translationstudio.ui.translate.components.TranslateSidebar
-import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.ui.translate.components.NoSourceScreen
+import org.bibletranslationtools.writer.ui.translate.components.TranslateSidebar
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TargetTranslationScreen(

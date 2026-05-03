@@ -63,16 +63,16 @@ import btt_writer.composeapp.generated.resources.upload_failed
 import btt_writer.composeapp.generated.resources.use_internet_confirmation
 import btt_writer.composeapp.generated.resources.view_online
 import btt_writer.composeapp.generated.resources.yes
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.LoginOnlineDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
 import org.bibletranslationtools.writer.ui.dialogs.PrintDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
-import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
-import org.bibletranslationtools.writer.core.Profile
-import org.bibletranslationtools.writer.core.Translator
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -102,7 +102,7 @@ fun ExportDialog(
     var profileUser by remember { mutableStateOf(profile.currentUser) }
 
     val pdfPickerLauncher = rememberFileSaverLauncher(
-        dialogSettings = FileKitDialogSettings()
+        dialogSettings = FileKitDialogSettings.createDefault()
     ) { file ->
         file?.let {
             component.printPdf(
@@ -115,13 +115,13 @@ fun ExportDialog(
     }
 
     val usfmPickerLauncher = rememberFileSaverLauncher(
-        dialogSettings = FileKitDialogSettings()
+        dialogSettings = FileKitDialogSettings.createDefault()
     ) { file ->
         file?.let(component::exportUsfm)
     }
 
     val projectPickerLauncher = rememberFileSaverLauncher(
-        dialogSettings = FileKitDialogSettings()
+        dialogSettings = FileKitDialogSettings.createDefault()
     ) { file ->
         file?.let(component::exportProject)
     }

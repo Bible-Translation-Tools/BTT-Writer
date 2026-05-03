@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.settings
+package org.bibletranslationtools.writer.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

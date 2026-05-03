@@ -1,14 +1,15 @@
-package com.door43.translationstudio.ui.translate.read
+package org.bibletranslationtools.writer.ui.translate.read
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.translationstudio.ui.translate.ModeScreenTemplate
-import com.door43.translationstudio.ui.translate.ScrollCoordinator
-import com.door43.translationstudio.ui.translate.TranslateComponent
-import com.door43.translationstudio.ui.translate.ScrollBindingEffect
+import org.bibletranslationtools.writer.ui.translate.ModeScreenTemplate
+import org.bibletranslationtools.writer.ui.translate.ScrollBindingEffect
+import org.bibletranslationtools.writer.ui.translate.ScrollCoordinator
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
 
 @Composable
 fun ReadModeSection(

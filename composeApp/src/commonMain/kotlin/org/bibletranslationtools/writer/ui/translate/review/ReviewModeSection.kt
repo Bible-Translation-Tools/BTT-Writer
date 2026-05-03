@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -18,20 +18,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.door43.translationstudio.R
+import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.chunk_checklist_body
+import btt_writer.composeapp.generated.resources.chunk_checklist_title
+import btt_writer.composeapp.generated.resources.dismiss
+import btt_writer.composeapp.generated.resources.mark_chunks_done_result
+import btt_writer.composeapp.generated.resources.project_checklist_body
+import btt_writer.composeapp.generated.resources.project_checklist_title
+import btt_writer.composeapp.generated.resources.result
+import org.bibletranslationtools.resourcecontainer.Language
+import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.translationstudio.ui.translate.ModeScreenTemplate
-import com.door43.translationstudio.ui.translate.ScrollBindingEffect
-import com.door43.translationstudio.ui.translate.ScrollCoordinator
-import com.door43.translationstudio.ui.translate.TranslateComponent
-import org.bibletranslationtools.resourcecontainer.Language
+import org.bibletranslationtools.writer.ui.translate.ModeScreenTemplate
+import org.bibletranslationtools.writer.ui.translate.ScrollBindingEffect
+import org.bibletranslationtools.writer.ui.translate.ScrollCoordinator
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ReviewModeSection(
@@ -125,7 +132,7 @@ fun ReviewModeSection(
                     if (state.chunkToDone != null) {
                         ConfirmDialog(
                             title = stringResource(Res.string.chunk_checklist_title),
-                            message = AnnotatedString.fromHtml(
+                            message = htmlToAnnotatedString(
                                 stringResource(Res.string.chunk_checklist_body)
                             ),
                             onDismiss = { component.onDoneConfirmed(false) },
@@ -138,7 +145,7 @@ fun ReviewModeSection(
                         is MarkAllDialogState.Confirm -> {
                             ConfirmDialog(
                                 title = stringResource(Res.string.project_checklist_title),
-                                message = AnnotatedString.fromHtml(
+                                message = htmlToAnnotatedString(
                                     stringResource(Res.string.project_checklist_body)
                                 ),
                                 onDismiss = {
@@ -155,9 +162,9 @@ fun ReviewModeSection(
                                     component.onMarkAllDoneConfirmed(false)
                                 },
                                 title = stringResource(Res.string.result),
-                                message = AnnotatedString.fromHtml(
+                                message = htmlToAnnotatedString(
                                     stringResource(
-                                        id = R.string.mark_chunks_done_result,
+                                        Res.string.mark_chunks_done_result,
                                         dialogState.marked,
                                         dialogState.total
                                     )

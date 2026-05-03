@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.newtranslation
+package org.bibletranslationtools.writer.ui.newtranslation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
@@ -22,12 +22,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.no
+import btt_writer.composeapp.generated.resources.search_hint
+import btt_writer.composeapp.generated.resources.title_activity_new_target_translation
+import btt_writer.composeapp.generated.resources.warn_existing_target_translation_label
+import btt_writer.composeapp.generated.resources.yes
 import org.bibletranslationtools.writer.ui.components.SearchBar
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

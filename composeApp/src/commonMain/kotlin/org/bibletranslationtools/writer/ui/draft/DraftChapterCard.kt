@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.draft
+package org.bibletranslationtools.writer.ui.draft
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,12 +24,12 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
-import com.door43.translationstudio.ui.textadapters.ComposeTextAdapter
 import org.bibletranslationtools.resourcecatalog.library.models.SourceLanguage
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
 
 @Composable
 fun DraftChapterCard(

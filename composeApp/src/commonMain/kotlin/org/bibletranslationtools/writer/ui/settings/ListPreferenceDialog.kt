@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.settings
+package org.bibletranslationtools.writer.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

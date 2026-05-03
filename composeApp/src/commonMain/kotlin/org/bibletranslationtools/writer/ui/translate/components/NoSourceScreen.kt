@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.components
+package org.bibletranslationtools.writer.ui.translate.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,11 +23,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.choose_first_source_translation
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun NoSourceScreen(

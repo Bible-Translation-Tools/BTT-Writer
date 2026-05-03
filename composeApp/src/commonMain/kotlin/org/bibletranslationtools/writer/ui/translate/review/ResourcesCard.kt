@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Box
@@ -21,17 +21,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
-import com.door43.translationstudio.ui.translate.TranslationHelp
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.label_translation_notes
+import btt_writer.composeapp.generated.resources.questions
+import btt_writer.composeapp.generated.resources.translation_words
+import org.bibletranslationtools.writer.ui.translate.TranslationHelp
 import org.bibletranslationtools.resourcecontainer.Language
 import org.bibletranslationtools.resourcecontainer.Link
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
 
 data class HelpTab(val tag: String, val title: String)
 

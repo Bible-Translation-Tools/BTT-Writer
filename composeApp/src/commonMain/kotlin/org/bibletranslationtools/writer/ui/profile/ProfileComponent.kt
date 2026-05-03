@@ -1,6 +1,5 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
-import android.app.Application
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -9,19 +8,15 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
-import com.door43.data.IPreferenceRepository
-import com.door43.data.getDefaultPref
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.Profile
 import kotlinx.serialization.Serializable
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.data.Preference
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 interface ProfileComponent {
 
     val stack: Value<ChildStack<*, Child>>
-
-    val registerUrl: String
 
     sealed interface Result {
         data object Back : Result
@@ -59,16 +54,10 @@ class DefaultProfileComponent(
 ) : ProfileComponent,
     ComponentContext by componentContext, KoinComponent {
 
-    private val application: Application by inject()
     private val profile: Profile by inject()
-    private val preference: IPreferenceRepository by inject()
+    private val preference: Preference by inject()
 
     private val navigation = StackNavigation<ProfileComponent.Config>()
-
-    override val registerUrl: String = preference.getDefaultPref(
-        IPreferenceRepository.KEY_PREF_CREATE_ACCOUNT_URL,
-        application.getString(Res.string.pref_default_create_account_url)
-    )
 
     override val stack: Value<ChildStack<*, ProfileComponent.Child>> = childStack(
         source = navigation,

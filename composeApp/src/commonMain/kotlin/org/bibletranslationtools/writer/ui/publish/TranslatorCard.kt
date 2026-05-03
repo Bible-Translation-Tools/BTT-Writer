@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.door43.translationstudio.core.NativeSpeaker
+import org.bibletranslationtools.writer.core.NativeSpeaker
 
 @Composable
 fun TranslatorCard(

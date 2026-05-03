@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.chunk
+package org.bibletranslationtools.writer.ui.translate.chunk
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,13 +23,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.getComposeTextStyle
-import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
-import com.door43.translationstudio.ui.translate.components.SourceTabRow
-import com.door43.translationstudio.ui.translate.components.withSearchHighlight
+import org.bibletranslationtools.writer.ui.translate.components.withSearchHighlight
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
+import org.bibletranslationtools.writer.ui.translate.components.SourceTabRow
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
 
 @Composable
 fun ChunkSourceCard(

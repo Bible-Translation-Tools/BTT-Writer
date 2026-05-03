@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,15 +24,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Validation
-import com.door43.translationstudio.getComposeTextStyle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.review
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.core.Validation
 import org.bibletranslationtools.writer.ui.AccentGreenLight
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ValidationCard(

@@ -1,24 +1,13 @@
-package com.door43.translationstudio.ui.newtranslation
+package org.bibletranslationtools.writer.ui.newtranslation
 
-import android.app.Application
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.error
+import btt_writer.composeapp.generated.resources.failed_to_create_target_translation
+import btt_writer.composeapp.generated.resources.loading
+import btt_writer.composeapp.generated.resources.target_translation_not_found
+import btt_writer.composeapp.generated.resources.warn_existing_target_translation
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.data.IPreferenceRepository
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.MergeConflictsHandler
-import com.door43.translationstudio.core.Profile
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.ResourceType
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.core.Translator
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.usecases.MergeTargetTranslation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,11 +15,28 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.resourcecontainer.Project
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.MergeConflictsHandler
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.ResourceType
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.usecases.MergeTargetTranslation
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Locale
@@ -92,9 +98,8 @@ class DefaultNewTranslationComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope, ProgressOwner {
 
-    private val application: Application by inject()
     private val mergeTargetTranslation: MergeTargetTranslation by inject()
-    private val preference: IPreferenceRepository by inject()
+    private val preference: Preference by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val translator: Translator by inject()
     private val profile: Profile by inject()
@@ -144,14 +149,12 @@ class DefaultNewTranslationComponent(
             return
         }
 
-        launchWithProgress(
-            application.getString(Res.string.loading)
-        ) {
+        launchWithProgress(Res.string.loading) {
             withContext(Dispatchers.IO) {
                 val sourceTranslation = translator.getTargetTranslation(translationId)
                 if (sourceTranslation == null) {
                     withContext(Dispatchers.Main) {
-                        val error = application.getString(Res.string.target_translation_not_found, translationId)
+                        val error = getString(Res.string.target_translation_not_found, translationId)
                         onResult(NewTranslationComponent.Result.Error(error))
                     }
                     return@withContext
@@ -172,20 +175,20 @@ class DefaultNewTranslationComponent(
                     )
                 )
 
-                if (existingTranslation != null) {
-                    val message = application.getString(
-                        R.string.warn_existing_target_translation,
-                        getProject(existingTranslation)?.name,
-                        existingTranslation.targetLanguageName
+                existingTranslation?.let { translation ->
+                    val message = getString(
+                        Res.string.warn_existing_target_translation,
+                        getProject(translation)?.name ?: "unknown",
+                        translation.targetLanguageName
                     )
                     _state.update {
                         it.copy(mergeConflict = MergeConflict(
                             sourceTranslation = sourceTranslation,
-                            destinationTranslation = existingTranslation,
+                            destinationTranslation = translation,
                             message = message
                         ))
                     }
-                } else {
+                } ?: run {
                     val originalId = sourceTranslation.id
                     sourceTranslation.changeTargetLanguage(targetLanguage)
                     sourceTranslation.normalizePath()
@@ -200,29 +203,31 @@ class DefaultNewTranslationComponent(
     }
 
     override fun onProjectSelected(projectId: String) {
-        val resourceSlug = if (projectId == "obs") "obs" else "reg"
-        val existingTranslation = selectedTargetLanguage?.let { selected ->
-            getTargetTranslation(
-                TargetTranslation.generateTargetTranslationId(
-                    selected.slug, projectId, ResourceType.TEXT, resourceSlug
+        coroutineScope.launch {
+            val resourceSlug = if (projectId == "obs") "obs" else "reg"
+            val existingTranslation = selectedTargetLanguage?.let { selected ->
+                getTargetTranslation(
+                    TargetTranslation.generateTargetTranslationId(
+                        selected.slug, projectId, ResourceType.TEXT, resourceSlug
+                    )
                 )
-            )
-        }
-
-        if (existingTranslation == null) {
-            val format = if (projectId == "obs") TranslationFormat.MARKDOWN else TranslationFormat.USFM
-            val targetTranslation = createTargetTranslation(
-                projectId, ResourceType.TEXT, resourceSlug, format
-            )
-            if (targetTranslation != null) {
-                onResult(NewTranslationComponent.Result.Success)
-            } else {
-                val error = application.getString(Res.string.failed_to_create_target_translation)
-                deleteTargetTranslation(projectId, resourceSlug)
-                onResult(NewTranslationComponent.Result.Error(error))
             }
-        } else {
-            onResult(NewTranslationComponent.Result.Duplicate(existingTranslation.id))
+
+            if (existingTranslation == null) {
+                val format = if (projectId == "obs") TranslationFormat.MARKDOWN else TranslationFormat.USFM
+                val targetTranslation = createTargetTranslation(
+                    projectId, ResourceType.TEXT, resourceSlug, format
+                )
+                if (targetTranslation != null) {
+                    onResult(NewTranslationComponent.Result.Success)
+                } else {
+                    val error = getString(Res.string.failed_to_create_target_translation)
+                    deleteTargetTranslation(projectId, resourceSlug)
+                    onResult(NewTranslationComponent.Result.Error(error))
+                }
+            } else {
+                onResult(NewTranslationComponent.Result.Duplicate(existingTranslation.id))
+            }
         }
     }
 
@@ -287,7 +292,7 @@ class DefaultNewTranslationComponent(
 
             when (result.status) {
                 MergeTargetTranslation.Status.MERGE_CONFLICTS -> {
-                    translator.clearTargetTranslationSettings(
+                    preference.clearTargetTranslationSettings(
                         result.sourceTranslation.id
                     )
                     val hasConflicts = MergeConflictsHandler.isTranslationMergeConflicted(
@@ -303,13 +308,13 @@ class DefaultNewTranslationComponent(
                     }
                 }
                 MergeTargetTranslation.Status.SUCCESS -> {
-                    translator.clearTargetTranslationSettings(
+                    preference.clearTargetTranslationSettings(
                         result.sourceTranslation.id
                     )
                     onResult(NewTranslationComponent.Result.Success)
                 }
                 else -> {
-                    val error = application.getString(Res.string.error)
+                    val error = getString(Res.string.error)
                     onResult(NewTranslationComponent.Result.Error(error))
                 }
             }
@@ -394,7 +399,7 @@ class DefaultNewTranslationComponent(
         )
     }
 
-    private fun getTargetTranslation(translationId: String): TargetTranslation? {
+    private suspend fun getTargetTranslation(translationId: String): TargetTranslation? {
         return translator.getTargetTranslation(translationId)
     }
 
@@ -407,20 +412,20 @@ class DefaultNewTranslationComponent(
             preference.addOpenSourceTranslation(newTargetTranslationId, source)
         }
 
-        val source = translator.getSelectedSourceTranslationId(targetTranslationId)
-        translator.setSelectedSourceTranslation(newTargetTranslationId, source)
+        val source = preference.getSelectedSourceTranslationId(targetTranslationId)
+        preference.setSelectedSourceTranslation(newTargetTranslationId, source)
 
-        val lastFocusChapterId = translator.getLastFocusChapterId(targetTranslationId)
-        val lastFocusFrameId = translator.getLastFocusFrameId(targetTranslationId)
+        val lastFocusChapterId = preference.getLastFocusChapterId(targetTranslationId)
+        val lastFocusFrameId = preference.getLastFocusFrameId(targetTranslationId)
         preference.setLastFocus(newTargetTranslationId, lastFocusChapterId, lastFocusFrameId)
 
-        val lastViewMode = translator.getLastViewMode(targetTranslationId)
-        translator.setLastViewMode(newTargetTranslationId, lastViewMode)
+        val lastViewMode = preference.getLastViewMode(targetTranslationId)
+        preference.setLastViewMode(newTargetTranslationId, lastViewMode)
 
-        translator.clearTargetTranslationSettings(targetTranslationId)
+        preference.clearTargetTranslationSettings(targetTranslationId)
     }
 
-    private fun createTargetTranslation(
+    private suspend fun createTargetTranslation(
         projectId: String,
         resourceType: ResourceType,
         resourceSlug: String,

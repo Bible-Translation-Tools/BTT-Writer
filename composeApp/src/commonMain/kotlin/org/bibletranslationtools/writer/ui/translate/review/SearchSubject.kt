@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 /**
  * Represents the subject available for searching

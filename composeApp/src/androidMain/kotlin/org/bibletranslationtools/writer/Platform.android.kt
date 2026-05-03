@@ -213,4 +213,12 @@ actual fun getGithubReporter(
     context = FileKit.context
 )
 
-actual fun textClipEntry(text: String) = ClipEntry(ClipData.newPlainText("text", text))
+actual fun textClipEntry(text: String, label: String?): ClipEntry =
+    ClipEntry(ClipData.newPlainText(label ?: "text", text))
+actual fun ClipEntry.textOrNull(): String? {
+    val data = clipData
+    if (data.itemCount == 0) return null
+    return data.getItemAt(0).text?.toString()
+}
+actual val ClipEntry.label: String?
+    get() = clipData.description.label?.toString()

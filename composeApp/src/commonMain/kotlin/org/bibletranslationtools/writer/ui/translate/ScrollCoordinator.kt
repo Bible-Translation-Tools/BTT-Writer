@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState

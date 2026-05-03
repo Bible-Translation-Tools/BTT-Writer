@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,17 +31,20 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
-import com.door43.translationstudio.ui.translate.ReviewItem
-import com.door43.translationstudio.ui.translate.components.withSearchHighlight
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.confirm
+import btt_writer.composeapp.generated.resources.resolve_confict_instructions
+import btt_writer.composeapp.generated.resources.title_cancel
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.ui.translate.components.withSearchHighlight
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MergeConflictCard(

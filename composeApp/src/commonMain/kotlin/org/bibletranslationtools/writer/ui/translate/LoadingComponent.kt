@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 interface LoadingComponent
 

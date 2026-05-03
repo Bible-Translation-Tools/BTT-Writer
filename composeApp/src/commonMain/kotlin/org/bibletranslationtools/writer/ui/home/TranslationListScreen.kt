@@ -28,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,8 +45,8 @@ import btt_writer.composeapp.generated.resources.sort_language_then_project
 import btt_writer.composeapp.generated.resources.sort_progress_then_project
 import btt_writer.composeapp.generated.resources.sort_project_then_language
 import btt_writer.composeapp.generated.resources.sort_projects
-import org.bibletranslationtools.writer.ui.dialogs.project.ProjectDetailsDialog
 import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.dialogs.project.ProjectDetailsDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -63,7 +62,6 @@ fun TranslationListScreen(
     val progress by component.progress.collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier

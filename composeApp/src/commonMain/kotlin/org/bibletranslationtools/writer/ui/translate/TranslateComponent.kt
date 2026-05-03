@@ -1,6 +1,7 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
-import android.app.Application
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.target_translation_not_found
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
@@ -17,36 +18,6 @@ import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.arkivanov.essenty.lifecycle.doOnResume
-import com.door43.data.AssetsProvider
-import com.door43.data.IPreferenceRepository
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.ContainerCache
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.TranslationViewMode
-import com.door43.translationstudio.core.Translator
-import com.door43.translationstudio.core.entity.SourceTranslation
-import com.door43.translationstudio.core.entity.toSourceTranslation
-import com.door43.translationstudio.core.launchWithProgress
-import org.bibletranslationtools.writer.ui.dialogs.export.DefaultExportComponent
-import org.bibletranslationtools.writer.ui.dialogs.export.ExportComponent
-import org.bibletranslationtools.writer.ui.dialogs.feedback.DefaultFeedbackComponent
-import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackComponent
-import org.bibletranslationtools.writer.ui.dialogs.source.DefaultSelectSourcesComponent
-import org.bibletranslationtools.writer.ui.dialogs.source.MAX_SOURCE_ITEMS
-import org.bibletranslationtools.writer.ui.dialogs.source.SelectSourcesComponent
-import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
-import com.door43.translationstudio.ui.navigation.RootComponent
-import com.door43.translationstudio.ui.translate.chunk.ChunkModeComponent
-import com.door43.translationstudio.ui.translate.chunk.DefaultChunkModeComponent
-import com.door43.translationstudio.ui.translate.read.DefaultReadModeComponent
-import com.door43.translationstudio.ui.translate.read.ReadModeComponent
-import com.door43.translationstudio.ui.translate.review.DefaultReviewModeComponent
-import com.door43.translationstudio.ui.translate.review.ReviewModeComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -69,6 +40,36 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.Project
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.ContainerCache
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.core.entity.SourceTranslation
+import org.bibletranslationtools.writer.core.entity.toSourceTranslation
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.ui.dialogs.export.DefaultExportComponent
+import org.bibletranslationtools.writer.ui.dialogs.export.ExportComponent
+import org.bibletranslationtools.writer.ui.dialogs.feedback.DefaultFeedbackComponent
+import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackComponent
+import org.bibletranslationtools.writer.ui.dialogs.source.DefaultSelectSourcesComponent
+import org.bibletranslationtools.writer.ui.dialogs.source.MAX_SOURCE_ITEMS
+import org.bibletranslationtools.writer.ui.dialogs.source.SelectSourcesComponent
+import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
+import org.bibletranslationtools.writer.ui.navigation.RootComponent
+import org.bibletranslationtools.writer.ui.translate.chunk.ChunkModeComponent
+import org.bibletranslationtools.writer.ui.translate.chunk.DefaultChunkModeComponent
+import org.bibletranslationtools.writer.ui.translate.read.DefaultReadModeComponent
+import org.bibletranslationtools.writer.ui.translate.read.ReadModeComponent
+import org.bibletranslationtools.writer.ui.translate.review.DefaultReviewModeComponent
+import org.bibletranslationtools.writer.ui.translate.review.ReviewModeComponent
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Locale
@@ -196,12 +197,9 @@ class DefaultTranslateComponent(
     ComponentContext by componentContext,
     ComponentScope, ProgressOwner, KoinComponent {
 
-    private val application: Application by inject()
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
-    private val preference: IPreferenceRepository by inject()
-    private val typography: Typography by inject()
-    private val assetsProvider: AssetsProvider by inject()
+    private val preference: Preference by inject()
     private val platform: Platform by inject()
 
     private val navigation = StackNavigation<TranslateComponent.Config>()
@@ -259,42 +257,44 @@ class DefaultTranslateComponent(
         }
 
     init {
-        translator.getTargetTranslation(translationId)?.let { translation ->
-            targetTranslation = translation
+        coroutineScope.launch {
+            translator.getTargetTranslation(translationId)?.let { translation ->
+                targetTranslation = translation
 
-            val draftAvailable = draftIsAvailable()
+                val draftAvailable = draftIsAvailable()
 
-            val viewMode = initialViewMode ?: translator.getLastViewMode(
-                targetTranslation.id
-            )
-            openViewMode(viewMode)
-
-            val projectTitle = "${getProject()?.name} - ${targetTranslation.targetLanguageName}"
-
-            commitOnDestroy.scheduleAutoCommit()
-
-            _state.update {
-                it.copy(
-                    conflictFilterOn = conflictFilterOn,
-                    draftAvailable = draftAvailable,
-                    showDraftAvailable = draftAvailable && targetTranslation.numTranslated == 0,
-                    projectTitle = projectTitle
+                val viewMode = initialViewMode ?: preference.getLastViewMode(
+                    targetTranslation.id
                 )
-            }
+                openViewMode(viewMode)
 
-            launchWithProgress {
-                ContainerCache.empty()
-                openUsedSourceTranslations()
-                refreshSelectedResourceContainer()
+                val projectTitle = "${getProject()?.name} - ${targetTranslation.targetLanguageName}"
+
+                commitOnDestroy.scheduleAutoCommit()
+
+                _state.update {
+                    it.copy(
+                        conflictFilterOn = conflictFilterOn,
+                        draftAvailable = draftAvailable,
+                        showDraftAvailable = draftAvailable && targetTranslation.numTranslated == 0,
+                        projectTitle = projectTitle
+                    )
+                }
+
+                launchWithProgress {
+                    ContainerCache.empty()
+                    openUsedSourceTranslations()
+                    refreshSelectedResourceContainer()
+                }
+            } ?: run {
+                Logger.e(
+                    this::javaClass.name,
+                    "A valid target translation id is required. " +
+                            "Received $translationId but the translation could not be found"
+                )
+                val error = getString(Res.string.target_translation_not_found, translationId)
+                onResult(TranslateComponent.Result.Error(error))
             }
-        } ?: run {
-            Logger.e(
-                this::javaClass.name,
-                "A valid target translation id is required. " +
-                        "Received $translationId but the translation could not be found"
-            )
-            val error = application.getString(Res.string.target_translation_not_found, translationId)
-            onResult(TranslateComponent.Result.Error(error))
         }
 
         coroutineScope.launch {
@@ -408,7 +408,7 @@ class DefaultTranslateComponent(
     }
 
     override fun saveLastFocus(chapterId: String, frameId: String?) {
-        translator.setLastFocus(targetTranslation.id, chapterId, frameId)
+        preference.setLastFocus(targetTranslation.id, chapterId, frameId)
     }
 
     override fun openHome(withUpdate: Boolean) {
@@ -465,7 +465,7 @@ class DefaultTranslateComponent(
 
     private fun saveViewMode(viewMode: TranslationViewMode) {
         launchWithProgress {
-            translator.setLastViewMode(
+            preference.setLastViewMode(
                 targetTranslationId = targetTranslation.id,
                 viewMode = viewMode
             )
@@ -494,13 +494,13 @@ class DefaultTranslateComponent(
     }
 
     private fun refreshLastFocus() {
-        val chapter = translator.getLastFocusChapterId(targetTranslation.id)
-        val frame = translator.getLastFocusFrameId(targetTranslation.id)
+        val chapter = preference.getLastFocusChapterId(targetTranslation.id)
+        val frame = preference.getLastFocusFrameId(targetTranslation.id)
         _state.update { it.copy(lastFocusChapterId = chapter, lastFocusFrameId = frame) }
     }
 
     private fun getSelectedSourceTranslationId(): String? {
-        return translator.getSelectedSourceTranslationId(targetTranslation.id)
+        return preference.getSelectedSourceTranslationId(targetTranslation.id)
     }
 
     private fun getOpenSourceTranslations(): List<String> {
@@ -567,7 +567,7 @@ class DefaultTranslateComponent(
             }
 
             val rc = resourceContainer?.let { rc ->
-                translator.setSelectedSourceTranslation(
+                preference.setSelectedSourceTranslation(
                     targetTranslation.id,
                     rc.slug
                 )

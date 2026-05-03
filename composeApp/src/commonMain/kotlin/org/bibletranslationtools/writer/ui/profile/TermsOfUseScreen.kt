@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,18 +24,29 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.door43.translationstudio.R
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.license_accept
+import btt_writer.composeapp.generated.resources.license_deny
+import btt_writer.composeapp.generated.resources.license_pdf
+import btt_writer.composeapp.generated.resources.statement_of_faith
+import btt_writer.composeapp.generated.resources.terms
+import btt_writer.composeapp.generated.resources.terms_title
+import btt_writer.composeapp.generated.resources.translation_guidlines
+import btt_writer.composeapp.generated.resources.view_license_agreement
+import btt_writer.composeapp.generated.resources.view_statement_of_faith
+import btt_writer.composeapp.generated.resources.view_translation_guidelines
 import org.bibletranslationtools.writer.ui.dialogs.LegalDocumentDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsOfUseScreen(component: TermsOfUseComponent) {
-    var openLegalDocumentId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var openLegalDocumentId by rememberSaveable { mutableStateOf<StringResource?>(null) }
 
     val progress by component.progress.collectAsStateWithLifecycle()
 
@@ -96,21 +107,21 @@ fun TermsOfUseScreen(component: TermsOfUseComponent) {
             )
 
             Button(
-                onClick = { openLegalDocumentId = R.string.license_pdf },
+                onClick = { openLegalDocumentId = Res.string.license_pdf },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
                 Text(stringResource(Res.string.view_license_agreement))
             }
 
             Button(
-                onClick = { openLegalDocumentId = R.string.translation_guidlines },
+                onClick = { openLegalDocumentId = Res.string.translation_guidlines },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
                 Text(stringResource(Res.string.view_translation_guidelines))
             }
 
             Button(
-                onClick = { openLegalDocumentId = R.string.statement_of_faith },
+                onClick = { openLegalDocumentId = Res.string.statement_of_faith },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(Res.string.view_statement_of_faith))

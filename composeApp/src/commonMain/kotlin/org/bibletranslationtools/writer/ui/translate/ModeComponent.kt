@@ -1,24 +1,24 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.ui.text.AnnotatedString
-import com.door43.translationstudio.core.ChapterTranslation
-import com.door43.translationstudio.core.Chunk
-import com.door43.translationstudio.core.FrameTranslation
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProjectTranslation
-import com.door43.translationstudio.core.SlugSorter
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.core.TranslationViewMode
-import com.door43.translationstudio.rendering.RenderingGroup
-import com.door43.translationstudio.rendering.RenderingProvider
-import com.door43.translationstudio.rendering.VerseDisplay
-import com.door43.translationstudio.rendering.model.RenderNode
-import com.door43.translationstudio.ui.textadapters.ComposeTextAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.ChapterTranslation
+import org.bibletranslationtools.writer.core.Chunk
+import org.bibletranslationtools.writer.core.FrameTranslation
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProjectTranslation
+import org.bibletranslationtools.writer.core.SlugSorter
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.rendering.RenderingGroup
+import org.bibletranslationtools.writer.rendering.RenderingProvider
+import org.bibletranslationtools.writer.rendering.VerseDisplay
+import org.bibletranslationtools.writer.rendering.model.RenderNode
+import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
 
 enum class FootnoteAction {
     VIEW, ACTIONS, EDIT

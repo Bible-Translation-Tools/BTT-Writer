@@ -29,7 +29,7 @@ import btt_writer.composeapp.generated.resources.register_door43
 import btt_writer.composeapp.generated.resources.requires_internet
 import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.title_connect_door43
-import com.door43.translationstudio.ui.profile.ProfileOptionCard
+import org.bibletranslationtools.writer.ui.profile.ProfileOptionCard
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
 import org.jetbrains.compose.resources.stringResource

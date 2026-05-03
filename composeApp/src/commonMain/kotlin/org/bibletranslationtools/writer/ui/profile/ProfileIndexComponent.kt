@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import com.arkivanov.decompose.ComponentContext
 

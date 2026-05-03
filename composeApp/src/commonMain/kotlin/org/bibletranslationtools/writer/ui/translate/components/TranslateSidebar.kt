@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.components
+package org.bibletranslationtools.writer.ui.translate.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.core.TranslationViewMode
+import org.bibletranslationtools.writer.core.TranslationViewMode
 import org.bibletranslationtools.writer.ui.components.SidebarAction
 
 @OptIn(ExperimentalMaterial3Api::class)

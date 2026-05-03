@@ -1,7 +1,7 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import com.arkivanov.decompose.ComponentContext
-import com.door43.translationstudio.core.Profile
+import org.bibletranslationtools.writer.core.Profile
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

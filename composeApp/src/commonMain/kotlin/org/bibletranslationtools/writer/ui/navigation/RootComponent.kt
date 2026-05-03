@@ -1,7 +1,7 @@
-package com.door43.translationstudio.ui.navigation
+package org.bibletranslationtools.writer.ui.navigation
 
-import android.app.Application
-import android.net.Uri
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.pref_default_color_theme
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -12,36 +12,45 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
-import com.door43.data.IPreferenceRepository
-import com.door43.data.getDefaultPref
-import com.door43.translationstudio.Platform
-import org.bibletranslationtools.writer.ui.crash.CrashComponent
-import org.bibletranslationtools.writer.ui.crash.DefaultCrashComponent
-import org.bibletranslationtools.writer.ui.devtools.DefaultDevToolsComponent
-import org.bibletranslationtools.writer.ui.devtools.DevToolsComponent
-import com.door43.translationstudio.ui.draft.DefaultDraftComponent
-import com.door43.translationstudio.ui.draft.DraftComponent
-import org.bibletranslationtools.writer.ui.home.DefaultHomeComponent
-import org.bibletranslationtools.writer.ui.home.HomeComponent
-import com.door43.translationstudio.ui.navigation.RootComponent.Config
-import com.door43.translationstudio.ui.newtranslation.DefaultNewTranslationComponent
-import com.door43.translationstudio.ui.newtranslation.NewTranslationComponent
-import com.door43.translationstudio.ui.profile.DefaultProfileComponent
-import com.door43.translationstudio.ui.profile.ProfileComponent
-import com.door43.translationstudio.ui.publish.DefaultPublishComponent
-import com.door43.translationstudio.ui.publish.PublishComponent
-import com.door43.translationstudio.ui.settings.DefaultSettingsComponent
-import com.door43.translationstudio.ui.settings.SettingsComponent
-import com.door43.translationstudio.ui.splash.DefaultSplashComponent
-import com.door43.translationstudio.ui.splash.SplashComponent
-import com.door43.translationstudio.ui.translate.DefaultTranslateComponent
-import com.door43.translationstudio.ui.translate.TranslateComponent
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import org.bibletranslationtools.writer.ui.newtranslation.DefaultNewTranslationComponent
+import org.bibletranslationtools.writer.ui.newtranslation.NewTranslationComponent
+import org.bibletranslationtools.writer.ui.profile.DefaultProfileComponent
+import org.bibletranslationtools.writer.ui.profile.ProfileComponent
+import org.bibletranslationtools.writer.ui.publish.DefaultPublishComponent
+import org.bibletranslationtools.writer.ui.publish.PublishComponent
+import org.bibletranslationtools.writer.ui.settings.DefaultSettingsComponent
+import org.bibletranslationtools.writer.ui.settings.SettingsComponent
+import org.bibletranslationtools.writer.ui.splash.DefaultSplashComponent
+import org.bibletranslationtools.writer.ui.splash.SplashComponent
+import org.bibletranslationtools.writer.ui.translate.DefaultTranslateComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.ui.crash.CrashComponent
+import org.bibletranslationtools.writer.ui.crash.DefaultCrashComponent
+import org.bibletranslationtools.writer.ui.devtools.DefaultDevToolsComponent
+import org.bibletranslationtools.writer.ui.devtools.DevToolsComponent
+import org.bibletranslationtools.writer.ui.draft.DefaultDraftComponent
+import org.bibletranslationtools.writer.ui.draft.DraftComponent
+import org.bibletranslationtools.writer.ui.home.DefaultHomeComponent
+import org.bibletranslationtools.writer.ui.home.HomeComponent
+import org.bibletranslationtools.writer.ui.navigation.RootComponent.Config
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -52,7 +61,7 @@ interface RootComponent {
     val currentTheme: StateFlow<String>
 
     fun onBackPressed()
-    fun onDeepLink(uri: Uri)
+    fun onDeepLink(file: PlatformFile)
 
     fun openTranslate(translationId: String, startWithMergeFilter: Boolean)
     fun openProfile(thenLogin: Boolean)
@@ -114,7 +123,7 @@ interface RootComponent {
         data class SnackbarMessage(val message: String) : SharedEvent
         data class DuplicateProject(val translationId: String) : SharedEvent
         data object RequestLibraryUpdate : SharedEvent
-        data class ImportProject(val uri: Uri) : SharedEvent
+        data class ImportProject(val file: PlatformFile) : SharedEvent
     }
 }
 
@@ -122,10 +131,9 @@ class DefaultRootComponent(
     componentContext: ComponentContext,
     private val onExitApp: () -> Unit
 ) : RootComponent, ComponentContext by componentContext,
-    KoinComponent {
+    KoinComponent, ComponentScope {
 
-    private val application: Application by inject()
-    private val preference: IPreferenceRepository by inject()
+    private val preference: Preference by inject()
     private val platform: Platform by inject()
 
     private val navigation = StackNavigation<Config>()
@@ -136,6 +144,8 @@ class DefaultRootComponent(
     private val _currentTheme = MutableStateFlow("")
     override val currentTheme: StateFlow<String> = _currentTheme
 
+    override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
     override val stack: Value<ChildStack<*, RootComponent.Child>> = childStack(
         source = navigation,
         serializer = Config.serializer(),
@@ -145,19 +155,25 @@ class DefaultRootComponent(
     )
 
     init {
-        val theme = preference.getDefaultPref(
-            IPreferenceRepository.KEY_PREF_COLOR_THEME,
-            application.getString(Res.string.pref_default_color_theme)
-        )
-        _currentTheme.value = theme
+        coroutineScope.launch {
+            val theme = preference.getPref(
+                Preference.KEY_PREF_COLOR_THEME,
+                getString(Res.string.pref_default_color_theme)
+            )
+            _currentTheme.value = theme
+        }
+
+        lifecycle.doOnDestroy {
+            coroutineScope.cancel()
+        }
     }
 
     override fun onBackPressed() {
         navigation.pop()
     }
 
-    override fun onDeepLink(uri: Uri) {
-        _sharedFlow.tryEmit(RootComponent.SharedEvent.ImportProject(uri))
+    override fun onDeepLink(file: PlatformFile) {
+        _sharedFlow.tryEmit(RootComponent.SharedEvent.ImportProject(file))
     }
 
     private fun child(

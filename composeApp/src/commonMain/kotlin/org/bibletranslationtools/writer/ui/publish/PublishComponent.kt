@@ -1,7 +1,9 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
-import android.app.Application
 import androidx.compose.ui.text.AnnotatedString
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.choose_source_translations
+import btt_writer.composeapp.generated.resources.target_translation_not_found
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
@@ -10,23 +12,6 @@ import com.arkivanov.decompose.router.slot.childSlot
 import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.translationstudio.Platform
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.NativeSpeaker
-import com.door43.translationstudio.core.Profile
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.core.TranslationViewMode
-import com.door43.translationstudio.core.Translator
-import com.door43.translationstudio.core.Validation
-import com.door43.translationstudio.rendering.RenderingGroup
-import com.door43.translationstudio.rendering.RenderingProvider
-import org.bibletranslationtools.writer.ui.dialogs.export.DefaultExportComponent
-import org.bibletranslationtools.writer.ui.dialogs.export.ExportComponent
-import org.bibletranslationtools.writer.ui.dialogs.feedback.DefaultFeedbackComponent
-import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackComponent
-import com.door43.translationstudio.ui.textadapters.ComposeTextAdapter
-import com.door43.usecases.ValidateProject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,6 +27,26 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.Project
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.NativeSpeaker
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.core.Validation
+import org.bibletranslationtools.writer.core.Validation.InvalidFrame
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.rendering.RenderingGroup
+import org.bibletranslationtools.writer.rendering.RenderingProvider
+import org.bibletranslationtools.writer.ui.dialogs.export.DefaultExportComponent
+import org.bibletranslationtools.writer.ui.dialogs.export.ExportComponent
+import org.bibletranslationtools.writer.ui.dialogs.feedback.DefaultFeedbackComponent
+import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackComponent
+import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
+import org.bibletranslationtools.writer.usecases.ValidateProject
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -63,7 +68,7 @@ interface PublishComponent {
         val translators: List<NativeSpeaker> = emptyList()
     )
 
-    fun openReview(item: Validation.InvalidFrame)
+    fun openReview(item: InvalidFrame)
     fun refreshContributors()
 
     fun showExportDialog()
@@ -103,12 +108,12 @@ class DefaultPublishComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope {
 
-    private val application: Application by inject()
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val validateProject: ValidateProject by inject()
     private val profile: Profile by inject()
     private val platform: Platform by inject()
+    private val preference: Preference by inject()
 
     private lateinit var sourceTranslationId: String
 
@@ -130,23 +135,25 @@ class DefaultPublishComponent(
     )
 
     init {
-        translator.getTargetTranslation(translationId)?.let { translation ->
-            targetTranslation = translation
+        coroutineScope.launch {
+            translator.getTargetTranslation(translationId)?.let { translation ->
+                targetTranslation = translation
 
-            (getSelectedSourceTranslationId() ?: getDefaultSourceTranslation())?.let { sourceId ->
-                sourceTranslationId = sourceId
+                (getSelectedSourceTranslationId() ?: getDefaultSourceTranslation())?.let { sourceId ->
+                    sourceTranslationId = sourceId
 
-                coroutineScope.launch {
-                    validateProject(sourceId)
-                    loadTranslators()
+                    coroutineScope.launch {
+                        validateProject(sourceId)
+                        loadTranslators()
+                    }
+                } ?: run {
+                    val error = getString(Res.string.choose_source_translations)
+                    onResult(PublishComponent.Result.Error(error))
                 }
             } ?: run {
-                val error = application.getString(Res.string.choose_source_translations)
+                val error = getString(Res.string.target_translation_not_found, translationId)
                 onResult(PublishComponent.Result.Error(error))
             }
-        } ?: run {
-            val error = application.getString(Res.string.target_translation_not_found, translationId)
-            onResult(PublishComponent.Result.Error(error))
         }
 
         lifecycle.doOnDestroy {
@@ -154,14 +161,14 @@ class DefaultPublishComponent(
         }
     }
 
-    override fun openReview(item: Validation.InvalidFrame) {
+    override fun openReview(item: InvalidFrame) {
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
-                translator.setLastViewMode(
+                preference.setLastViewMode(
                     targetTranslationId = item.targetTranslationId,
                     viewMode = TranslationViewMode.REVIEW
                 )
-                translator.setLastFocus(
+                preference.setLastFocus(
                     targetTranslationId = item.targetTranslationId,
                     chapterId = item.chapterId,
                     frameId = item.frameId
@@ -267,13 +274,13 @@ class DefaultPublishComponent(
     }
 
     private fun prepareItem(item: Validation): ValidationItem {
-        return if (item is Validation.InvalidFrame && item.body.isNotEmpty()) {
+        return if (item is InvalidFrame && item.body.isNotEmpty()) {
             ValidationItem(item, renderTargetText(item.bodyFormat, item.body))
         } else ValidationItem(item)
     }
 
     private fun getSelectedSourceTranslationId(): String? {
-        return translator.getSelectedSourceTranslationId(targetTranslation.id)
+        return preference.getSelectedSourceTranslationId(targetTranslation.id)
     }
 
     private fun getDefaultSourceTranslation(): String? {

@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.draft
+package org.bibletranslationtools.writer.ui.draft
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,14 +26,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.door43.translationstudio.rendering.RenderingProvider
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.dismiss
+import btt_writer.composeapp.generated.resources.error
+import btt_writer.composeapp.generated.resources.import_draft
+import btt_writer.composeapp.generated.resources.import_draft_confirmation
+import btt_writer.composeapp.generated.resources.label_import
+import btt_writer.composeapp.generated.resources.preview
+import btt_writer.composeapp.generated.resources.title_footnote
+import btt_writer.composeapp.generated.resources.translation_import_failed
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.rendering.RenderingProvider
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.util.sortNumerically
+import org.bibletranslationtools.writer.utils.sortNumerically
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)

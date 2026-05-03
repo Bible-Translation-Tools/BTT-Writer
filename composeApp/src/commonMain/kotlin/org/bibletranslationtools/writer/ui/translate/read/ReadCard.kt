@@ -1,13 +1,14 @@
-package com.door43.translationstudio.ui.translate.read
+package org.bibletranslationtools.writer.ui.translate.read
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.core.TargetTranslation
-import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
-import com.door43.translationstudio.ui.translate.ReadItem
-import com.door43.translationstudio.ui.translate.components.StackedCardFlipper
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
+import org.bibletranslationtools.writer.ui.translate.ReadItem
+import org.bibletranslationtools.writer.ui.translate.components.StackedCardFlipper
 
 @Composable
 fun ReadCard(

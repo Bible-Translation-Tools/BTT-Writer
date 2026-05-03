@@ -16,7 +16,7 @@ import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import org.bibletranslationtools.writer.ui.dialogs.update.DefaultUpdateLibraryComponent
 import org.bibletranslationtools.writer.ui.dialogs.update.UpdateLibraryComponent
-import com.door43.translationstudio.ui.navigation.RootComponent
+import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -296,7 +296,7 @@ class DefaultHomeComponent(
                     is RootComponent.SharedEvent.RequestLibraryUpdate -> {
                         showUpdateLibraryDialog(triggerUpdate = true)
                     }
-                    is RootComponent.SharedEvent.ImportProject -> showImportDialog(event.uri)
+                    is RootComponent.SharedEvent.ImportProject -> showImportDialog(event.file)
                 }
             }
         }

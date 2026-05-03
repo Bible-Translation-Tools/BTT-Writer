@@ -31,7 +31,7 @@ import btt_writer.composeapp.generated.resources.menu_save
 import btt_writer.composeapp.generated.resources.title_add_footnote
 import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.title_footnote
-import com.door43.translationstudio.ui.translate.FootnoteAction
+import org.bibletranslationtools.writer.ui.translate.FootnoteAction
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 

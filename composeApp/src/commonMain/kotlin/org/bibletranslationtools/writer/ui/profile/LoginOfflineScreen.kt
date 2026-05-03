@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,12 +33,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
-import org.bibletranslationtools.writer.ui.dialogs.PrivacyNoticeDialog
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.complete_required_fields
+import btt_writer.composeapp.generated.resources.label_continue
+import btt_writer.composeapp.generated.resources.names_will_be_public
+import btt_writer.composeapp.generated.resources.title_cancel
+import btt_writer.composeapp.generated.resources.your_name
 import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.ui.dialogs.PrivacyNoticeDialog
+import org.jetbrains.compose.resources.stringResource
 
 enum class PrivacyDialogMode { INFO, CONFIRM }
 

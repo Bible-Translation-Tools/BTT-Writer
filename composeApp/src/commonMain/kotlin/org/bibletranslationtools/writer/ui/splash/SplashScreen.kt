@@ -1,16 +1,25 @@
-package com.door43.translationstudio.ui.splash
+package org.bibletranslationtools.writer.ui.splash
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.do_not_show_again
+import btt_writer.composeapp.generated.resources.label_continue
+import btt_writer.composeapp.generated.resources.migrate_from_old_app
+import btt_writer.composeapp.generated.resources.migrate_from_old_app_description
+import btt_writer.composeapp.generated.resources.min_hardware_req_not_met
+import btt_writer.composeapp.generated.resources.no
+import btt_writer.composeapp.generated.resources.slow_device
+import btt_writer.composeapp.generated.resources.yes
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SplashScreen(
@@ -19,17 +28,18 @@ fun SplashScreen(
     val state by component.state.collectAsStateWithLifecycle()
     val progress by component.progress.collectAsStateWithLifecycle()
 
-    val openDirToMigrateLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree()
-    ) { uri: Uri? ->
-        component.performMigrate(uri)
+    val openDirToMigrateLauncher = rememberDirectoryPickerLauncher(
+        directory = PlatformFile("Downloads"),
+        dialogSettings = FileKitDialogSettings.createDefault()
+    ) { directory: PlatformFile? ->
+        component.performMigrate(directory)
     }
 
     LaunchedEffect(component) {
         component.event.collect { event ->
             when (event) {
                 is SplashComponent.Event.OpenDirToMigrate -> {
-                    openDirToMigrateLauncher.launch(null)
+                    openDirToMigrateLauncher.launch()
                 }
             }
         }

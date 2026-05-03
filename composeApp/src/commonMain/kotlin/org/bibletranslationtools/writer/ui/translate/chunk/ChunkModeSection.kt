@@ -1,16 +1,21 @@
-package com.door43.translationstudio.ui.translate.chunk
+package org.bibletranslationtools.writer.ui.translate.chunk
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.chunk_done_prompt
+import btt_writer.composeapp.generated.resources.chunk_done_title
+import btt_writer.composeapp.generated.resources.edit
+import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import com.door43.translationstudio.ui.translate.ModeScreenTemplate
-import com.door43.translationstudio.ui.translate.ScrollCoordinator
-import com.door43.translationstudio.ui.translate.TranslateComponent
-import com.door43.translationstudio.ui.translate.ScrollBindingEffect
+import org.bibletranslationtools.writer.ui.translate.ModeScreenTemplate
+import org.bibletranslationtools.writer.ui.translate.ScrollBindingEffect
+import org.bibletranslationtools.writer.ui.translate.ScrollCoordinator
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ChunkModeSection(

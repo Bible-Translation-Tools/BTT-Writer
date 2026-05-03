@@ -1,23 +1,26 @@
-package com.door43.translationstudio.ui.profile
+package org.bibletranslationtools.writer.ui.profile
 
-import android.app.Application
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.log_out
+import btt_writer.composeapp.generated.resources.terms_of_use_version
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.Profile
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.usecases.GogsLogout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.usecases.GogsLogout
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -41,7 +44,6 @@ class DefaultTermsOfUseComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope, ProgressOwner {
 
-    private val application: Application by inject()
     private val profile: Profile by inject()
     private val logoutUseCase: GogsLogout by inject()
 
@@ -61,14 +63,15 @@ class DefaultTermsOfUseComponent(
     }
 
     override fun acceptTerms() {
-        profile.termsOfUseLastAccepted = application.resources.getInteger(R.integer.terms_of_use_version)
-        onResult(TermsOfUseComponent.Result.Accepted)
+        coroutineScope.launch {
+            profile.termsOfUseLastAccepted = getString(Res.string.terms_of_use_version)
+                .toInt()
+            onResult(TermsOfUseComponent.Result.Accepted)
+        }
     }
 
     override fun rejectTerms() {
-        launchWithProgress(
-            application.getString(Res.string.log_out)
-        ) {
+        launchWithProgress(Res.string.log_out) {
             withContext(Dispatchers.IO) {
                 logoutUseCase.execute()
                 profile.logout()

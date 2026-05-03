@@ -1,16 +1,16 @@
-package com.door43.translationstudio.ui.translate
+package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
-import com.door43.translationstudio.core.ChapterTranslation
-import com.door43.translationstudio.core.Chunk
-import com.door43.translationstudio.core.FileHistory
-import com.door43.translationstudio.core.Frame
-import com.door43.translationstudio.core.FrameTranslation
-import com.door43.translationstudio.core.MergeConflictsHandler
-import com.door43.translationstudio.core.ProjectTranslation
-import com.door43.translationstudio.ui.translate.review.TargetMode
-import com.door43.usecases.ParseMergeConflicts
+import org.bibletranslationtools.writer.core.ChapterTranslation
+import org.bibletranslationtools.writer.core.Chunk
+import org.bibletranslationtools.writer.core.FileHistory
+import org.bibletranslationtools.writer.core.Frame
+import org.bibletranslationtools.writer.core.FrameTranslation
+import org.bibletranslationtools.writer.core.MergeConflictsHandler
+import org.bibletranslationtools.writer.core.ProjectTranslation
+import org.bibletranslationtools.writer.ui.translate.review.TargetMode
+import org.bibletranslationtools.writer.usecases.ParseMergeConflicts
 
 
 interface Swipable {

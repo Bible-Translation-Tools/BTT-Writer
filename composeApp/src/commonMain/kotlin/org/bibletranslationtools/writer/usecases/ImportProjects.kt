@@ -15,6 +15,7 @@ import org.bibletranslationtools.writer.core.ArchiveImporter
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.inputStream
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.Zip
 import org.jetbrains.compose.resources.getString
@@ -63,7 +64,7 @@ class ImportProjects(
 
         if (validExtension) {
             try {
-                platformFile.file.inputStream().use { input ->
+                platformFile.inputStream().use { input ->
                     Logger.i(this::class.java.simpleName, "Importing from uri: $filename")
 
                     val archiveDir = unzipFromStream(input)
@@ -184,12 +185,12 @@ class ImportProjects(
         }
 
         val uuid = UUID.randomUUID().toString()
-        val tempDir = PlatformFile(directoryProvider.createTempDir(uuid))
+        val tempDir = directoryProvider.createTempDir(uuid)
 
-        FileUtilities.copyDirectory(platformFile, tempDir)
+        FileUtilities.copyDirectory(platformFile, PlatformFile(tempDir))
 
         val externalContainer = try {
-            ResourceContainer.load(tempDir.file)
+            ResourceContainer.load(tempDir)
         } catch (e: Exception) {
             Logger.e(this::javaClass.name, "Could not import RC", e)
             return ImportSourceResult(
@@ -202,7 +203,7 @@ class ImportProjects(
         return try {
             catalogClient.openResourceContainer(externalContainer.slug)
             if (overwrite) {
-                importSource(tempDir.file)
+                importSource(tempDir)
             } else {
                 val conflictMessage = getString(
                     Res.string.overwrite_content,
@@ -218,9 +219,9 @@ class ImportProjects(
         } catch (e: Exception) {
             e.printStackTrace()
             // no conflicts. import
-            importSource(tempDir.file)
+            importSource(tempDir)
         } finally {
-            FileUtilities.deleteQuietly(tempDir.file)
+            FileUtilities.deleteQuietly(tempDir)
         }
     }
 

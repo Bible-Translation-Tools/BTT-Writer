@@ -1,6 +1,5 @@
-package com.door43.translationstudio.ui.translate.components
+package org.bibletranslationtools.writer.ui.translate.components
 
-import android.content.ClipData
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -32,17 +31,19 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.ui.translate.components.footnote.FootnoteOutputTransformation
-import com.door43.translationstudio.ui.translate.components.footnote.NOTE_CHAR
-import com.door43.translationstudio.ui.translate.components.footnote.visualToRaw
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.bibletranslationtools.writer.label
+import org.bibletranslationtools.writer.textClipEntry
+import org.bibletranslationtools.writer.textOrNull
+import org.bibletranslationtools.writer.ui.translate.components.footnote.FootnoteOutputTransformation
+import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
+import org.bibletranslationtools.writer.ui.translate.components.footnote.visualToRaw
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -208,20 +209,15 @@ private class RawUsfmClipboard(
             delegate.setClipEntry(null)
             return
         }
-        val clipData = clipEntry.clipData
-        if (clipData.itemCount > 0) {
-            val visualText = clipData.getItemAt(0).text?.toString() ?: ""
-            if (NOTE_CHAR in visualText) {
-                val rawText = textFieldState.text.toString()
-                val reconstructed = visualToRaw(visualText, rawText)
-                val newClipData = ClipData.newPlainText(
-                    clipData.description.label,
-                    reconstructed
-                )
-                delegate.setClipEntry(newClipData.toClipEntry())
-                return
-            }
+
+        val visualText = clipEntry.textOrNull()
+        if (visualText != null && NOTE_CHAR in visualText) {
+            val rawText = textFieldState.text.toString()
+            val reconstructed = visualToRaw(visualText, rawText)
+            delegate.setClipEntry(textClipEntry(reconstructed, clipEntry.label))
+            return
         }
+
         delegate.setClipEntry(clipEntry)
     }
 

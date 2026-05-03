@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,12 +14,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.core.Validation
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.next
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.core.Validation
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ValidationSection(
@@ -56,7 +57,7 @@ fun ValidationSection(
                         shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
-                            text = stringResource(id = R.string.next),
+                            text = stringResource(Res.string.next),
                             fontSize = 14.sp
                         )
                     }

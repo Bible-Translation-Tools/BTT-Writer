@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="git_repository_dir" translatable="false">git</string>
     <string name="keys_dir" translatable="false">ssh</string>
     <string name="exported_projects_dir" translatable="false">exported</string>
     <string name="imported_projects_dir" translatable="false">imported</string>
-    <string name="p2p_keys_dir" translatable="false">p2p_keys</string>
     <string name="gogs_token_name">btt-writer-android</string>
     <string name="gogs_user_agent">btt-writer-android</string>
+    <string name="terms_of_use_version">3</string>
 </resources>

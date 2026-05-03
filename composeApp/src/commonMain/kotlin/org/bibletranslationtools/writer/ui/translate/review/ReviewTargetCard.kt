@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -44,8 +44,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -58,14 +56,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.TextStyleType
-import com.door43.translationstudio.core.TranslationType
-import com.door43.translationstudio.core.Typography
-import com.door43.translationstudio.getComposeTextStyle
-import com.door43.translationstudio.ui.translate.ReviewItem
-import com.door43.translationstudio.ui.translate.components.UsfmEditText
-import com.door43.translationstudio.ui.translate.components.withSearchHighlight
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.ic_verse_black_48dp
+import btt_writer.composeapp.generated.resources.mark_done
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.ui.translate.components.UsfmEditText
+import org.bibletranslationtools.writer.ui.translate.components.withSearchHighlight
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 private const val VERSE_MARKER_TAG = "VERSE_MARKER"
 private const val RAW_POSITION_TAG = "RAW_POSITION"
@@ -371,7 +373,7 @@ fun ReviewTargetCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(id = R.string.mark_done),
+                        text = stringResource(Res.string.mark_done),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.weight(1f)
@@ -406,7 +408,7 @@ fun VersePin(
         contentAlignment = BiasAlignment(0f, -0.35f)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_verse_black_48dp),
+            painter = painterResource(Res.drawable.ic_verse_black_48dp),
             contentDescription = null,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
             modifier = Modifier.fillMaxSize()

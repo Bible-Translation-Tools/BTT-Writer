@@ -1,11 +1,11 @@
-package com.door43.translationstudio.ui.translate.review
+package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.ui.text.AnnotatedString
-import com.door43.translationstudio.rendering.spannables.USFMVerseSpan
-import com.door43.translationstudio.ui.translate.Footnote
-import com.door43.translationstudio.ui.translate.ModeComponent
-import com.door43.translationstudio.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.ui.translate.Footnote
+import org.bibletranslationtools.writer.ui.translate.ModeComponent
 import kotlinx.coroutines.flow.StateFlow
+import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
+import org.bibletranslationtools.writer.ui.translate.ReviewItem
 import java.util.regex.Pattern
 
 val USFM_CONSECUTIVE_VERSE_MARKERS: Pattern =

@@ -4,7 +4,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
 import org.bibletranslationtools.logger.Context
 import org.bibletranslationtools.logger.GithubReporter
+import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
+import java.awt.datatransfer.Transferable
 import java.io.File
 
 class DesktopPlatform(
@@ -67,4 +69,15 @@ actual fun getGithubReporter(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-actual fun textClipEntry(text: String) = ClipEntry(StringSelection(text))
+actual fun textClipEntry(text: String, label: String?): ClipEntry =
+    ClipEntry(StringSelection(text))
+@OptIn(ExperimentalComposeUiApi::class)
+actual fun ClipEntry.textOrNull(): String? = runCatching {
+    val transferable = nativeClipEntry as? Transferable ?: return@runCatching null
+    if (transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+        transferable.getTransferData(DataFlavor.stringFlavor) as? String
+    } else null
+}.getOrNull()
+
+actual val ClipEntry.label: String?
+    get() = null  // AWT doesn't have a label concept

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.door43.translationstudio.ui.publish.TranslatorsSection
+import org.bibletranslationtools.writer.ui.publish.TranslatorsSection
 import org.bibletranslationtools.writer.core.NativeSpeaker
 import org.bibletranslationtools.writer.core.TargetTranslation
 

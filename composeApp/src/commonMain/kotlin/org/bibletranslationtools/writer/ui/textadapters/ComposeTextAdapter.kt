@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.textadapters
+package org.bibletranslationtools.writer.ui.textadapters
 
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
@@ -9,13 +9,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextAlign
-import com.door43.translationstudio.rendering.HtmlRenderer
-import com.door43.translationstudio.rendering.model.LinkData
-import com.door43.translationstudio.rendering.model.NodeStyle
-import com.door43.translationstudio.rendering.model.RenderNode
-import com.door43.translationstudio.ui.translate.components.footnote.NOTE_CHAR
+import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
+import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
+import org.bibletranslationtools.writer.rendering.HtmlRenderer
+import org.bibletranslationtools.writer.rendering.model.LinkData
+import org.bibletranslationtools.writer.rendering.model.NodeStyle
+import org.bibletranslationtools.writer.rendering.model.RenderNode
 
 /**
  * Converts a List<RenderNode> to Compose AnnotatedString.
@@ -68,7 +68,7 @@ object ComposeTextAdapter {
         onLinkClick: (LinkData) -> Unit = {},
         linkFilter: (LinkData) -> Boolean = { true }
     ): AnnotatedString {
-        val parsed = AnnotatedString.fromHtml(html)
+        val parsed = htmlToAnnotatedString(html)
 
         return buildAnnotatedString {
             append(parsed.text)

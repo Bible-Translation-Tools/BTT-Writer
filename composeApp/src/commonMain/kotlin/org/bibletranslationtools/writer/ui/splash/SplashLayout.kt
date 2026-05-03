@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.splash
+package org.bibletranslationtools.writer.ui.splash
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,11 +13,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.Progress
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.loading
+import btt_writer.composeapp.generated.resources.welcome
+import org.bibletranslationtools.writer.core.Progress
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SplashLayout(
@@ -32,7 +34,7 @@ fun SplashLayout(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(id = R.string.welcome),
+            text = stringResource(Res.string.welcome),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.displaySmall

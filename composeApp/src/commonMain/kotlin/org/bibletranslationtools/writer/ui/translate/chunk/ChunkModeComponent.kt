@@ -1,23 +1,12 @@
-package com.door43.translationstudio.ui.translate.chunk
+package org.bibletranslationtools.writer.ui.translate.chunk
 
 import androidx.compose.ui.text.AnnotatedString
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.translationstudio.core.Chunk
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TargetTranslation
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.TranslationViewMode
-import com.door43.translationstudio.rendering.VerseDisplay
-import com.door43.translationstudio.rendering.model.RenderNode
-import com.door43.translationstudio.ui.translate.ChunkItem
-import com.door43.translationstudio.ui.translate.Footnote
-import com.door43.translationstudio.ui.translate.FootnoteAction
-import com.door43.translationstudio.ui.translate.ModeComponent
-import com.door43.translationstudio.ui.translate.Swipable
-import com.door43.translationstudio.ui.translate.TranslateComponent
+import org.bibletranslationtools.writer.ui.translate.Footnote
+import org.bibletranslationtools.writer.ui.translate.FootnoteAction
+import org.bibletranslationtools.writer.ui.translate.ModeComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +21,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.Chunk
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.rendering.VerseDisplay
+import org.bibletranslationtools.writer.rendering.model.RenderNode
+import org.bibletranslationtools.writer.ui.translate.ChunkItem
+import org.bibletranslationtools.writer.ui.translate.Swipable
 import org.koin.core.component.KoinComponent
 
 interface ChunkModeComponent : ModeComponent<ChunkItem> {

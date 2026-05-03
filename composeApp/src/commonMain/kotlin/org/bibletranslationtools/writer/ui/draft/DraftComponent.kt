@@ -1,24 +1,9 @@
-package com.door43.translationstudio.ui.draft
+package org.bibletranslationtools.writer.ui.draft
 
-import android.app.Application
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.please_wait
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.ComponentScope
-import com.door43.translationstudio.core.Progress
-import com.door43.translationstudio.core.ProgressManager
-import com.door43.translationstudio.core.ProgressOwner
-import com.door43.translationstudio.core.TaskHandle
-import com.door43.translationstudio.core.TranslationFormat
-import com.door43.translationstudio.core.Translator
-import com.door43.translationstudio.core.launchWithProgress
-import com.door43.translationstudio.rendering.Clickables
-import com.door43.translationstudio.rendering.RenderingGroup
-import com.door43.translationstudio.rendering.RenderingProvider
-import com.door43.translationstudio.rendering.VerseDisplay
-import com.door43.translationstudio.rendering.model.RenderNode
-import com.door43.usecases.ImportDraft
-import com.door43.util.sortNumerically
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,6 +17,21 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.SourceLanguage
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.ComponentScope
+import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProgressManager
+import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.TaskHandle
+import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.rendering.Clickables
+import org.bibletranslationtools.writer.rendering.RenderingGroup
+import org.bibletranslationtools.writer.rendering.RenderingProvider
+import org.bibletranslationtools.writer.rendering.VerseDisplay
+import org.bibletranslationtools.writer.rendering.model.RenderNode
+import org.bibletranslationtools.writer.usecases.ImportDraft
+import org.bibletranslationtools.writer.utils.sortNumerically
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -77,7 +77,6 @@ class DefaultDraftComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope, ProgressOwner {
 
-    private val application: Application by inject()
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val importDraft: ImportDraft by inject()
@@ -175,9 +174,7 @@ class DefaultDraftComponent(
     }
 
     override fun importDraft(sourceContainer: ResourceContainer) {
-        launchWithProgress(
-            application.getString(Res.string.please_wait)
-        ) {
+        launchWithProgress(Res.string.please_wait) {
             val result = withContext(Dispatchers.IO) {
                 importDraft.execute(sourceContainer){_,_->}
             }
@@ -190,9 +187,7 @@ class DefaultDraftComponent(
     }
 
     private fun loadDraftTranslations(targetTranslationId: String?) {
-        launchWithProgress(
-            application.getString(Res.string.please_wait)
-        ) {
+        launchWithProgress(Res.string.please_wait) {
             targetTranslationId?.let { id ->
                 translator.getTargetTranslation(id)?.let { targetTranslation ->
                     val translations = catalogClient.library.findTranslations(

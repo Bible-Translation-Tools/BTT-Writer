@@ -1,4 +1,4 @@
-package com.door43.translationstudio.ui.publish
+package org.bibletranslationtools.writer.ui.publish
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -26,14 +27,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.door43.translationstudio.R
-import com.door43.translationstudio.core.NativeSpeaker
-import com.door43.translationstudio.core.TargetTranslation
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.add_contributor
+import btt_writer.composeapp.generated.resources.names_will_be_public
+import btt_writer.composeapp.generated.resources.next
+import org.bibletranslationtools.writer.core.NativeSpeaker
+import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.ui.dialogs.ContributorDialog
 import org.bibletranslationtools.writer.ui.dialogs.PrivacyNoticeDialog
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TranslatorsSection(
@@ -59,7 +63,7 @@ fun TranslatorsSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.names_will_be_public),
+                text = stringResource(Res.string.names_will_be_public),
                 fontSize = 20.sp
             )
 
@@ -111,7 +115,7 @@ fun TranslatorsSection(
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.next),
+                        text = stringResource(Res.string.next),
                         fontSize = 14.sp
                     )
                 }
