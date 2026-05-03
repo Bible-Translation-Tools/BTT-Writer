@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.di
 
+import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.ArchiveImporter
 import org.bibletranslationtools.writer.core.DownloadImages
@@ -98,6 +99,13 @@ val sharedModule = module {
     singleOf(::Typography)
     singleOf(::DownloadImages)
     singleOf(::UpdateApp)
+    single {
+        val directoryProvider: DirectoryProvider = get()
+        ResourceCatalogClient(
+            directoryProvider.databaseFile,
+            directoryProvider.containersDir
+        )
+    }
 
     singleOf(::Preference)
     singleOf(::TransportCallback)

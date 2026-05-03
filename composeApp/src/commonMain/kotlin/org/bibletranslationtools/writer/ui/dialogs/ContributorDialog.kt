@@ -40,12 +40,12 @@ import btt_writer.composeapp.generated.resources.license_pdf
 import btt_writer.composeapp.generated.resources.menu_save
 import btt_writer.composeapp.generated.resources.name
 import btt_writer.composeapp.generated.resources.person_agrees_with_licenses
-import btt_writer.composeapp.generated.resources.pref_title_license_agreement
-import btt_writer.composeapp.generated.resources.pref_title_statement_of_faith
-import btt_writer.composeapp.generated.resources.pref_title_translation_guidelines
 import btt_writer.composeapp.generated.resources.statement_of_faith
 import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.translation_guidlines
+import btt_writer.composeapp.generated.resources.view_license_agreement
+import btt_writer.composeapp.generated.resources.view_statement_of_faith
+import btt_writer.composeapp.generated.resources.view_translation_guidelines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -129,15 +129,15 @@ fun ContributorDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     TagButton(
-                        text = stringResource(Res.string.pref_title_license_agreement),
+                        text = stringResource(Res.string.view_license_agreement),
                         onClick = { openLegalDocumentId = Res.string.license_pdf }
                     )
                     TagButton(
-                        text = stringResource(Res.string.pref_title_statement_of_faith),
+                        text = stringResource(Res.string.view_statement_of_faith),
                         onClick = { openLegalDocumentId = Res.string.statement_of_faith }
                     )
                     TagButton(
-                        text = stringResource(Res.string.pref_title_translation_guidelines),
+                        text = stringResource(Res.string.view_translation_guidelines),
                         onClick = { openLegalDocumentId = Res.string.translation_guidlines }
                     )
                 }

@@ -58,7 +58,6 @@ interface RootComponent {
 
     val stack: Value<ChildStack<*, Child>>
     val sharedFlow: SharedFlow<SharedEvent>
-    val currentTheme: StateFlow<String>
 
     fun onBackPressed()
     fun onDeepLink(file: PlatformFile)
@@ -142,7 +141,6 @@ class DefaultRootComponent(
     override val sharedFlow = _sharedFlow.asSharedFlow()
 
     private val _currentTheme = MutableStateFlow("")
-    override val currentTheme: StateFlow<String> = _currentTheme
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 

@@ -9,5 +9,5 @@ import org.jetbrains.compose.resources.getString
  * Use with caution
  */
 fun getStringBlocking(resource: StringResource, vararg formatArgs: Any) = runBlocking {
-    getString(resource, formatArgs)
+    getString(resource, *formatArgs)
 }

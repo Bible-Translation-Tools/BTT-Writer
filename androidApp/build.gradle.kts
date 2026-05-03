@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.foundation)
     implementation(projects.composeApp)
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.uiTooling)

@@ -18,7 +18,6 @@ import java.io.IOException
 class WriterApp : Application() {
 
     private val directoryProvider: DirectoryProvider by inject()
-    private val platform: Platform by inject()
 
     override fun onCreate() {
         super.onCreate()

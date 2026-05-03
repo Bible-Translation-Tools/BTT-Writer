@@ -1,12 +1,25 @@
 package org.bibletranslationtools.writer
 
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import com.arkivanov.decompose.DefaultComponentContext
+import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
+import com.arkivanov.essenty.backhandler.BackDispatcher
+import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.di.initKoin
+import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
+import org.bibletranslationtools.writer.ui.navigation.RootContent
 import org.koin.core.context.GlobalContext
 
 fun main() {
@@ -19,20 +32,46 @@ fun main() {
 
     initKoin()
 
+    startBackupService()
+
     CoroutineScope(Dispatchers.Default).launch {
         GlobalContext.get().get<Typography>().init()
     }
 
-    // TODO Decompose back handler
-//    val backDispatcher = BackDispatcher()
-//    val lifecycle = LifecycleRegistry()
+    val lifecycle = LifecycleRegistry()
+    val backDispatcher = BackDispatcher()
 
     application {
+        val windowState = rememberWindowState(size = DpSize(1280.dp, 800.dp))
+        LifecycleController(lifecycle, windowState)
+
+        val root = DefaultRootComponent(
+            componentContext = DefaultComponentContext(
+                lifecycle = lifecycle,
+                backHandler = backDispatcher
+            ),
+            onExitApp = ::exitApplication
+        )
+
         Window(
             onCloseRequest = ::exitApplication,
             title = "BTT-Writer",
+            state = windowState,
+            onKeyEvent = { event ->
+                if (event.key == Key.Escape && event.type == KeyEventType.KeyDown) {
+                    backDispatcher.back()
+                    true
+                } else false
+            }
         ) {
-            App()
+            AppTheme {
+                RootContent(component = root)
+            }
         }
     }
+}
+
+private fun startBackupService() {
+//        val backupIntent = Intent(baseContext, BackupService::class.java)
+//        baseContext.startService(backupIntent)
 }

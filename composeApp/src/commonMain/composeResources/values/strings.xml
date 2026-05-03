@@ -572,7 +572,7 @@ Attribution of artwork: All images used in these stories are © Sweet Publishing
     <string name="export_to_sd">Export to SD Card</string>
     <string name="chunk_done_prompt">"This chunk is done. Continue editing?"</string>
     <string name="chunk_done_title">"Edit Chunk"</string>
-    <string name="edit">"Edit"</string>
+    <string name="edit">Edit</string>
     <string name="share_apk">Share this app</string>
     <string name="send_to">Send To</string>
     <string name="translators">Contributors</string>

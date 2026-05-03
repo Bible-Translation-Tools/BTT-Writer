@@ -286,7 +286,7 @@ class Preference(private val settings: ObservableSettings) {
                 if (it != sourceTranslationId) "$it|" else null
             } + sourceTranslationId
 
-        setPref(OPEN_SOURCE_TRANSLATIONS + targetTranslationId, newIdSet)
+        setPref(OPEN_SOURCE_TRANSLATIONS + targetTranslationId, newIdSet.joinToString(""))
     }
 
     /**

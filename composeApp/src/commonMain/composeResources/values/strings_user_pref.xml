@@ -7,10 +7,6 @@
     <string name="pref_title_remember_position">Remember my place</string>
     <!-- description of remember last page settings entry -->
     <string name="pref_description_remember_position">Display the last viewed page when starting the app</string>
-    <!-- Highlight key terms in the source text -->
-    <!--<string name="pref_title_highlight_key_terms">Highlight key terms</string>-->
-    <!-- Description of highlight key terms settings menu entry -->
-    <!--<string name="pref_description_highlight_key_terms">Make key terms clickable in the source text</string>-->
 
     <!-- flag to always share when app is open -->
     <string name="pref_title_always_share">Always Share</string>
@@ -68,15 +64,6 @@
     <!-- The URL to create a new account. -->
     <string name="pref_title_create_account_url">Account Creation URL</string>
 
-    <!-- Section heading for Sharing settings -->
-    <!--<string name="pref_header_sharing" translatable="false">Sharing</string>-->
-    <!-- The format to which projects will be exported from the app -->
-    <!--<string name="pref_title_export_format">Export Format</string>-->
-    <!--<string-array name="pref_export_format_titles"  translatable="false">-->
-        <!--<item>@string/export_as_dokuwiki</item>-->
-        <!--<item>@string/export_as_project</item>-->
-    <!--</string-array>-->
-
     <!-- Section heading for Advanced settings -->
     <string name="pref_header_advanced">Advanced</string>
     <!-- Tools within the app to assist developers -->
@@ -84,7 +71,7 @@
     <string name="pref_description_migrate_old_app">Migrate translations from the old app data folder</string>
     <!-- Tools within the app to assist developers -->
     <string name="pref_title_developer_tools">Developer Tools</string>
-    <!-- The minimum serverity of logged messages within the app -->
+    <!-- The minimum severity of logged messages within the app -->
     <string name="pref_title_logging_level">Logging Level</string>
     <!-- The severity or type of messages logged in the app -->
     <string-array name="pref_logging_level_titles">
@@ -102,8 +89,6 @@
 
     <!-- Section heading for Legal settings -->
     <string name="pref_header_legal">Legal</string>
-    <string name="pref_title_license_agreement" translatable="false">@string/view_license_agreement</string>
-    <string name="pref_title_statement_of_faith" translatable="false">@string/view_statement_of_faith</string>
-    <string name="pref_title_translation_guidelines" translatable="false">@string/view_translation_guidelines</string>
+
     <string name="pref_title_software_licenses">Software Licenses</string>
 </resources>

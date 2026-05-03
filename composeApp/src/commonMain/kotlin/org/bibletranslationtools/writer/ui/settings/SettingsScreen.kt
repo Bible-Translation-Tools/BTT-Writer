@@ -52,7 +52,6 @@ import btt_writer.composeapp.generated.resources.pref_title_git_server_port
 import btt_writer.composeapp.generated.resources.pref_title_gogs_api
 import btt_writer.composeapp.generated.resources.pref_title_index_sqlite_url
 import btt_writer.composeapp.generated.resources.pref_title_language_url
-import btt_writer.composeapp.generated.resources.pref_title_license_agreement
 import btt_writer.composeapp.generated.resources.pref_title_logging_level
 import btt_writer.composeapp.generated.resources.pref_title_media_server
 import btt_writer.composeapp.generated.resources.pref_title_migrate_old_app
@@ -60,15 +59,16 @@ import btt_writer.composeapp.generated.resources.pref_title_reader_server
 import btt_writer.composeapp.generated.resources.pref_title_software_licenses
 import btt_writer.composeapp.generated.resources.pref_title_source_typeface
 import btt_writer.composeapp.generated.resources.pref_title_source_typeface_size
-import btt_writer.composeapp.generated.resources.pref_title_statement_of_faith
 import btt_writer.composeapp.generated.resources.pref_title_tm_url
-import btt_writer.composeapp.generated.resources.pref_title_translation_guidelines
 import btt_writer.composeapp.generated.resources.pref_title_translation_typeface
 import btt_writer.composeapp.generated.resources.pref_title_typeface_size
 import btt_writer.composeapp.generated.resources.software_licenses
 import btt_writer.composeapp.generated.resources.statement_of_faith
 import btt_writer.composeapp.generated.resources.translation_guidlines
 import btt_writer.composeapp.generated.resources.version
+import btt_writer.composeapp.generated.resources.view_license_agreement
+import btt_writer.composeapp.generated.resources.view_statement_of_faith
+import btt_writer.composeapp.generated.resources.view_translation_guidelines
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
@@ -314,7 +314,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_license_agreement),
+                    title = stringResource(Res.string.view_license_agreement),
                     onClick = { openLegalDocumentId = Res.string.license_pdf }
                 )
             }
@@ -323,7 +323,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_statement_of_faith),
+                    title = stringResource(Res.string.view_statement_of_faith),
                     onClick = { openLegalDocumentId = Res.string.statement_of_faith }
                 )
             }
@@ -332,7 +332,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_translation_guidelines),
+                    title = stringResource(Res.string.view_translation_guidelines),
                     onClick = { openLegalDocumentId = Res.string.translation_guidlines }
                 )
             }

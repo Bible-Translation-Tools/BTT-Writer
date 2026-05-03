@@ -301,10 +301,6 @@ class Translator (
     }
 
     companion object {
-        val TAG: String = Translator::class.java.name
-
-        private const val TSTUDIO_PACKAGE_VERSION = 2
-        private const val GENERATOR_NAME = "ts-android"
         const val TSTUDIO_EXTENSION = "tstudio"
         const val ZIP_EXTENSION = "zip"
         const val USFM_EXTENSION = "usfm"

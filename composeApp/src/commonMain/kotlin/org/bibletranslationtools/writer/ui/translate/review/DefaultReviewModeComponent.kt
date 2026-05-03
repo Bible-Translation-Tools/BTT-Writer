@@ -14,12 +14,6 @@ import btt_writer.composeapp.generated.resources.tm_title
 import btt_writer.composeapp.generated.resources.translate_first
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import org.bibletranslationtools.writer.ui.translate.Footnote
-import org.bibletranslationtools.writer.ui.translate.FootnoteAction
-import org.bibletranslationtools.writer.ui.translate.ModeComponent
-import org.bibletranslationtools.writer.ui.translate.TranslateComponent
-import org.bibletranslationtools.writer.ui.translate.TranslateComponent.Companion.SEARCH_SOURCE
-import org.bibletranslationtools.writer.ui.translate.TranslationHelp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -50,6 +44,7 @@ import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.TranslationViewMode
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
@@ -65,7 +60,12 @@ import org.bibletranslationtools.writer.rendering.spannables.TranslationWordLink
 import org.bibletranslationtools.writer.rendering.spannables.USFMNoteSpan
 import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
 import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
+import org.bibletranslationtools.writer.ui.translate.Footnote
+import org.bibletranslationtools.writer.ui.translate.FootnoteAction
+import org.bibletranslationtools.writer.ui.translate.ModeComponent
 import org.bibletranslationtools.writer.ui.translate.ReviewItem
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent.Companion.SEARCH_SOURCE
 import org.bibletranslationtools.writer.usecases.RenderHelps
 import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.eclipse.jgit.revwalk.RevCommit
@@ -710,8 +710,7 @@ class DefaultReviewModeComponent(
                 is ArticleLinkSpan -> {
                     val title = getStringBlocking(
                         Res.string.tm_title,
-                        span.section,
-                        span.slug
+                        span.section, span.slug
                     )
                     span.setTitle(title)
                     result = enableTmLinks

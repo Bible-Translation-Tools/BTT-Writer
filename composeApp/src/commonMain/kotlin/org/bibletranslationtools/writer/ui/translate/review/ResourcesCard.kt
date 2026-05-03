@@ -27,10 +27,10 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.label_translation_notes
 import btt_writer.composeapp.generated.resources.questions
 import btt_writer.composeapp.generated.resources.translation_words
-import org.bibletranslationtools.writer.ui.translate.TranslationHelp
 import org.bibletranslationtools.resourcecontainer.Language
 import org.bibletranslationtools.resourcecontainer.Link
 import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.TranslationType
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.utils.getComposeTextStyle

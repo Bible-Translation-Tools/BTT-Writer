@@ -7,10 +7,20 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.theme_value_dark
+import btt_writer.composeapp.generated.resources.theme_value_light
+import btt_writer.composeapp.generated.resources.theme_value_system
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPrefFlow
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 // --- Brand Colors ---
 val PrimaryBlueLight = Color(0xFF0250D3)
@@ -159,10 +169,23 @@ val AppTypography = Typography(
 
 @Composable
 fun AppTheme(
-    darkTheme: Boolean? = null,
     content: @Composable () -> Unit
 ) {
-    val isDark = darkTheme ?: isSystemInDarkTheme()
+    val preference: Preference = koinInject()
+
+    val initialTheme = stringResource(Res.string.theme_value_system)
+    val currentTheme by preference.getPrefFlow(
+        Preference.KEY_PREF_COLOR_THEME,
+        initialTheme
+    ).collectAsStateWithLifecycle(initialTheme)
+
+    val lightValue = stringResource(Res.string.theme_value_light)
+    val darkValue = stringResource(Res.string.theme_value_dark)
+    val isDark = when (currentTheme) {
+        lightValue -> false
+        darkValue -> true
+        else -> isSystemInDarkTheme()
+    }
 
     val colorScheme = when {
         isDark -> DarkColors
