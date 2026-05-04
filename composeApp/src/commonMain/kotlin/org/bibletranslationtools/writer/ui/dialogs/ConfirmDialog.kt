@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.ui.dialogs
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,11 +48,13 @@ fun ConfirmDialog(
         title = title,
         message = message
     ) {
-        TextButton(onClick = onDismiss) {
-            Text(text = dismissText)
-        }
-        TextButton(onClick = onConfirm) {
-            Text(text = confirmText)
+        Row {
+            TextButton(onClick = onDismiss) {
+                Text(text = dismissText)
+            }
+            TextButton(onClick = onConfirm) {
+                Text(text = confirmText)
+            }
         }
     }
 }

@@ -10,7 +10,6 @@ import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.Serializable
 import org.bibletranslationtools.writer.core.Profile
-import org.bibletranslationtools.writer.data.Preference
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -55,7 +54,6 @@ class DefaultProfileComponent(
     ComponentContext by componentContext, KoinComponent {
 
     private val profile: Profile by inject()
-    private val preference: Preference by inject()
 
     private val navigation = StackNavigation<ProfileComponent.Config>()
 
@@ -75,7 +73,7 @@ class DefaultProfileComponent(
     )
 
     init {
-        if (profile.loggedIn) {
+        if (profile.loggedIn && profile.termsOfUseLastAccepted > 0) {
             onResult(ProfileComponent.Result.LoggedIn)
         }
     }

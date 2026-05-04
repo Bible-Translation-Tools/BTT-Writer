@@ -75,7 +75,6 @@ import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.LegalDocumentDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,7 +104,7 @@ fun SettingsScreen(
     var showBackupIntervalDialog by rememberSaveable { mutableStateOf(false) }
     var showLoggingLevelDialog by rememberSaveable { mutableStateOf(false) }
 
-    var openLegalDocumentId by rememberSaveable { mutableStateOf<StringResource?>(null) }
+    var openLegalDocumentId by rememberSaveable { mutableStateOf<String?>(null) }
 
     val openDirectoryLauncher = rememberDirectoryPickerLauncher(
         directory = PlatformFile("Downloads"),
@@ -314,7 +313,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.view_license_agreement),
-                    onClick = { openLegalDocumentId = Res.string.license_pdf }
+                    onClick = { openLegalDocumentId = Res.string.license_pdf.key }
                 )
             }
 
@@ -323,7 +322,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.view_statement_of_faith),
-                    onClick = { openLegalDocumentId = Res.string.statement_of_faith }
+                    onClick = { openLegalDocumentId = Res.string.statement_of_faith.key }
                 )
             }
 
@@ -332,7 +331,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.view_translation_guidelines),
-                    onClick = { openLegalDocumentId = Res.string.translation_guidlines }
+                    onClick = { openLegalDocumentId = Res.string.translation_guidlines.key }
                 )
             }
 
@@ -341,7 +340,7 @@ fun SettingsScreen(
             item {
                 ClickablePreference(
                     title = stringResource(Res.string.view_software_licenses),
-                    onClick = { openLegalDocumentId = Res.string.software_licenses }
+                    onClick = { openLegalDocumentId = Res.string.software_licenses.key }
                 )
             }
 

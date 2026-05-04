@@ -25,11 +25,11 @@ fun ProfileRouter(component: ProfileComponent) {
         animation = stackAnimation(slide()),
     ) { child ->
         when (val instance = child.instance) {
-            is ProfileComponent.Child.Profile -> ProfileScreen(
+            is ProfileComponent.Child.Profile -> ProfileIndexScreen(
                 component = instance.component,
                 registerUrl = registerUrl
             )
-            is ProfileComponent.Child.LoginOnline -> LoginScreen(
+            is ProfileComponent.Child.LoginOnline -> LoginOnlineScreen(
                 component = instance.component
             )
             is ProfileComponent.Child.LoginOffline -> LoginOfflineScreen(

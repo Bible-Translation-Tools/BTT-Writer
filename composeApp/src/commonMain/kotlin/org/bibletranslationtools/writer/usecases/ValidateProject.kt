@@ -13,7 +13,7 @@ import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Validation
 import org.bibletranslationtools.writer.utils.StringUtilities
-import org.bibletranslationtools.writer.utils.sortNumerically
+import org.bibletranslationtools.writer.utils.sortedNumerically
 import org.jetbrains.compose.resources.getString
 
 class ValidateProject(
@@ -54,17 +54,15 @@ class ValidateProject(
             val sourceLanguage = catalogClient.library.getSourceLanguage(
                 container.language.slug
             ) ?: return validations
-            val chapters = container.chapters()
+            val chapters = container.chapters().sortedNumerically()
 
             // validate chapters
             var lastValidChapterIndex = -1
             val chapterValidations = arrayListOf<Validation>()
 
-            chapters.sortNumerically()
             for (i in chapters.indices) {
                 val chapterSlug = chapters[i]
-                val chunks = container.chunks(chapterSlug)
-                chunks.sortNumerically()
+                val chunks = container.chunks(chapterSlug).sortedNumerically()
 
                 // validate frames
                 var lastValidFrameIndex = -1

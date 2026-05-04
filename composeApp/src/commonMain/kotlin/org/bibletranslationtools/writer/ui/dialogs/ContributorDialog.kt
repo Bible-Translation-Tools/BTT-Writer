@@ -51,7 +51,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.writer.core.NativeSpeaker
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -62,7 +61,7 @@ fun ContributorDialog(
     onContributorsChanged: () -> Unit
 ) {
     val isNew by rememberUpdatedState(contributor.name.isEmpty())
-    var openLegalDocumentId by rememberSaveable { mutableStateOf<StringResource?>(null) }
+    var openLegalDocumentId by rememberSaveable { mutableStateOf<String?>(null) }
     var showDeleteContributorDialog by rememberSaveable { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -130,15 +129,15 @@ fun ContributorDialog(
                 ) {
                     TagButton(
                         text = stringResource(Res.string.view_license_agreement),
-                        onClick = { openLegalDocumentId = Res.string.license_pdf }
+                        onClick = { openLegalDocumentId = Res.string.license_pdf.key }
                     )
                     TagButton(
                         text = stringResource(Res.string.view_statement_of_faith),
-                        onClick = { openLegalDocumentId = Res.string.statement_of_faith }
+                        onClick = { openLegalDocumentId = Res.string.statement_of_faith.key }
                     )
                     TagButton(
                         text = stringResource(Res.string.view_translation_guidelines),
-                        onClick = { openLegalDocumentId = Res.string.translation_guidlines }
+                        onClick = { openLegalDocumentId = Res.string.translation_guidlines.key }
                     )
                 }
             }

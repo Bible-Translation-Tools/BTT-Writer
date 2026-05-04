@@ -5,7 +5,6 @@ import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.ui.graphics.vector.ImageVector
 import btt_writer.composeapp.generated.resources.Res
-import btt_writer.composeapp.generated.resources.allStringResources
 import btt_writer.composeapp.generated.resources.choose_book
 import btt_writer.composeapp.generated.resources.choose_category
 import btt_writer.composeapp.generated.resources.choose_language
@@ -35,6 +34,7 @@ import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.usecases.DownloadResourceContainers
 import org.bibletranslationtools.writer.usecases.GetAvailableSources
+import org.bibletranslationtools.writer.utils.resolveStringResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -372,7 +372,9 @@ class DefaultDownloadSourcesComponent(
     }
 
     private fun getCategoryForFilter(filter: String?): SelectionType {
-        val resId = Res.allStringResources[filter] ?: Res.string.other_label
+        val fallback = Res.string.other_label.key
+        val key = filter ?: fallback
+        val resId = resolveStringResource(key, fallback)
         return getCategoryForFilter(resId)
     }
 

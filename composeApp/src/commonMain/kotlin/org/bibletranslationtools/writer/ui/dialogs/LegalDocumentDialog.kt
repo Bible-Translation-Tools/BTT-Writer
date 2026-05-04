@@ -19,15 +19,15 @@ import androidx.compose.ui.window.DialogProperties
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.label_close
-import org.jetbrains.compose.resources.StringResource
+import org.bibletranslationtools.writer.utils.resolveStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LegalDocumentDialog(
-    htmlResourceId: StringResource,
+    htmlResourceId: String,
     onDismissRequest: () -> Unit
 ) {
-    val htmlString = stringResource(htmlResourceId)
+    val htmlString = stringResource(resolveStringResource(htmlResourceId))
     val parsedHtml = remember { htmlToAnnotatedString(htmlString) }
 
     Dialog(

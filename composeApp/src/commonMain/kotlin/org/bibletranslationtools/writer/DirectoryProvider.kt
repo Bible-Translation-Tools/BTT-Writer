@@ -6,7 +6,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.io.asInputStream
 import kotlinx.io.asOutputStream
@@ -14,7 +13,8 @@ import kotlinx.io.buffered
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.git.SSHConfigurator
 import org.bibletranslationtools.writer.utils.FileUtilities
-import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.utils.Zip
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -49,22 +49,13 @@ interface DirectoryProvider {
     val cacheDir: File
 
     val translationsDir: File
-        get() = File(externalAppDir, "translations")
-
-    /**
-     * Returns the local translations cache directory.
-     * This is where import and export operations can expand files.
-     */
-    val translationsCacheDir: File
-        get() = File(translationsDir, "cache")
+        get() = File(externalAppDir, "translations").apply {
+            mkdirs()
+        }
 
     val databaseDir: File
-        get() = run {
-            val databaseDir = File(externalAppDir, "database")
-            if (!databaseDir.exists()) {
-                databaseDir.mkdirs()
-            }
-            databaseDir
+        get() = File(externalAppDir, "database").apply {
+            mkdirs()
         }
 
     /**
@@ -77,23 +68,25 @@ interface DirectoryProvider {
      * The directory where all source resource containers will be stored
      */
     val containersDir: File
-        get() = File(externalAppDir, "resource_containers")
+        get() = File(externalAppDir, "resource_containers").apply {
+            mkdirs()
+        }
 
     /**
      * The directory where all backup files will be stored
      */
     val backupsDir: File
-        get() = File(externalAppDir, "backups")
+        get() = File(externalAppDir, "backups").apply {
+            mkdirs()
+        }
 
     /**
      * Returns the sharing directory
      * @return
      */
     val sharingDir: File
-        get() = run {
-            val file = File(cacheDir, "sharing")
-            file.mkdirs()
-            file
+        get() = File(cacheDir, "sharing").apply {
+            mkdirs()
         }
 
     /**
@@ -106,15 +99,11 @@ interface DirectoryProvider {
      * Returns the directory in which the ssh keys are stored
      */
     val sshKeysDir: File
-        get() = run {
-            val dir = File(
-                internalAppDir,
-                runBlocking { getString(Res.string.keys_dir) }
-            )
-            if (!dir.exists()) {
-                dir.mkdir()
-            }
-            dir
+        get() = File(
+            internalAppDir,
+            getStringBlocking(Res.string.keys_dir)
+        ).apply {
+            mkdirs()
         }
 
     /**
@@ -181,6 +170,20 @@ interface DirectoryProvider {
             val bytes = Res.readBytes("files/index.sqlite")
             databaseFile.outputStream().use { out ->
                 out.write(bytes)
+            }
+
+            // Delete old journal to avoid corrupt database errors
+            val shmFile = File(databaseFile.absolutePath + "-shm")
+            if (shmFile.exists()) { FileUtilities.deleteQuietly(shmFile) }
+            val walFile = File(databaseFile.absolutePath + "-wal")
+            if (walFile.exists()) { FileUtilities.deleteQuietly(walFile) }
+            val journalFile = File(databaseFile.absolutePath + "-journal")
+            if (journalFile.exists()) { FileUtilities.deleteQuietly(journalFile) }
+
+            // extract resource containers
+            containersDir.mkdirs()
+            getAssetAsFile("containers.zip").inputStream().use {
+                Zip.unzipFromStream(it, containersDir)
             }
         }
     }

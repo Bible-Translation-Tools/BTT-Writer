@@ -265,12 +265,11 @@ class Preference(private val settings: ObservableSettings) {
      * @return
      */
     fun getOpenSourceTranslations(targetTranslationId: String): List<String> {
-        val idSet = getPref(
-            OPEN_SOURCE_TRANSLATIONS + targetTranslationId,
-            ""
-        ).trim()
+        val idSet = getPrefOrNull<String>(
+            OPEN_SOURCE_TRANSLATIONS + targetTranslationId
+        )?.trim()
 
-        if (idSet.isEmpty()) {
+        if (idSet.isNullOrEmpty()) {
             return listOf()
         } else {
             val ids = idSet.split("\\|".toRegex()).toMutableList()
@@ -331,12 +330,11 @@ class Preference(private val settings: ObservableSettings) {
      * @return
      */
     fun getSelectedSourceTranslationId(targetTranslationId: String): String? {
-        var selectedSourceTranslationId = getPref(
-            SELECTED_SOURCE_TRANSLATION + targetTranslationId,
-            ""
+        var selectedSourceTranslationId = getPrefOrNull<String>(
+            SELECTED_SOURCE_TRANSLATION + targetTranslationId
         )
 
-        if (selectedSourceTranslationId.isEmpty()) {
+        if (selectedSourceTranslationId.isNullOrEmpty()) {
             // default to first tab
             val openSourceTranslationIds = getOpenSourceTranslations(targetTranslationId)
             if (openSourceTranslationIds.isNotEmpty()) {

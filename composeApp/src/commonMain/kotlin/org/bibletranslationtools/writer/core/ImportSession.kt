@@ -49,8 +49,8 @@ import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.Util
 import org.bibletranslationtools.writer.utils.Zip
-import org.bibletranslationtools.writer.utils.sortNumerically
-import org.bibletranslationtools.writer.utils.sortNumericallyComparator
+import org.bibletranslationtools.writer.utils.sortedNumerically
+import org.bibletranslationtools.writer.utils.toNumericallySortedMap
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import java.io.File
@@ -314,13 +314,13 @@ class ImportSession internal constructor(
     private fun applyChunks(markers: List<ChunkMarker>) {
         val parsed = parseChunks(markers)
         chapters.clear()
-        chapters.addAll(parsed.chapters)
-        chapters.sortNumerically()
+        chapters.addAll(parsed.chapters.sortedNumerically())
 
         chunks.clear()
         chunks.putAll(
-            parsed.chunks.toSortedMap(sortNumericallyComparator)
-                .mapValues { (_, value) -> value.sortedWith(sortNumericallyComparator) }
+            parsed.chunks
+                .toNumericallySortedMap()
+                .mapValues { (_, value) -> value.sortedNumerically() }
         )
         chapterCount = chapters.size
     }
@@ -804,7 +804,7 @@ class ImportSession internal constructor(
         }
         val foundChapters = chunkMap.keys
             .filter { Util.strToInt(it, 0) > 0 }
-            .sortedWith(sortNumericallyComparator)
+            .sortedNumerically()
 
         val finalChunks = HashMap<String, List<String>>()
         chunkMap.forEach { (key, value) -> finalChunks[key] = value }

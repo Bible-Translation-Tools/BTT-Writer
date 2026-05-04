@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
@@ -68,6 +68,7 @@ import org.bibletranslationtools.writer.usecases.GogsLogout
 import org.bibletranslationtools.writer.usecases.PullTargetTranslation
 import org.bibletranslationtools.writer.usecases.PushTargetTranslation
 import org.bibletranslationtools.writer.usecases.RegisterSSHKeys
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.eclipse.jgit.merge.MergeStrategy
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -172,15 +173,17 @@ class DefaultExportComponent(
     override lateinit var projectTitle: String
 
     init {
-        coroutineScope.launch {
-            translator.getTargetTranslation(translationId)?.let { translation ->
-                targetTranslation = translation
-                projectName = getProject()?.name ?: targetTranslation.projectId
-                projectTitle = "$projectName - ${targetTranslation.targetLanguageName}"
-            } ?: run {
-                val error = getString(Res.string.target_translation_not_found)
-                onResult(ExportComponent.Result.Error(error))
-            }
+        val translation = runBlocking {
+            translator.getTargetTranslation(translationId)
+        }
+
+        if (translation == null) {
+            val error = getStringBlocking(Res.string.target_translation_not_found)
+            onResult(ExportComponent.Result.Error(error))
+        } else {
+            targetTranslation = translation
+            projectName = getProject()?.name ?: targetTranslation.projectId
+            projectTitle = "$projectName - ${targetTranslation.targetLanguageName}"
         }
 
         lifecycle.doOnDestroy {

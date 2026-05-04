@@ -45,6 +45,10 @@ import btt_writer.composeapp.generated.resources.no
 import btt_writer.composeapp.generated.resources.title_activity_target_translations
 import btt_writer.composeapp.generated.resources.yes
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.ui.components.HomeSidebar
+import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
+import org.bibletranslationtools.writer.ui.components.rememberHomeMenuItems
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.bibletranslationtools.writer.ui.dialogs.download.DownloadSourcesDialog
@@ -53,10 +57,6 @@ import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackDialog
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportDialog
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportUsfmDialog
 import org.bibletranslationtools.writer.ui.dialogs.update.UpdateLibraryDialog
-import org.bibletranslationtools.writer.core.Profile
-import org.bibletranslationtools.writer.ui.components.HomeSidebar
-import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
-import org.bibletranslationtools.writer.ui.components.rememberHomeMenuItems
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -134,13 +134,14 @@ fun HomeScreen(
                 SnackbarHost(hostState = snackbarHostState)
             }
         ) { paddingValues ->
-            Row(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxSize()
+                    .padding(paddingValues)
+            ) {
                 HomeSidebar(actions = menuItems)
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(

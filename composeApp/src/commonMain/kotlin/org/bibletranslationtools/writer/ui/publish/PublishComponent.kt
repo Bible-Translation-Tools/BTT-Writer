@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
@@ -46,7 +47,7 @@ import org.bibletranslationtools.writer.ui.dialogs.feedback.DefaultFeedbackCompo
 import org.bibletranslationtools.writer.ui.dialogs.feedback.FeedbackComponent
 import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
 import org.bibletranslationtools.writer.usecases.ValidateProject
-import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -135,23 +136,25 @@ class DefaultPublishComponent(
     )
 
     init {
-        coroutineScope.launch {
-            translator.getTargetTranslation(translationId)?.let { translation ->
-                targetTranslation = translation
+        val translation = runBlocking {
+            translator.getTargetTranslation(translationId)
+        }
 
-                (getSelectedSourceTranslationId() ?: getDefaultSourceTranslation())?.let { sourceId ->
-                    sourceTranslationId = sourceId
+        if (translation == null) {
+            val error = getStringBlocking(Res.string.target_translation_not_found, translationId)
+            onResult(PublishComponent.Result.Error(error))
+        } else {
+            targetTranslation = translation
 
-                    coroutineScope.launch {
-                        validateProject(sourceId)
-                        loadTranslators()
-                    }
-                } ?: run {
-                    val error = getString(Res.string.choose_source_translations)
-                    onResult(PublishComponent.Result.Error(error))
+            (getSelectedSourceTranslationId() ?: getDefaultSourceTranslation())?.let { sourceId ->
+                sourceTranslationId = sourceId
+
+                coroutineScope.launch {
+                    validateProject(sourceId)
+                    loadTranslators()
                 }
             } ?: run {
-                val error = getString(Res.string.target_translation_not_found, translationId)
+                val error = getStringBlocking(Res.string.choose_source_translations)
                 onResult(PublishComponent.Result.Error(error))
             }
         }

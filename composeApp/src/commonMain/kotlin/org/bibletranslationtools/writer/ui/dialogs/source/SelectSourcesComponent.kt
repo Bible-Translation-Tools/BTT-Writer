@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
@@ -34,6 +35,7 @@ import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.DownloadResourceContainers
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -118,14 +120,16 @@ class DefaultSelectSourcesComponent(
     }
 
     init {
-        coroutineScope.launch {
-            translator.getTargetTranslation(translationId)?.let { translation ->
-                targetTranslation = translation
-                loadAvailableSources()
-            } ?: run {
-                val error = getString(Res.string.target_translation_not_found)
-                onResult(SelectSourcesComponent.Result.Error(error))
-            }
+        val translation = runBlocking {
+            translator.getTargetTranslation(translationId)
+        }
+
+        if (translation == null) {
+            val error = getStringBlocking(Res.string.target_translation_not_found)
+            onResult(SelectSourcesComponent.Result.Error(error))
+        } else {
+            targetTranslation = translation
+            loadAvailableSources()
         }
 
         lifecycle.doOnDestroy {

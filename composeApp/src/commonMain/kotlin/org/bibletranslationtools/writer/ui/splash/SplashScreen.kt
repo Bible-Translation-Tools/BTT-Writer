@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.ui.splash
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -68,11 +69,13 @@ fun SplashScreen(
             title = stringResource(Res.string.migrate_from_old_app),
             message = stringResource(Res.string.migrate_from_old_app_description)
         ) {
-            TextButton(onClick = component::onMigrationDeclined) {
-                Text(stringResource(Res.string.no))
-            }
-            TextButton(onClick = component::onMigrationAccepted) {
-                Text(stringResource(Res.string.yes))
+            Row {
+                TextButton(onClick = component::onMigrationDeclined) {
+                    Text(stringResource(Res.string.no))
+                }
+                TextButton(onClick = component::onMigrationAccepted) {
+                    Text(stringResource(Res.string.yes))
+                }
             }
         }
     }

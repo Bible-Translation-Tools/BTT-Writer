@@ -31,7 +31,7 @@ import org.bibletranslationtools.writer.rendering.RenderingProvider
 import org.bibletranslationtools.writer.rendering.VerseDisplay
 import org.bibletranslationtools.writer.rendering.model.RenderNode
 import org.bibletranslationtools.writer.usecases.ImportDraft
-import org.bibletranslationtools.writer.utils.sortNumerically
+import org.bibletranslationtools.writer.utils.sortedNumerically
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -139,7 +139,7 @@ class DefaultDraftComponent(
         val title = tempTitle
 
         var chapterBody = ""
-        val chunks = container.chunks(chapterSlug).apply { sortNumerically() }
+        val chunks = container.chunks(chapterSlug).sortedNumerically()
         for (chunk in chunks) {
             chapterBody += container.readChunk(chapterSlug, chunk)
         }

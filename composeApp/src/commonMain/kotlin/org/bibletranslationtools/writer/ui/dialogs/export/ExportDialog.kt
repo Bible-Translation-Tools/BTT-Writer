@@ -76,9 +76,6 @@ import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-private const val EXPORT_GENERIC_MIME_TYPE = "application/octet-stream"
-private const val EXPORT_PDF_MIME_TYPE: String = "application/pdf"
-
 @Composable
 fun ExportDialog(
     component: ExportComponent,

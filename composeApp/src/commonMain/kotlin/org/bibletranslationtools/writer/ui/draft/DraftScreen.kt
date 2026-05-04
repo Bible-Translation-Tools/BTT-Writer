@@ -42,7 +42,7 @@ import org.bibletranslationtools.writer.rendering.RenderingProvider
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import org.bibletranslationtools.writer.utils.sortNumerically
+import org.bibletranslationtools.writer.utils.sortedNumerically
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -125,7 +125,7 @@ fun DraftScreen(
         if (draftData != null) {
             val (container, language) = draftData
             val chapters = remember(container) {
-                container.chapters().apply { sortNumerically() }
+                container.chapters().sortedNumerically()
             }
 
             LazyColumn(
