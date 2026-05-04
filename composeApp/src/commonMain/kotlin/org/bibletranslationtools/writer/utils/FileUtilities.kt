@@ -8,9 +8,9 @@ import io.github.vinceglb.filekit.div
 import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.isDirectory
 import io.github.vinceglb.filekit.list
-import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
 import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.displayName
 import java.io.Closeable
 import java.io.File
 import java.io.FileFilter
@@ -309,7 +309,7 @@ object FileUtilities {
         if (destPath.startsWith(srcPath)) {
             val srcFiles = listChildren(srcDir, filter)
             srcFiles.forEach { srcFile ->
-                val copiedFile = destDir / srcFile.name
+                val copiedFile = destDir / srcFile.displayName
                 exclusionList.add(copiedFile.absolutePath())
             }
         }
@@ -343,7 +343,7 @@ object FileUtilities {
         }
 
         for (srcFile in srcFiles) {
-            val dstFile = destDir / srcFile.name
+            val dstFile = destDir / srcFile.displayName
             if (srcFile.absolutePath() in exclusionList) continue
 
             if (srcFile.isDirectory()) {

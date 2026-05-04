@@ -91,8 +91,8 @@
     <!-- Indicates the current frame (page) being viewed e.g. Frame 2 of 10 -->
     <string name="currently_viewed_frame_index">Frame <xliff:g example="2" id="current_frame">%1$s</xliff:g> of <xliff:g example="10" id="total_frames">%2$s</xliff:g></string>
     <string name="git_awaiting_report" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Push process is awaiting update report from remote repository.</string>
-    <string name="git_non_existing" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref didn\'t exist.</string>
-    <string name="git_not_attempted" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%s</xliff:g>] Push process hasn\'t yet attempted to update this ref.</string>
+    <string name="git_non_existing" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref didn't exist.</string>
+    <string name="git_not_attempted" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Push process hasn't yet attempted to update this ref.</string>
     <string name="git_ok" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Success push to remote ref.</string>
     <string name="git_rejected_nondelete" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.</string>
     <string name="git_rejected_nonfastforward" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, as it would cause non fast-forward update.</string>
@@ -584,7 +584,7 @@ Do you want to enable SD card access?  If so then:
 ]]>
     </string>
     <string name="access_title">Access Attempt</string>
-    <string name="access_failed">Failed on access request to:\n\'%s\'\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the \'SD card\' icon on the left, and then that the button you pressed on the bottom said \'SELECT \"SD card\"\'.</string>
+    <string name="access_failed">Failed on access request to:\n\'%1$s\'\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the \'SD card\' icon on the left, and then that the button you pressed on the bottom said \'SELECT \"SD card\"\'.</string>
     <string name="access_granted_sd_card">Success! Access Allowed.\n\nAfter tapping OK, choose the folder and then the file name for your import/export.</string>
     <string name="access_skipped">Access Request Cancelled</string>
     <string name="label_skip">Skip</string>
@@ -605,7 +605,7 @@ Do you want to enable SD card access?  If so then:
     <string name="printing">Printing: <xliff:g example="Genesis" id="project">%1$s</xliff:g></string>
     <string name="label_undo">Undo</string>
     <string name="label_redo">Redo</string>
-    <string name="restored_to_time">Restored to %s</string>
+    <string name="restored_to_time">Restored to %1$s</string>
     <string name="restoring_end">Reached End of Archive</string>
     <string name="title_add_footnote">Add Footnote</string>
     <string name="add_footnote_title">Title:</string>
@@ -632,7 +632,7 @@ Do you want to enable SD card access?  If so then:
     <string name="invalid_entry_title">Invalid Entry</string>
     <string name="answers_missing_title">Answers Missing</string>
     <string name="missing_question_answer">Missing answer for question</string>
-    <string name="answer_missing_for">Missing answer for question:\n%s</string>
+    <string name="answer_missing_for">Missing answer for question:\n%1$s</string>
     <string name="answers_missing_continue">Answers are missing for questions.\nContinue anyway?</string>
     <string name="previous">Previous</string>
     <string name="title_activity_new_language">New Language Request</string>
@@ -676,15 +676,15 @@ Do you want to enable SD card access?  If so then:
     <string name="label_import_usfm">Import USFM</string>
     <string name="import_usfm_success">USFM file Import Success</string>
     <string name="import_usfm_failed">USFM file Import Failed</string>
-    <string name="title_import_usfm_error_book">Error Importing USFM book \'%s\'</string>
+    <string name="title_import_usfm_error_book">Error Importing USFM book \'%1$s\'</string>
     <string name="title_import_usfm_error">Error Importing USFM</string>
     <string name="title_processing_usfm_summary">USFM Processing Summary</string>
     <string name="title_import_usfm_results">USFM Import Results</string>
     <string name="zip_read_error">Error reading Zip</string>
     <string name="file_read_error">Error reading File</string>
     <string name="file_write_error">Error writing File</string>
-    <string name="file_write_for_verse">Error writing verse %s</string>
-    <string name="file_read_error_detail">Error reading File \'%s\'</string>
+    <string name="file_write_for_verse">Error writing verse %1$s</string>
+    <string name="file_read_error_detail">Error reading File \'%1$s\'</string>
     <string name="missing_book_short_name">Missing book short name (\\id or \\toc3)</string>
     <string name="missing_book_name">Missing book name (\\toc1)</string>
     <string name="missing_language">Missing language</string>
@@ -692,25 +692,25 @@ Do you want to enable SD card access?  If so then:
     <string name="no_verse">No verse markers found</string>
     <string name="no_section_no_chunk">No sections found and no chunking breakdown list</string>
     <string name="book_parse_error">Error parsing book</string>
-    <string name="error_reading_file">Error reading file: %s</string>
-    <string name="could_not_find_chapter">Could not find chapter: %s</string>
+    <string name="error_reading_file">Error reading file: %1$s</string>
+    <string name="could_not_find_chapter">Could not find chapter: %1$s</string>
     <string name="could_not_find_verses_in_chapter">No verses in range <xliff:g example="1" id="start_verse">%1$d</xliff:g> to <xliff:g example="2" id="end_verse">%2$d</xliff:g> in chapter: <xliff:g example="05" id="chapter">%3$s</xliff:g></string>
     <string name="missing_verses_in_chapter">Missing <xliff:g example="2" id="verse_count">%1$d</xliff:g> verse(s) in range <xliff:g example="1" id="start_verse">%2$d</xliff:g> to <xliff:g example="2" id="end_verse">%3$d</xliff:g> in chapter: <xliff:g example="05" id="chapter">%4$s</xliff:g></string>
     <string name="extra_verses_in_chapter">Extra <xliff:g example="2" id="verse_count">%1$d</xliff:g> verse(s) in range <xliff:g example="1" id="start_verse">%2$d</xliff:g> to <xliff:g example="2" id="end_verse">%3$d</xliff:g> in chapter: <xliff:g example="05" id="chapter">%4$s</xliff:g></string>
-    <string name="could_not_parse_chapter">Could not parse chapter: %s</string>
-    <string name="missing_chapter_n">Missing chapter %s - will try to recover</string>
-    <string name="duplicate_chapter">Duplicate chapter: %s</string>
+    <string name="could_not_parse_chapter">Could not parse chapter: %1$s</string>
+    <string name="missing_chapter_n">Missing chapter %1$s - will try to recover</string>
+    <string name="duplicate_chapter">Duplicate chapter: %1$s</string>
     <string name="chapter_out_of_order">Chapter out of order: \'<xliff:g example="4" id="found">%1$s</xliff:g>\' after \'<xliff:g example="2" id="previous">%1$s</xliff:g>\'</string>
     <string name="missing_verses_in_section">No Verses in Section</string>
-    <string name="error_prefix">Error: %s</string>
+    <string name="error_prefix">Error: %1$s</string>
     <string name="no_error">No errors found</string>
-    <string name="warning_prefix">Warning: %s</string>
-    <string name="found_book">Found book: %s</string>
-    <string name="importing_file">Importing: %s</string>
-    <string name="selected_language">Selected Language: %s</string>
+    <string name="warning_prefix">Warning: %1$s</string>
+    <string name="found_book">Found book: %1$s</string>
+    <string name="importing_file">Importing: %1$s</string>
+    <string name="selected_language">Selected Language: %1$s</string>
     <string name="initializing_import">Initializing Import</string>
     <string name="finished_loading">Finished Loading Books</string>
-    <string name="processing_chapter">Processing Chapter: %s</string>
+    <string name="processing_chapter">Processing Chapter: %1$s</string>
     <string name="building_manifest">Building Manifest</string>
     <string name="reading_usfm">Reading USFM</string>
     <string name="importing_usfm">Importing USFM</string>

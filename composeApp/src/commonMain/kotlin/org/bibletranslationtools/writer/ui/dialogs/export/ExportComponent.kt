@@ -30,7 +30,6 @@ import btt_writer.composeapp.generated.resources.uploading
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -62,6 +61,7 @@ import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.CreateRepository
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.usecases.GogsLogout
@@ -251,7 +251,7 @@ class DefaultExportComponent(
                 val title = getString(Res.string.success)
                 val message = getString(
                     Res.string.print_success,
-                    result.file.name
+                    result.file.displayName
                 )
                 title to message
             } else {
@@ -279,7 +279,7 @@ class DefaultExportComponent(
 
             val title = getString(Res.string.title_export_usfm)
             val message = if (result.success) {
-                getString(Res.string.export_success, result.file.name)
+                getString(Res.string.export_success, result.file.displayName)
             } else {
                 getString(Res.string.export_failed)
             }
@@ -303,7 +303,7 @@ class DefaultExportComponent(
 
             val title = getString(Res.string.backup_to_sd)
             val message = if (result.success) {
-                getString(Res.string.export_success, result.file.name)
+                getString(Res.string.export_success, result.file.displayName)
             } else {
                 getString(Res.string.export_failed)
             }
@@ -545,7 +545,7 @@ class DefaultExportComponent(
     }
 
     private fun validateUriExtension(file: PlatformFile, extension: String): Boolean {
-        val filename = file.name
+        val filename = file.displayName
         val filenameRegex = Regex(".*\\.$extension(\\s\\(\\d+\\))?$")
         return filename.matches(filenameRegex)
     }

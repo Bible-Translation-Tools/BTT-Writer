@@ -1,6 +1,8 @@
 package org.bibletranslationtools.writer
 
 import androidx.compose.ui.platform.ClipEntry
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitType
 import org.bibletranslationtools.logger.GithubReporter
 import java.io.File
 import java.text.DecimalFormat
@@ -84,3 +86,7 @@ expect fun getGithubReporter(repoUrl: String, oAuthToken: String): GithubReporte
 expect fun textClipEntry(text: String, label: String? = null): ClipEntry
 expect fun ClipEntry.textOrNull(): String?
 expect val ClipEntry.label: String?
+
+expect fun getSupportedUsfmExtensions(): FileKitType.File
+expect fun getSupportedTstudioExtensions(): FileKitType.File
+expect val PlatformFile.displayName: String

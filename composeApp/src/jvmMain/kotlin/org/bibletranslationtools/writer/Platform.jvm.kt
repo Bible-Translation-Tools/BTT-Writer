@@ -2,6 +2,9 @@ package org.bibletranslationtools.writer
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.name
 import org.bibletranslationtools.logger.Context
 import org.bibletranslationtools.logger.GithubReporter
 import java.awt.datatransfer.DataFlavor
@@ -77,3 +80,12 @@ actual fun ClipEntry.textOrNull(): String? = runCatching {
 
 actual val ClipEntry.label: String?
     get() = null  // AWT doesn't have a label concept
+
+actual fun getSupportedUsfmExtensions(): FileKitType.File =
+    FileKitType.File(extensions = listOf("usfm", "txt", "zip"))
+
+actual fun getSupportedTstudioExtensions(): FileKitType.File =
+    FileKitType.File(extensions = listOf("tstudio", "zip"))
+
+actual val PlatformFile.displayName: String
+    get() = this.name

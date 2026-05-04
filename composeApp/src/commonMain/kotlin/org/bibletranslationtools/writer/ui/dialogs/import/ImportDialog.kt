@@ -55,13 +55,16 @@ import btt_writer.composeapp.generated.resources.merge_conflict_title
 import btt_writer.composeapp.generated.resources.merge_projects_label
 import btt_writer.composeapp.generated.resources.overwrite_projects_label
 import btt_writer.composeapp.generated.resources.title_cancel
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import org.bibletranslationtools.writer.getSupportedTstudioExtensions
+import org.bibletranslationtools.writer.getSupportedUsfmExtensions
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import org.jetbrains.compose.resources.stringResource
 
 private const val IMPORT_INFO_URL =
@@ -80,20 +83,27 @@ fun ImportDialog(
     val uriHandler = LocalUriHandler.current
 
     val openUSFMContent = rememberFilePickerLauncher(
-        type = FileKitType.File(extensions = listOf("usfm", "txt", "zip"))
+        type = getSupportedUsfmExtensions(),
+        directory = PlatformFile("Downloads"),
+        dialogSettings = FileKitDialogSettings.createDefault()
     ) { file ->
         file?.let(component::importUsfm)
     }
 
     val openProjectContent =rememberFilePickerLauncher(
-        type = FileKitType.File(extensions = listOf("tstudio", "zip"))
+        type = getSupportedTstudioExtensions(),
+        directory = PlatformFile("Downloads"),
+        dialogSettings = FileKitDialogSettings.createDefault()
     ) { file ->
         file?.let {
             component.importProject(it, false)
         }
     }
 
-    val openDirectory = rememberDirectoryPickerLauncher { directory ->
+    val openDirectory = rememberDirectoryPickerLauncher(
+        directory = PlatformFile("Downloads"),
+        dialogSettings = FileKitDialogSettings.createDefault()
+    ) { directory ->
         directory?.let {
             component.importSource(it, false)
         }

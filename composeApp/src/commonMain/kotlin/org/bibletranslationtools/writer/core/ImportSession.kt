@@ -29,7 +29,6 @@ import btt_writer.composeapp.generated.resources.processing_chapter
 import btt_writer.composeapp.generated.resources.warning_prefix
 import btt_writer.composeapp.generated.resources.zip_read_error
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.extension
 import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.readString
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +42,7 @@ import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.Translator.Companion.TXT_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.USFM_EXTENSION
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.inputStream
 import org.bibletranslationtools.writer.rendering.spannables.USFMNoteSpan
 import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
@@ -138,7 +138,7 @@ class ImportSession internal constructor(
         isSuccess = try {
             readFile(file)
         } catch (e: Exception) {
-            Logger.e(TAG, "Failed to read ${file.path}", e)
+            Logger.e(TAG, "Failed to read ${file.displayName}", e)
             addError(Res.string.file_read_error_detail, file.path)
             false
         }
@@ -189,7 +189,7 @@ class ImportSession internal constructor(
     // ---------------------------------------------------------------
 
     private suspend fun readFile(file: PlatformFile): Boolean {
-        return if (file.extension.equals("zip", ignoreCase = true)) {
+        return if (file.displayName.endsWith(Translator.ZIP_EXTENSION, ignoreCase = true)) {
             try {
                 file.inputStream().use { readZipStream(it) }
             } catch (e: Exception) {
@@ -198,7 +198,7 @@ class ImportSession internal constructor(
                 false
             }
         } else {
-            processBook(file.readString(), file.path)
+            processBook(file.readString(), file.displayName)
         }
     }
 
@@ -860,7 +860,7 @@ class ImportSession internal constructor(
     private suspend fun addError(resource: StringResource) =
         addMessage(getString(resource), isError = true)
 
-    private suspend fun addError(resource: StringResource, vararg args: String) =
+    private suspend fun addError(resource: StringResource, vararg args: Any) =
         addMessage(getString(resource, *args), isError = true)
 
     private suspend fun addError(message: String) =
@@ -869,7 +869,7 @@ class ImportSession internal constructor(
     private suspend fun addWarning(message: String) =
         addMessage(message, isError = false)
 
-    private suspend fun addWarning(resource: StringResource, vararg args: String) =
+    private suspend fun addWarning(resource: StringResource, vararg args: Any) =
         addMessage(getString(resource, *args), isError = false)
 
     private suspend fun addMessage(message: String, isError: Boolean) {

@@ -11,15 +11,19 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Process
+import android.provider.OpenableColumns
 import androidx.compose.ui.platform.ClipEntry
 import androidx.core.content.FileProvider
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.send_to
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.context
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.toAndroidUri
+import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.runBlocking
 import org.bibletranslationtools.logger.GithubReporter
-import org.bibletranslationtools.logger.LogLevel
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.Platform.Companion.GB
 import org.bibletranslationtools.writer.Platform.Companion.KB
@@ -215,3 +219,32 @@ actual fun ClipEntry.textOrNull(): String? {
 }
 actual val ClipEntry.label: String?
     get() = clipData.description.label?.toString()
+
+// Android doesn't filter by unrecognized mime types (.usfm, .tstudio)
+// That's why we need to allow all extensions
+actual fun getSupportedUsfmExtensions(): FileKitType.File =
+    FileKitType.File()
+
+actual fun getSupportedTstudioExtensions(): FileKitType.File =
+    FileKitType.File()
+
+actual val PlatformFile.displayName: String
+    get() {
+        val uri = toAndroidUri()
+        val context = FileKit.context
+
+        return when (uri.scheme) {
+            "file" -> uri.lastPathSegment.orEmpty()
+            "content" -> {
+                context.contentResolver
+                    .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            if (index >= 0) cursor.getString(index) else null
+                        } else null
+                    } ?: name
+            }
+            else -> name
+        }
+    }

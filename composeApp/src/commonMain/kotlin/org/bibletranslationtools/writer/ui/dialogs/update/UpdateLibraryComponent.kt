@@ -15,7 +15,6 @@ import btt_writer.composeapp.generated.resources.updating_sources
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -34,6 +33,7 @@ import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
 import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.ImportIndex
@@ -137,7 +137,7 @@ class DefaultUpdateLibraryComponent(
     }
 
     override fun importIndex(file: PlatformFile) {
-        val filename = file.name
+        val filename = file.displayName
         val isSqlite = filename.contains(".sqlite", ignoreCase = true)
 
         launchWithProgress(Res.string.importing_index) {

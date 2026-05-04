@@ -5,9 +5,9 @@ import btt_writer.composeapp.generated.resources.copying_file
 import btt_writer.composeapp.generated.resources.migrating_translation
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.isDirectory
-import io.github.vinceglb.filekit.name
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.TargetTranslationMigrator
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.jetbrains.compose.resources.getString
 import java.io.File
@@ -28,7 +28,7 @@ class MigrateTranslations(
             appDataFolder,
             PlatformFile(tempTranslations)
         ) {
-            it.isDirectory() && it.name == directoryProvider.translationsDir.name
+            it.isDirectory() && it.displayName == directoryProvider.translationsDir.name
         }
 
         migrateTranslations(tempTranslations, onProgress)
@@ -40,7 +40,7 @@ class MigrateTranslations(
             appDataFolder,
             PlatformFile(tempBackups)
         ) {
-            it.isDirectory() && it.name == directoryProvider.backupsDir.name
+            it.isDirectory() && it.displayName == directoryProvider.backupsDir.name
         }
         copyBackups(tempBackups, onProgress)
     }

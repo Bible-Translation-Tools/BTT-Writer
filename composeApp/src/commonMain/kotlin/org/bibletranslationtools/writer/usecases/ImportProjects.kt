@@ -5,7 +5,6 @@ import btt_writer.composeapp.generated.resources.importing_file
 import btt_writer.composeapp.generated.resources.overwrite_content
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.isDirectory
-import io.github.vinceglb.filekit.name
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
@@ -15,6 +14,7 @@ import org.bibletranslationtools.writer.core.ArchiveImporter
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.inputStream
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.Zip
@@ -54,7 +54,7 @@ class ImportProjects(
         var success = false
         var hasMergeConflict = false
 
-        val filename = platformFile.name
+        val filename = platformFile.displayName
         var importedSlug: String? = null
 
         val isTstudio = filename.contains(Translator.TSTUDIO_EXTENSION, ignoreCase = true)

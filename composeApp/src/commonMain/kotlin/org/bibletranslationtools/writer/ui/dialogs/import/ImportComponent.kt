@@ -23,7 +23,6 @@ import btt_writer.composeapp.generated.resources.unsupported
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -51,6 +50,7 @@ import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.ui.home.RepositoryItem
 import org.bibletranslationtools.writer.usecases.AdvancedGogsRepoSearch
 import org.bibletranslationtools.writer.usecases.CloneRepository
@@ -174,7 +174,7 @@ class DefaultImportComponent(
 
             when {
                 result.success -> {
-                    val dirName = file.name
+                    val dirName = file.displayName
                     updateResult(
                         getString(Res.string.success),
                         getString(Res.string.import_success) + " $dirName"
@@ -248,7 +248,7 @@ class DefaultImportComponent(
         launchWithProgress { handle ->
             handle.update(-1f, getString(message, formatArgs))
 
-            val filename = file.name
+            val filename = file.displayName
             val isTstudio = filename.contains(Translator.TSTUDIO_EXTENSION, ignoreCase = true)
             val isZip = filename.contains(Translator.ZIP_EXTENSION, ignoreCase = true)
             if (isTstudio || isZip) {

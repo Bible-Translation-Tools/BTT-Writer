@@ -11,7 +11,6 @@ import btt_writer.composeapp.generated.resources.title_import_usfm_error
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.name
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +37,7 @@ import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -210,7 +210,7 @@ class DefaultImportUsfmComponent(
 
     private suspend fun startImport(file: PlatformFile) {
         if (_state.value.started) return
-        val filename = file.name
+        val filename = file.displayName
         val isUsfm = filename.contains(Translator.USFM_EXTENSION, ignoreCase = true)
         val isTxt = filename.contains(Translator.TXT_EXTENSION, ignoreCase = true)
         val isZip = filename.contains(Translator.ZIP_EXTENSION, ignoreCase = true)
