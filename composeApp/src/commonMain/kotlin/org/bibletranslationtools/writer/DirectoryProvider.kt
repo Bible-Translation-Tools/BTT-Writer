@@ -60,8 +60,7 @@ interface DirectoryProvider {
 
     val databaseDir: File
         get() = run {
-            val root = externalAppDir.parentFile
-            val databaseDir = File(root, "databases")
+            val databaseDir = File(externalAppDir, "database")
             if (!databaseDir.exists()) {
                 databaseDir.mkdirs()
             }

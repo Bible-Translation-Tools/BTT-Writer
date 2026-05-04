@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name" translatable="false">BTT-Writer-2.0</string>
     <string name="git_repository_dir" translatable="false">git</string>
     <string name="keys_dir" translatable="false">ssh</string>
     <string name="exported_projects_dir" translatable="false">exported</string>
@@ -7,4 +8,72 @@
     <string name="gogs_token_name">btt-writer-android</string>
     <string name="gogs_user_agent">btt-writer-android</string>
     <string name="terms_of_use_version">3</string>
+
+    <string-array name="font_size_values_array" translatable="false">
+        <item>15</item>
+        <item>25</item>
+        <item>35</item>
+        <item>45</item>
+    </string-array>
+
+    <string-array name="content_server_values_array" translatable="false">
+        <item>wacs_value</item>
+        <item>wacs_dev_value</item>
+        <item>dcs_value</item>
+    </string-array>
+
+    <string-array name="content_server_git_server_port_values_array" translatable="false">
+        <item>22</item>
+        <item>22</item>
+        <item>9299</item>
+    </string-array>
+
+    <string-array name="content_server_data_server_values_array" translatable="false">
+        <item>https://content.bibletranslationtools.org</item>
+        <item>https://content.wacsdev.org</item>
+        <item>https://git.door43.org</item>
+    </string-array>
+
+    <string-array name="content_server_git_server_api_values_array" translatable="false">
+        <item>https://content.bibletranslationtools.org/api/v1</item>
+        <item>https://content.wacsdev.org/api/v1</item>
+        <item>https://git.door43.org/api/v1</item>
+    </string-array>
+
+    <string-array name="content_server_media_server_values_array" translatable="false">
+        <item>https://api.bibletranslationtools.org</item>
+        <item>https://api-dev.bibletranslationtools.org</item>
+        <item>https://api.unfoldingword.org</item>
+    </string-array>
+
+    <string-array name="content_server_reader_server_values_array" translatable="false">
+        <item>https://read.bibleineverylanguage.org</item>
+        <item>https://read-dev.bibleineverylanguage.org</item>
+        <item>https://door43.org/u</item>
+    </string-array>
+
+    <string-array name="content_server_account_create_urls_array" translatable="false">
+        <item>https://content.bibletranslationtools.org/user/sign_up</item>
+        <item>https://content.wacsdev.org/user/sign_up</item>
+        <item>https://git.door43.org/user/sign_up</item>
+    </string-array>
+
+    <string-array name="content_server_lang_names_url_array" translatable="false">
+        <item>https://langnames.bibleineverylanguage.org/langnames.json</item>
+        <item>https://langnames.bibleineverylanguage.org/langnames.json</item>
+        <item>https://td.unfoldingword.org/exports/langnames.json</item>
+    </string-array>
+
+    <string-array name="content_server_index_sqlite_url_array" translatable="false">
+        <item>https://writer-resources.bibletranslationtools.org/index.sqlite</item>
+        <item>https://writer-resources.bibletranslationtools.org/index.sqlite</item>
+        <item>https://writer-resources.bibletranslationtools.org/index.sqlite</item>
+    </string-array>
+
+    <string-array name="backup_intervals_values_array" translatable="false">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>-1</item>
+    </string-array>
 </resources>

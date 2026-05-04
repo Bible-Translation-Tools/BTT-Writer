@@ -86,13 +86,6 @@ class AndroidPlatform(
         (context as? Activity)?.finishAffinity()
     }
 
-    override fun configureLogger(minLogLevel: Int) {
-        Logger.configure(
-            directoryProvider.logFile,
-            LogLevel.getLevel(minLogLevel)
-        )
-    }
-
     override fun shareApp() {
         val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         pInfo.applicationInfo?.let { info ->

@@ -27,8 +27,8 @@ import androidx.compose.ui.window.Dialog
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.include_images
 import btt_writer.composeapp.generated.resources.include_incomplete_frames
-import btt_writer.composeapp.generated.resources.menu_cancel
 import btt_writer.composeapp.generated.resources.print
+import btt_writer.composeapp.generated.resources.title_cancel
 import org.bibletranslationtools.writer.ui.components.LabeledCheckbox
 import org.jetbrains.compose.resources.stringResource
 
@@ -101,7 +101,7 @@ fun PrintDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(Res.string.menu_cancel))
+                        Text(stringResource(Res.string.title_cancel))
                     }
 
                     TextButton(

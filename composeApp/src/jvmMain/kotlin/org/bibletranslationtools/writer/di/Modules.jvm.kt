@@ -1,20 +1,34 @@
 package org.bibletranslationtools.writer.di
 
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.russhwolf.settings.ExperimentalSettingsApi
+import com.russhwolf.settings.ExperimentalSettingsImplementation
 import com.russhwolf.settings.ObservableSettings
-import com.russhwolf.settings.PreferencesSettings
+import com.russhwolf.settings.coroutines.toBlockingObservableSettings
+import com.russhwolf.settings.datastore.DataStoreSettings
+import okio.Path.Companion.toPath
 import org.bibletranslationtools.writer.DesktopPlatform
 import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.JvmDirectoryProvider
+import org.bibletranslationtools.writer.DesktopDirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import java.util.prefs.Preferences
+import java.io.File
 
 actual val platformModule = module {
     singleOf(::DesktopPlatform).bind<Platform>()
-    singleOf(::JvmDirectoryProvider).bind<DirectoryProvider>()
+    singleOf(::DesktopDirectoryProvider).bind<DirectoryProvider>()
+
+    @OptIn(ExperimentalSettingsApi::class, ExperimentalSettingsImplementation::class)
     single<ObservableSettings> {
-        PreferencesSettings(Preferences.userRoot().node("BTT-Writer"))
+        val directoryProvider: DirectoryProvider = get()
+        val configFile = File(directoryProvider.internalAppDir, "settings.preferences_pb")
+        configFile.parentFile?.mkdirs()
+
+        val dataStore = PreferenceDataStoreFactory.createWithPath {
+            configFile.absolutePath.toPath()
+        }
+        DataStoreSettings(dataStore).toBlockingObservableSettings()
     }
 }

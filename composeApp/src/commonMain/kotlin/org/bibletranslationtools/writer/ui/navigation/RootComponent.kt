@@ -2,6 +2,7 @@ package org.bibletranslationtools.writer.ui.navigation
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.pref_default_color_theme
+import btt_writer.composeapp.generated.resources.pref_default_logging_level
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -13,18 +14,6 @@ import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.router.stack.replaceCurrent
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import org.bibletranslationtools.writer.ui.newtranslation.DefaultNewTranslationComponent
-import org.bibletranslationtools.writer.ui.newtranslation.NewTranslationComponent
-import org.bibletranslationtools.writer.ui.profile.DefaultProfileComponent
-import org.bibletranslationtools.writer.ui.profile.ProfileComponent
-import org.bibletranslationtools.writer.ui.publish.DefaultPublishComponent
-import org.bibletranslationtools.writer.ui.publish.PublishComponent
-import org.bibletranslationtools.writer.ui.settings.DefaultSettingsComponent
-import org.bibletranslationtools.writer.ui.settings.SettingsComponent
-import org.bibletranslationtools.writer.ui.splash.DefaultSplashComponent
-import org.bibletranslationtools.writer.ui.splash.SplashComponent
-import org.bibletranslationtools.writer.ui.translate.DefaultTranslateComponent
-import org.bibletranslationtools.writer.ui.translate.TranslateComponent
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,10 +22,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.bibletranslationtools.logger.LogLevel
+import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
 import org.bibletranslationtools.writer.data.Preference
@@ -50,9 +41,25 @@ import org.bibletranslationtools.writer.ui.draft.DraftComponent
 import org.bibletranslationtools.writer.ui.home.DefaultHomeComponent
 import org.bibletranslationtools.writer.ui.home.HomeComponent
 import org.bibletranslationtools.writer.ui.navigation.RootComponent.Config
+import org.bibletranslationtools.writer.ui.newtranslation.DefaultNewTranslationComponent
+import org.bibletranslationtools.writer.ui.newtranslation.NewTranslationComponent
+import org.bibletranslationtools.writer.ui.profile.DefaultProfileComponent
+import org.bibletranslationtools.writer.ui.profile.ProfileComponent
+import org.bibletranslationtools.writer.ui.publish.DefaultPublishComponent
+import org.bibletranslationtools.writer.ui.publish.PublishComponent
+import org.bibletranslationtools.writer.ui.settings.DefaultSettingsComponent
+import org.bibletranslationtools.writer.ui.settings.SettingsComponent
+import org.bibletranslationtools.writer.ui.splash.DefaultSplashComponent
+import org.bibletranslationtools.writer.ui.splash.SplashComponent
+import org.bibletranslationtools.writer.ui.translate.DefaultTranslateComponent
+import org.bibletranslationtools.writer.ui.translate.TranslateComponent
+import org.bibletranslationtools.writer.utils.FileUtilities
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.io.File
+import java.io.IOException
 
 interface RootComponent {
 
@@ -134,6 +141,7 @@ class DefaultRootComponent(
 
     private val preference: Preference by inject()
     private val platform: Platform by inject()
+    private val directoryProvider: DirectoryProvider by inject()
 
     private val navigation = StackNavigation<Config>()
 
@@ -153,6 +161,26 @@ class DefaultRootComponent(
     )
 
     init {
+        preference.getPref(
+            Preference.KEY_PREF_LOGGING_LEVEL,
+            getStringBlocking(Res.string.pref_default_logging_level)
+        ).let { minLogLevel ->
+            Logger.configure(
+                directoryProvider.logFile,
+                LogLevel.getLevel(minLogLevel)
+            )
+        }
+
+        val dir = File(directoryProvider.externalAppDir, "crashes")
+        if (!dir.exists()) {
+            try {
+                FileUtilities.forceMkdir(dir)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        Logger.registerGlobalExceptionHandler(dir)
+
         coroutineScope.launch {
             val theme = preference.getPref(
                 Preference.KEY_PREF_COLOR_THEME,

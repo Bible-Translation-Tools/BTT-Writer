@@ -18,8 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import btt_writer.composeapp.generated.resources.Res
-import btt_writer.composeapp.generated.resources.menu_cancel
-import btt_writer.composeapp.generated.resources.menu_save
+import btt_writer.composeapp.generated.resources.action_save
+import btt_writer.composeapp.generated.resources.title_cancel
 import org.jetbrains.compose.resources.stringResource
 
 
@@ -59,12 +59,12 @@ fun EditTextPreferenceDialog(
                     onDismissRequest()
                 }
             ) {
-                Text(stringResource(Res.string.menu_save))
+                Text(stringResource(Res.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(stringResource(Res.string.menu_cancel))
+                Text(stringResource(Res.string.title_cancel))
             }
         },
         shape = RoundedCornerShape(8.dp)

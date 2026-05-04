@@ -35,10 +35,6 @@ class DesktopPlatform(
         TODO("Not yet implemented")
     }
 
-    override fun configureLogger(minLogLevel: Int) {
-        TODO("Not yet implemented")
-    }
-
     override fun shareApp() {
         TODO("Not yet implemented")
     }

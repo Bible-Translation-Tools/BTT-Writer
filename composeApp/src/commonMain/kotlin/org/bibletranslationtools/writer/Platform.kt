@@ -47,7 +47,6 @@ interface Platform {
 
     fun restart()
     fun exit()
-    fun configureLogger(minLogLevel: Int)
 
     fun shareApp()
     fun shareProject(file: File)

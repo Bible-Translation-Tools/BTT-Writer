@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.action_report_bug
 import btt_writer.composeapp.generated.resources.auth_failure_retry
 import btt_writer.composeapp.generated.resources.backup_to_app
 import btt_writer.composeapp.generated.resources.backup_to_door43
@@ -49,7 +50,6 @@ import btt_writer.composeapp.generated.resources.export_to_usfm
 import btt_writer.composeapp.generated.resources.image_large_download
 import btt_writer.composeapp.generated.resources.label_details
 import btt_writer.composeapp.generated.resources.log_out
-import btt_writer.composeapp.generated.resources.menu_bug
 import btt_writer.composeapp.generated.resources.no
 import btt_writer.composeapp.generated.resources.project_uploaded
 import btt_writer.composeapp.generated.resources.project_uploaded_to
@@ -290,7 +290,7 @@ fun ExportDialog(
                             component.showFeedbackDialog(message)
                         }
                     ) {
-                        Text(stringResource(Res.string.menu_bug))
+                        Text(stringResource(Res.string.action_report_bug))
                     }
                 }
             }

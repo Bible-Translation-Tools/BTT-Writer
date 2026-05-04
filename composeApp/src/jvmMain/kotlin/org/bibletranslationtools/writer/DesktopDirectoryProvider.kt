@@ -2,17 +2,16 @@ package org.bibletranslationtools.writer
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.app_name
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import java.io.File
 
-class JvmDirectoryProvider : DirectoryProvider {
+class DesktopDirectoryProvider : DirectoryProvider {
+    private val os = System.getProperty("os.name").lowercase()
+    private val home = System.getProperty("user.home")
+    private val appName = getStringBlocking(Res.string.app_name)
+
     override val internalAppDir: File
         get() {
-            val appName = runBlocking { getString(Res.string.app_name) }
-            val os = System.getProperty("os.name").lowercase()
-            val home = System.getProperty("user.home")
-
             val baseDir = when {
                 // Windows: C:\Users\Name\AppData\Roaming
                 os.contains("win") -> {
@@ -34,8 +33,7 @@ class JvmDirectoryProvider : DirectoryProvider {
 
     override val externalAppDir: File
         get() {
-            val appName = runBlocking { getString(Res.string.app_name) }
-            val dataFolder = File(System.getProperty("user.home"), appName)
+            val dataFolder = File(home, appName)
             if (!dataFolder.exists()) dataFolder.mkdirs()
             return dataFolder
         }

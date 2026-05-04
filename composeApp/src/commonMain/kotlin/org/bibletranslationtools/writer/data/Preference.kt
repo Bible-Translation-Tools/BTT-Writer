@@ -17,6 +17,17 @@ import kotlin.reflect.KClass
 
 class Preference(private val settings: ObservableSettings) {
 
+    enum class Theme(val value: String) {
+        LIGHT("light"),
+        DARK("dark"),
+        SYSTEM("system");
+
+        companion object {
+            fun of(value: String?): Theme =
+                entries.firstOrNull { it.value == value } ?: SYSTEM
+        }
+    }
+
     companion object {
         // Pref keys
         const val ROOT_CATALOG_API = "root_catalog_api"

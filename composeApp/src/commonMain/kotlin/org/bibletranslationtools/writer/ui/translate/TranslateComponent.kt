@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import org.bibletranslationtools.logger.Logger
@@ -69,7 +70,7 @@ import org.bibletranslationtools.writer.ui.translate.read.DefaultReadModeCompone
 import org.bibletranslationtools.writer.ui.translate.read.ReadModeComponent
 import org.bibletranslationtools.writer.ui.translate.review.DefaultReviewModeComponent
 import org.bibletranslationtools.writer.ui.translate.review.ReviewModeComponent
-import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Locale
@@ -257,43 +258,48 @@ class DefaultTranslateComponent(
         }
 
     init {
-        coroutineScope.launch {
-            translator.getTargetTranslation(translationId)?.let { translation ->
-                targetTranslation = translation
+        val translation = runBlocking {
+            translator.getTargetTranslation(translationId)
+        }
 
-                val draftAvailable = draftIsAvailable()
+        if (translation == null) {
+            Logger.e(
+                this::javaClass.name,
+                "A valid target translation id is required. " +
+                        "Received $translationId but the translation could not be found"
+            )
+            val error = getStringBlocking(
+                Res.string.target_translation_not_found,
+                translationId
+            )
+            onResult(TranslateComponent.Result.Error(error))
+        } else {
+            targetTranslation = translation
 
-                val viewMode = initialViewMode ?: preference.getLastViewMode(
-                    targetTranslation.id
+            val draftAvailable = draftIsAvailable()
+
+            val viewMode = initialViewMode ?: preference.getLastViewMode(
+                targetTranslation.id
+            )
+            openViewMode(viewMode)
+
+            val projectTitle = "${getProject()?.name} - ${targetTranslation.targetLanguageName}"
+
+            commitOnDestroy.scheduleAutoCommit()
+
+            _state.update {
+                it.copy(
+                    conflictFilterOn = conflictFilterOn,
+                    draftAvailable = draftAvailable,
+                    showDraftAvailable = draftAvailable && targetTranslation.numTranslated == 0,
+                    projectTitle = projectTitle
                 )
-                openViewMode(viewMode)
+            }
 
-                val projectTitle = "${getProject()?.name} - ${targetTranslation.targetLanguageName}"
-
-                commitOnDestroy.scheduleAutoCommit()
-
-                _state.update {
-                    it.copy(
-                        conflictFilterOn = conflictFilterOn,
-                        draftAvailable = draftAvailable,
-                        showDraftAvailable = draftAvailable && targetTranslation.numTranslated == 0,
-                        projectTitle = projectTitle
-                    )
-                }
-
-                launchWithProgress {
-                    ContainerCache.empty()
-                    openUsedSourceTranslations()
-                    refreshSelectedResourceContainer()
-                }
-            } ?: run {
-                Logger.e(
-                    this::javaClass.name,
-                    "A valid target translation id is required. " +
-                            "Received $translationId but the translation could not be found"
-                )
-                val error = getString(Res.string.target_translation_not_found, translationId)
-                onResult(TranslateComponent.Result.Error(error))
+            launchWithProgress {
+                ContainerCache.empty()
+                openUsedSourceTranslations()
+                refreshSelectedResourceContainer()
             }
         }
 

@@ -29,7 +29,6 @@ import btt_writer.composeapp.generated.resources.import_merge_conflicts
 import btt_writer.composeapp.generated.resources.import_usfm_failed
 import btt_writer.composeapp.generated.resources.import_usfm_success
 import btt_writer.composeapp.generated.resources.label_continue
-import btt_writer.composeapp.generated.resources.menu_cancel
 import btt_writer.composeapp.generated.resources.merge_conflict_title
 import btt_writer.composeapp.generated.resources.merge_projects_label
 import btt_writer.composeapp.generated.resources.overwrite_projects_label
@@ -40,15 +39,15 @@ import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.title_import_usfm_error
 import btt_writer.composeapp.generated.resources.title_import_usfm_results
 import btt_writer.composeapp.generated.resources.title_processing_usfm_summary
+import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
+import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
+import org.bibletranslationtools.writer.ui.components.SearchBar
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.bibletranslationtools.writer.ui.newtranslation.LanguagesList
 import org.bibletranslationtools.writer.ui.newtranslation.ProjectList
-import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
-import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
-import org.bibletranslationtools.writer.ui.components.SearchBar
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -100,7 +99,7 @@ fun ImportUsfmDialog(
                     onConfirm = component::confirmImport,
                     onDismiss = onDismiss,
                     confirmText = stringResource(Res.string.label_continue),
-                    dismissText = stringResource(Res.string.menu_cancel)
+                    dismissText = stringResource(Res.string.title_cancel)
                 )
             }
         }
@@ -233,7 +232,7 @@ private fun UsfmBookNameDialog(
             onConfirm = { showProjectList = true },
             onDismiss = onSkip,
             confirmText = stringResource(Res.string.label_continue),
-            dismissText = stringResource(Res.string.menu_cancel)
+            dismissText = stringResource(Res.string.title_cancel)
         )
     } else {
         OverlayDialog(

@@ -48,18 +48,18 @@ import btt_writer.composeapp.generated.resources.download_index_success
 import btt_writer.composeapp.generated.resources.download_latest_apk
 import btt_writer.composeapp.generated.resources.download_sources
 import btt_writer.composeapp.generated.resources.import_index
-import btt_writer.composeapp.generated.resources.menu_cancel
 import btt_writer.composeapp.generated.resources.success
+import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.update_languages
 import btt_writer.composeapp.generated.resources.update_menu_requires_internet
 import btt_writer.composeapp.generated.resources.update_options
 import btt_writer.composeapp.generated.resources.update_source
 import btt_writer.composeapp.generated.resources.update_sources_success
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import org.jetbrains.compose.resources.stringResource
 
 private const val UPDATE_OPTIONS_HELP_URL =
@@ -198,7 +198,7 @@ fun UpdateLibraryDialog(
                             contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text(stringResource(Res.string.menu_cancel))
+                        Text(stringResource(Res.string.title_cancel))
                     }
                 }
             }

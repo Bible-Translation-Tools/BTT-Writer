@@ -24,15 +24,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.action_save
 import btt_writer.composeapp.generated.resources.dismiss
 import btt_writer.composeapp.generated.resources.edit
 import btt_writer.composeapp.generated.resources.label_delete
-import btt_writer.composeapp.generated.resources.menu_save
 import btt_writer.composeapp.generated.resources.title_add_footnote
 import btt_writer.composeapp.generated.resources.title_cancel
 import btt_writer.composeapp.generated.resources.title_footnote
-import org.bibletranslationtools.writer.ui.translate.FootnoteAction
 import kotlinx.coroutines.delay
+import org.bibletranslationtools.writer.ui.translate.FootnoteAction
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -99,7 +99,7 @@ fun FootnoteDialog(
                             onSaveText(textFieldState.text.toString())
                         }
                     }) {
-                        Text(stringResource(Res.string.menu_save))
+                        Text(stringResource(Res.string.action_save))
                     }
                 }
             }

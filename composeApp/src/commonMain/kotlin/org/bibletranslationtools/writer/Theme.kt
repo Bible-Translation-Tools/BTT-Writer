@@ -14,9 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
-import btt_writer.composeapp.generated.resources.theme_value_dark
-import btt_writer.composeapp.generated.resources.theme_value_light
-import btt_writer.composeapp.generated.resources.theme_value_system
+import btt_writer.composeapp.generated.resources.pref_default_color_theme
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPrefFlow
 import org.jetbrains.compose.resources.stringResource
@@ -173,17 +171,15 @@ fun AppTheme(
 ) {
     val preference: Preference = koinInject()
 
-    val initialTheme = stringResource(Res.string.theme_value_system)
+    val initialTheme = stringResource(Res.string.pref_default_color_theme)
     val currentTheme by preference.getPrefFlow(
         Preference.KEY_PREF_COLOR_THEME,
         initialTheme
     ).collectAsStateWithLifecycle(initialTheme)
 
-    val lightValue = stringResource(Res.string.theme_value_light)
-    val darkValue = stringResource(Res.string.theme_value_dark)
-    val isDark = when (currentTheme) {
-        lightValue -> false
-        darkValue -> true
+    val isDark = when (Preference.Theme.of(currentTheme)) {
+        Preference.Theme.LIGHT -> false
+        Preference.Theme.DARK -> true
         else -> isSystemInDarkTheme()
     }
 

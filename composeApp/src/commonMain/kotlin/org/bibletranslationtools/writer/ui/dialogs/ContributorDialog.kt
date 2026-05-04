@@ -31,13 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.action_save
 import btt_writer.composeapp.generated.resources.add_contributor
 import btt_writer.composeapp.generated.resources.confirm_delete_translator
 import btt_writer.composeapp.generated.resources.delete_translator_title
 import btt_writer.composeapp.generated.resources.duplicate_native_speaker
 import btt_writer.composeapp.generated.resources.label_delete
 import btt_writer.composeapp.generated.resources.license_pdf
-import btt_writer.composeapp.generated.resources.menu_save
 import btt_writer.composeapp.generated.resources.name
 import btt_writer.composeapp.generated.resources.person_agrees_with_licenses
 import btt_writer.composeapp.generated.resources.statement_of_faith
@@ -192,7 +192,7 @@ fun ContributorDialog(
                     enabled = name.isNotBlank() && hasAgreed,
                     shape = RoundedCornerShape(4.dp)
                 ) {
-                    Text(stringResource(Res.string.menu_save))
+                    Text(stringResource(Res.string.action_save))
                 }
             }
         }

@@ -25,48 +25,47 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.action_settings
 import btt_writer.composeapp.generated.resources.apk_update_available
 import btt_writer.composeapp.generated.resources.check_for_app_updates
 import btt_writer.composeapp.generated.resources.check_for_updates
 import btt_writer.composeapp.generated.resources.content_server
+import btt_writer.composeapp.generated.resources.description_migrate_old_app
 import btt_writer.composeapp.generated.resources.download_latest_apk
 import btt_writer.composeapp.generated.resources.have_latest_app_update
+import btt_writer.composeapp.generated.resources.header_advanced
+import btt_writer.composeapp.generated.resources.header_general
+import btt_writer.composeapp.generated.resources.header_legal
+import btt_writer.composeapp.generated.resources.header_synchronization
 import btt_writer.composeapp.generated.resources.label_ok
 import btt_writer.composeapp.generated.resources.license_pdf
-import btt_writer.composeapp.generated.resources.loading
-import btt_writer.composeapp.generated.resources.menu_settings
 import btt_writer.composeapp.generated.resources.migrating_complete
 import btt_writer.composeapp.generated.resources.pref_description_check_hardware_requirements
 import btt_writer.composeapp.generated.resources.pref_description_enable_tm_links
-import btt_writer.composeapp.generated.resources.pref_description_migrate_old_app
-import btt_writer.composeapp.generated.resources.pref_header_advanced
-import btt_writer.composeapp.generated.resources.pref_header_general
-import btt_writer.composeapp.generated.resources.pref_header_legal
-import btt_writer.composeapp.generated.resources.pref_header_synchronization
 import btt_writer.composeapp.generated.resources.pref_title_check_hardware_requirements
-import btt_writer.composeapp.generated.resources.pref_title_color_theme
-import btt_writer.composeapp.generated.resources.pref_title_create_account_url
-import btt_writer.composeapp.generated.resources.pref_title_developer_tools
 import btt_writer.composeapp.generated.resources.pref_title_enable_tm_links
-import btt_writer.composeapp.generated.resources.pref_title_git_server_port
-import btt_writer.composeapp.generated.resources.pref_title_gogs_api
-import btt_writer.composeapp.generated.resources.pref_title_index_sqlite_url
-import btt_writer.composeapp.generated.resources.pref_title_language_url
-import btt_writer.composeapp.generated.resources.pref_title_logging_level
-import btt_writer.composeapp.generated.resources.pref_title_media_server
-import btt_writer.composeapp.generated.resources.pref_title_migrate_old_app
-import btt_writer.composeapp.generated.resources.pref_title_reader_server
-import btt_writer.composeapp.generated.resources.pref_title_software_licenses
-import btt_writer.composeapp.generated.resources.pref_title_source_typeface
-import btt_writer.composeapp.generated.resources.pref_title_source_typeface_size
-import btt_writer.composeapp.generated.resources.pref_title_tm_url
-import btt_writer.composeapp.generated.resources.pref_title_translation_typeface
-import btt_writer.composeapp.generated.resources.pref_title_typeface_size
 import btt_writer.composeapp.generated.resources.software_licenses
 import btt_writer.composeapp.generated.resources.statement_of_faith
+import btt_writer.composeapp.generated.resources.title_color_theme
+import btt_writer.composeapp.generated.resources.title_create_account_url
+import btt_writer.composeapp.generated.resources.title_developer_tools
+import btt_writer.composeapp.generated.resources.title_git_server_port
+import btt_writer.composeapp.generated.resources.title_gogs_api
+import btt_writer.composeapp.generated.resources.title_index_sqlite_url
+import btt_writer.composeapp.generated.resources.title_language_url
+import btt_writer.composeapp.generated.resources.title_logging_level
+import btt_writer.composeapp.generated.resources.title_media_server
+import btt_writer.composeapp.generated.resources.title_migrate_old_app
+import btt_writer.composeapp.generated.resources.title_reader_server
+import btt_writer.composeapp.generated.resources.title_source_typeface
+import btt_writer.composeapp.generated.resources.title_source_typeface_size
+import btt_writer.composeapp.generated.resources.title_tm_url
+import btt_writer.composeapp.generated.resources.title_translation_typeface
+import btt_writer.composeapp.generated.resources.title_typeface_size
 import btt_writer.composeapp.generated.resources.translation_guidlines
 import btt_writer.composeapp.generated.resources.version
 import btt_writer.composeapp.generated.resources.view_license_agreement
+import btt_writer.composeapp.generated.resources.view_software_licenses
 import btt_writer.composeapp.generated.resources.view_statement_of_faith
 import btt_writer.composeapp.generated.resources.view_translation_guidelines
 import io.github.vinceglb.filekit.PlatformFile
@@ -127,7 +126,7 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(Res.string.menu_settings))
+                    Text(stringResource(Res.string.action_settings))
                 },
                 navigationIcon = {
                     IconButton(onClick = component::onNavigateBack) {
@@ -149,11 +148,11 @@ fun SettingsScreen(
         LazyColumn(contentPadding = paddingValues) {
             
             // --- GENERAL PREFERENCES ---
-            item { PreferenceCategoryHeader(stringResource(Res.string.pref_header_general)) }
+            item { PreferenceCategoryHeader(stringResource(Res.string.header_general)) }
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_color_theme),
+                    title = stringResource(Res.string.title_color_theme),
                     summary = state.currentThemeName,
                     onClick = { showThemeDialog = true }
                 )
@@ -163,7 +162,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_translation_typeface),
+                    title = stringResource(Res.string.title_translation_typeface),
                     summary = state.currentTranslationFontName,
                     onClick = { showTranslationFontDialog = true }
                 )
@@ -173,7 +172,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_typeface_size),
+                    title = stringResource(Res.string.title_typeface_size),
                     summary = state.currentTranslationFontSizeName,
                     onClick = { showTranslationFontSizeDialog = true }
                 )
@@ -183,7 +182,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_source_typeface),
+                    title = stringResource(Res.string.title_source_typeface),
                     summary = state.currentSourceFontName,
                     onClick = { showSourceFontDialog = true }
                 )
@@ -193,7 +192,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_source_typeface_size),
+                    title = stringResource(Res.string.title_source_typeface_size),
                     summary = state.currentSourceFontSizeName,
                     onClick = { showSourceFontSizeDialog = true }
                 )
@@ -219,7 +218,7 @@ fun SettingsScreen(
             }
 
             // --- SERVER PREFERENCES ---
-            item { PreferenceCategoryHeader(stringResource(Res.string.pref_header_synchronization)) }
+            item { PreferenceCategoryHeader(stringResource(Res.string.header_synchronization)) }
 
             item {
                 ClickablePreference(
@@ -233,7 +232,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_git_server_port),
+                    title = stringResource(Res.string.title_git_server_port),
                     summary = state.gitServerPort,
                     onClick = { showGitPortDialog = true }
                 )
@@ -243,7 +242,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_gogs_api),
+                    title = stringResource(Res.string.title_gogs_api),
                     summary = state.currentGogsApiUrl,
                     onClick = { showGogsApiDialog = true }
                 )
@@ -253,7 +252,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_media_server),
+                    title = stringResource(Res.string.title_media_server),
                     summary = state.mediaServerUrl,
                     onClick = { showMediaServerUrlDialog = true }
                 )
@@ -263,7 +262,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_reader_server),
+                    title = stringResource(Res.string.title_reader_server),
                     summary = state.readerServerUrl,
                     onClick = { showReaderServerUrlDialog = true }
                 )
@@ -273,7 +272,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_create_account_url),
+                    title = stringResource(Res.string.title_create_account_url),
                     summary = state.accountCreationUrl,
                     onClick = { showAccountCreationUrlDialog = true }
                 )
@@ -283,7 +282,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_language_url),
+                    title = stringResource(Res.string.title_language_url),
                     summary = state.languagesUrl,
                     onClick = { showLanguageUrlDialog = true }
                 )
@@ -293,7 +292,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_index_sqlite_url),
+                    title = stringResource(Res.string.title_index_sqlite_url),
                     summary = state.indexSqliteUrl,
                     onClick = { showIndexSqliteUrlDialog = true }
                 )
@@ -303,14 +302,14 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_tm_url),
+                    title = stringResource(Res.string.title_tm_url),
                     summary = state.tmLinksUrl,
                     onClick = { showTmLinksUrlDialog = true }
                 )
             }
 
             // --- LEGAL PREFERENCES ---
-            item { PreferenceCategoryHeader(stringResource(Res.string.pref_header_legal)) }
+            item { PreferenceCategoryHeader(stringResource(Res.string.header_legal)) }
 
             item {
                 ClickablePreference(
@@ -341,18 +340,18 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_software_licenses),
+                    title = stringResource(Res.string.view_software_licenses),
                     onClick = { openLegalDocumentId = Res.string.software_licenses }
                 )
             }
 
             // --- ADVANCED PREFERENCES ---
-            item { PreferenceCategoryHeader(stringResource(Res.string.pref_header_advanced)) }
+            item { PreferenceCategoryHeader(stringResource(Res.string.header_advanced)) }
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_migrate_old_app),
-                    summary = stringResource(Res.string.pref_description_migrate_old_app),
+                    title = stringResource(Res.string.title_migrate_old_app),
+                    summary = stringResource(Res.string.description_migrate_old_app),
                     onClick = { openDirectoryLauncher.launch() }
                 )
             }
@@ -393,7 +392,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_logging_level),
+                    title = stringResource(Res.string.title_logging_level),
                     summary = state.currentLoggingLevelName,
                     onClick = { showLoggingLevelDialog = true }
                 )
@@ -403,7 +402,7 @@ fun SettingsScreen(
 
             item {
                 ClickablePreference(
-                    title = stringResource(Res.string.pref_title_developer_tools),
+                    title = stringResource(Res.string.title_developer_tools),
                     onClick = component::openDeveloperTools
                 )
             }
@@ -451,7 +450,7 @@ fun SettingsScreen(
 
     if (showThemeDialog) {
         ListPreferenceDialog(
-            title = stringResource(Res.string.pref_title_color_theme),
+            title = stringResource(Res.string.title_color_theme),
             entries = state.themeNames,
             entryValues = state.themeValues,
             selectedValue = state.currentThemeValue,
@@ -464,30 +463,22 @@ fun SettingsScreen(
     }
 
     if (showTranslationFontDialog) {
-        if (state.isFontsLoading) {
-            // Show a simple loading dialog if they click it before IO finishes
-            BaseDialog(
-                onDismiss = { showTranslationFontDialog = false },
-                message = stringResource(Res.string.loading)
-            ){}
-        } else {
-            ListPreferenceDialog(
-                title = stringResource(Res.string.pref_title_translation_typeface),
-                entries = state.availableFonts.map { it },
-                entryValues = state.availableFonts.map { it },
-                selectedValue = state.currentTranslationTypefaceValue,
-                onValueSelected = { newFileName ->
-                    component.updateTranslationTypeface(newFileName)
-                    showTranslationFontDialog = false
-                },
-                onDismissRequest = { showTranslationFontDialog = false }
-            )
-        }
+        ListPreferenceDialog(
+            title = stringResource(Res.string.title_translation_typeface),
+            entries = state.availableFontNames,
+            entryValues = state.availableFonts,
+            selectedValue = state.currentTranslationFontValue,
+            onValueSelected = { newFileName ->
+                component.updateTranslationTypeface(newFileName)
+                showTranslationFontDialog = false
+            },
+            onDismissRequest = { showTranslationFontDialog = false }
+        )
     }
 
     if (showTranslationFontSizeDialog) {
         ListPreferenceDialog(
-            title = stringResource(Res.string.pref_title_typeface_size),
+            title = stringResource(Res.string.title_typeface_size),
             entries = state.fontSizeNames,
             entryValues = state.fontSizeValues,
             selectedValue = state.currentTranslationFontSizeValue,
@@ -500,30 +491,22 @@ fun SettingsScreen(
     }
 
     if (showSourceFontDialog) {
-        if (state.isFontsLoading) {
-            // Show a simple loading dialog if they click it before IO finishes
-            BaseDialog(
-                onDismiss = { showSourceFontDialog = false },
-                message = stringResource(Res.string.loading)
-            ){}
-        } else {
-            ListPreferenceDialog(
-                title = stringResource(Res.string.pref_title_source_typeface),
-                entries = state.availableFonts.map { it },
-                entryValues = state.availableFonts.map { it },
-                selectedValue = state.currentSourceTypefaceValue,
-                onValueSelected = { newFileName ->
-                    component.updateSourceTypeface(newFileName)
-                    showSourceFontDialog = false
-                },
-                onDismissRequest = { showSourceFontDialog = false }
-            )
-        }
+        ListPreferenceDialog(
+            title = stringResource(Res.string.title_source_typeface),
+            entries = state.availableFontNames,
+            entryValues = state.availableFonts,
+            selectedValue = state.currentSourceFontValue,
+            onValueSelected = { newFileName ->
+                component.updateSourceTypeface(newFileName)
+                showSourceFontDialog = false
+            },
+            onDismissRequest = { showSourceFontDialog = false }
+        )
     }
 
     if (showSourceFontSizeDialog) {
         ListPreferenceDialog(
-            title = stringResource(Res.string.pref_title_source_typeface_size),
+            title = stringResource(Res.string.title_source_typeface_size),
             entries = state.fontSizeNames,
             entryValues = state.fontSizeValues,
             selectedValue = state.currentSourceFontSizeValue,
@@ -551,7 +534,7 @@ fun SettingsScreen(
 
     if (showGitPortDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_git_server_port),
+            title = stringResource(Res.string.title_git_server_port),
             initialValue = state.gitServerPort,
             onValueSaved = { newValue ->
                 component.updateGitServerPort(newValue)
@@ -563,7 +546,7 @@ fun SettingsScreen(
 
     if (showGogsApiDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_gogs_api),
+            title = stringResource(Res.string.title_gogs_api),
             initialValue = state.currentGogsApiUrl,
             onValueSaved = { newValue ->
                 component.updateGogsApiUrl(newValue)
@@ -574,7 +557,7 @@ fun SettingsScreen(
 
     if (showMediaServerUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_media_server),
+            title = stringResource(Res.string.title_media_server),
             initialValue = state.mediaServerUrl,
             onValueSaved = { newValue ->
                 component.updateMediaServerUrl(newValue)
@@ -586,7 +569,7 @@ fun SettingsScreen(
 
     if (showReaderServerUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_reader_server),
+            title = stringResource(Res.string.title_reader_server),
             initialValue = state.readerServerUrl,
             onValueSaved = { newValue ->
                 component.updateReaderServerUrl(newValue)
@@ -598,7 +581,7 @@ fun SettingsScreen(
 
     if (showAccountCreationUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_create_account_url),
+            title = stringResource(Res.string.title_create_account_url),
             initialValue = state.accountCreationUrl,
             onValueSaved = { newValue ->
                 component.updateAccountCreationUrl(newValue)
@@ -610,7 +593,7 @@ fun SettingsScreen(
 
     if (showLanguageUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_language_url),
+            title = stringResource(Res.string.title_language_url),
             initialValue = state.languagesUrl,
             onValueSaved = { newValue ->
                 component.updateLanguageUrl(newValue)
@@ -622,7 +605,7 @@ fun SettingsScreen(
 
     if (showIndexSqliteUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_index_sqlite_url),
+            title = stringResource(Res.string.title_index_sqlite_url),
             initialValue = state.indexSqliteUrl,
             onValueSaved = { newValue ->
                 component.updateIndexSqliteUrl(newValue)
@@ -634,7 +617,7 @@ fun SettingsScreen(
 
     if (showTmLinksUrlDialog) {
         EditTextPreferenceDialog(
-            title = stringResource(Res.string.pref_title_tm_url),
+            title = stringResource(Res.string.title_tm_url),
             initialValue = state.tmLinksUrl,
             onValueSaved = { newValue ->
                 component.updateTmLinksUrl(newValue)
@@ -660,7 +643,7 @@ fun SettingsScreen(
 
     if (showLoggingLevelDialog) {
         ListPreferenceDialog(
-            title = stringResource(Res.string.pref_title_logging_level),
+            title = stringResource(Res.string.title_logging_level),
             entries = state.loggingLevelNames,
             entryValues = state.loggingLevelValues,
             selectedValue = state.currentLoggingLevelValue,

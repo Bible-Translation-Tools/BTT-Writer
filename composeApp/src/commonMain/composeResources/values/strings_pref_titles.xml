@@ -1,0 +1,66 @@
+<resources>
+    <string-array name="pref_color_theme_titles">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>System</item>
+    </string-array>
+
+    <!-- Title for the typefaced used in the app -->
+    <string-array name="pref_typeface_titles">
+        <item>Abyssinica SIL Burji DPWA</item>
+        <item>Abyssinica SIL</item>
+        <item>Adinatha Tamil Brahmi</item>
+        <item>Andika</item>
+        <item>Annapurna SIL</item>
+        <item>Charis SIL</item>
+        <item>Chiangsaen Alif</item>
+        <item>Dai Banna SIL Light</item>
+        <item>Doulos SIL Cipher</item>
+        <item>Doulos SIL</item>
+        <item>FreeMonoTengwar-embedding</item>
+        <item>Gentium Plus</item>
+        <item>Lanna Alif</item>
+        <item>Lanna Uni</item>
+        <item>Linux Biolinum G Regular</item>
+        <item>Linux Libertine G Regular</item>
+        <item>Miao Unicode</item>
+        <item>Noto Nastaliq Urdu Regular</item>
+        <item>Noto Sans</item>
+        <item>Padauk</item>
+        <item>Scheherazade</item>
+        <item>Sophia Nubian</item>
+        <item>Tai Heritage Pro</item>
+        <item>Tuladha Jejeg</item>
+    </string-array>
+
+    <!-- The font size of the translation typeface -->
+    <string-array name="pref_typeface_size_titles">
+        <item>Small</item>
+        <item>Normal</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+
+    <!-- Servers -->
+    <string-array name="content_server_names_array">
+        <item>WACS</item>
+        <item>WACS DEV</item>
+        <item>DCS</item>
+    </string-array>
+
+    <!-- The severity or type of messages logged in the app -->
+    <string-array name="pref_logging_level_titles">
+        <item>Information</item>
+        <item>Warnings</item>
+        <item>Errors</item>
+    </string-array>
+
+    <!-- The length of time between automatic translation backups -->
+    <string-array name="pref_backup_interval_titles">
+        <item>1 Minute</item>
+        <item>5 Minutes</item>
+        <item>10 Minutes</item>
+        <item>Disable Backup</item>
+    </string-array>
+
+</resources>

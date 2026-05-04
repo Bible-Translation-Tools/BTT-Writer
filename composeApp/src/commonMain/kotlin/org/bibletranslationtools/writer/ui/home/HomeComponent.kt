@@ -14,9 +14,6 @@ import com.arkivanov.decompose.router.slot.dismiss
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import org.bibletranslationtools.writer.ui.dialogs.update.DefaultUpdateLibraryComponent
-import org.bibletranslationtools.writer.ui.dialogs.update.UpdateLibraryComponent
-import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -62,6 +59,9 @@ import org.bibletranslationtools.writer.ui.dialogs.import.DefaultImportComponent
 import org.bibletranslationtools.writer.ui.dialogs.import.DefaultImportUsfmComponent
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportComponent
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportUsfmComponent
+import org.bibletranslationtools.writer.ui.dialogs.update.DefaultUpdateLibraryComponent
+import org.bibletranslationtools.writer.ui.dialogs.update.UpdateLibraryComponent
+import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.GogsLogout
 import org.bibletranslationtools.writer.usecases.TranslationProgress
@@ -305,17 +305,17 @@ class DefaultHomeComponent(
             getLastOpened()?.let {
                 onResult(HomeComponent.Result.OpenProject(it.id, false))
             }
+
+            val projectSort = ProjectSort.of(
+                preference.getPref(SORT_BY_PROJECT, 0)
+            )
+            val bookSort = BookSort.of(
+                preference.getPref(SORT_BY_BOOK, 0)
+            )
+            _state.update { it.copy(projectSort = projectSort, bookSort = bookSort) }
+
+            loadProjects()
         }
-
-        val projectSort = ProjectSort.of(
-            preference.getPref(SORT_BY_PROJECT, 0)
-        )
-        val bookSort = BookSort.of(
-            preference.getPref(SORT_BY_BOOK, 0)
-        )
-        _state.update { it.copy(projectSort = projectSort, bookSort = bookSort) }
-
-        loadProjects()
 
         lifecycle.doOnDestroy {
             coroutineScope.cancel()

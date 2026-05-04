@@ -77,7 +77,9 @@ kotlin {
 
                 // Settings
                 implementation(libs.multiplatform.settings)
+                implementation(libs.multiplatform.settings.datastore)
                 implementation(libs.multiplatform.settings.coroutines)
+                implementation(libs.datastore.preferences.core)
 
                 implementation(libs.filekit.core)
                 implementation(libs.filekit.dialogs)

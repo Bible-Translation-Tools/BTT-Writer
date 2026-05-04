@@ -1,6 +1,7 @@
 package org.bibletranslationtools.writer.ui.settings
 
 import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.backup_intervals_values_array
 import btt_writer.composeapp.generated.resources.checking_for_updates
 import btt_writer.composeapp.generated.resources.content_server_account_create_urls_array
 import btt_writer.composeapp.generated.resources.content_server_git_server_api_values_array
@@ -11,12 +12,11 @@ import btt_writer.composeapp.generated.resources.content_server_media_server_val
 import btt_writer.composeapp.generated.resources.content_server_names_array
 import btt_writer.composeapp.generated.resources.content_server_reader_server_values_array
 import btt_writer.composeapp.generated.resources.content_server_values_array
+import btt_writer.composeapp.generated.resources.font_size_values_array
 import btt_writer.composeapp.generated.resources.log_out
 import btt_writer.composeapp.generated.resources.migrating_translations
 import btt_writer.composeapp.generated.resources.pref_backup_interval_titles
-import btt_writer.composeapp.generated.resources.pref_backup_interval_values
 import btt_writer.composeapp.generated.resources.pref_color_theme_titles
-import btt_writer.composeapp.generated.resources.pref_color_theme_values
 import btt_writer.composeapp.generated.resources.pref_default_backup_interval
 import btt_writer.composeapp.generated.resources.pref_default_color_theme
 import btt_writer.composeapp.generated.resources.pref_default_create_account_url
@@ -31,9 +31,8 @@ import btt_writer.composeapp.generated.resources.pref_default_tm_url
 import btt_writer.composeapp.generated.resources.pref_default_translation_typeface
 import btt_writer.composeapp.generated.resources.pref_default_typeface_size
 import btt_writer.composeapp.generated.resources.pref_logging_level_titles
-import btt_writer.composeapp.generated.resources.pref_logging_level_values
 import btt_writer.composeapp.generated.resources.pref_typeface_size_titles
-import btt_writer.composeapp.generated.resources.pref_typeface_size_values
+import btt_writer.composeapp.generated.resources.pref_typeface_titles
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.vinceglb.filekit.PlatformFile
@@ -50,6 +49,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.bibletranslationtools.logger.LogLevel
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
@@ -116,15 +117,15 @@ interface SettingsComponent {
         val currentThemeName: String = "",
 
         // Font Data
-        val isFontsLoading: Boolean = true,
+        val availableFontNames: List<String> = emptyList(),
         val availableFonts: List<String> = emptyList(),
         val fontSizeNames: List<String> = emptyList(),
         val fontSizeValues: List<String> = emptyList(),
-        val currentTranslationTypefaceValue: String = "",
+        val currentTranslationFontValue: String = "",
         val currentTranslationFontName: String = "",
         val currentTranslationFontSizeValue: String = "",
         val currentTranslationFontSizeName: String = "",
-        val currentSourceTypefaceValue: String = "",
+        val currentSourceFontValue: String = "",
         val currentSourceFontName: String = "",
         val currentSourceFontSizeValue: String = "",
         val currentSourceFontSizeName: String = "",
@@ -148,7 +149,7 @@ interface SettingsComponent {
         val tmLinksEnabled: Boolean = false,
         val backupIntervalNames: List<String> = emptyList(),
         val backupIntervalValues: List<String> = emptyList(),
-        val currentBackupIntervalValue: String = "",
+        val currentBackupIntervalValue: String = "-1",
         val currentBackupIntervalName: String = "",
         val loggingLevelNames: List<String> = emptyList(),
         val loggingLevelValues: List<String> = emptyList(),
@@ -220,7 +221,7 @@ class DefaultSettingsComponent(
     private fun loadInitialPreferences() {
         launchWithProgress {
             val themeNames = getStringArray(Res.array.pref_color_theme_titles)
-            val themeValues = getStringArray(Res.array.pref_color_theme_values)
+            val themeValues = Preference.Theme.entries.map { it.value }
             val themeValue = preference.getPref(
                 Preference.KEY_PREF_COLOR_THEME,
                 getString(Res.string.pref_default_color_theme)
@@ -240,7 +241,7 @@ class DefaultSettingsComponent(
             )
 
             val sizeNames = getStringArray(Res.array.pref_typeface_size_titles)
-            val sizeValues = getStringArray(Res.array.pref_typeface_size_values)
+            val sizeValues = getStringArray(Res.array.font_size_values_array)
 
             val translationSizeValue = preference.getPref(
                 Preference.KEY_PREF_TRANSLATION_TYPEFACE_SIZE,
@@ -312,7 +313,7 @@ class DefaultSettingsComponent(
             )
 
             val intervalNames = getStringArray(Res.array.pref_backup_interval_titles)
-            val intervalValues = getStringArray(Res.array.pref_backup_interval_values)
+            val intervalValues = getStringArray(Res.array.backup_intervals_values_array)
             val savedIntervalValue = preference.getPref(
                 Preference.KEY_PREF_BACKUP_INTERVAL,
                 getString(Res.string.pref_default_backup_interval)
@@ -321,7 +322,7 @@ class DefaultSettingsComponent(
             val savedIntervalName = intervalNames.getOrNull(intervalIndex) ?: savedIntervalValue
 
             val loggingNames = getStringArray(Res.array.pref_logging_level_titles)
-            val loggingValues = getStringArray(Res.array.pref_logging_level_values)
+            val loggingValues = LogLevel.entries.map { it.label }
             val savedLoggingValue = preference.getPref(
                 Preference.KEY_PREF_LOGGING_LEVEL,
                 getString(Res.string.pref_default_logging_level)
@@ -337,10 +338,10 @@ class DefaultSettingsComponent(
                     currentThemeName = themeName,
                     fontSizeNames = sizeNames,
                     fontSizeValues = sizeValues,
-                    currentTranslationTypefaceValue = targetFontValue,
+                    currentTranslationFontValue = targetFontValue,
                     currentTranslationFontSizeValue = translationSizeValue,
                     currentTranslationFontSizeName = translationSizeName,
-                    currentSourceTypefaceValue = sourceFontValue,
+                    currentSourceFontValue = sourceFontValue,
                     currentSourceFontSizeValue = sourceSizeValue,
                     currentSourceFontSizeName = sourceSizeName,
                     contentServerNames = serverNames,
@@ -372,19 +373,19 @@ class DefaultSettingsComponent(
 
     private fun loadTypefaces() {
         launchWithProgress {
-            val loadedFonts = typography.getFontNames().sorted()
+            val fontNames = getStringArray(Res.array.pref_typeface_titles)
+            val loadedFonts = typography.getFontNames()
+            val defaultFont = getString(Res.string.pref_default_translation_typeface)
 
             _state.update { state ->
-                val translationFontName = loadedFonts.find {
-                    it == state.currentTranslationTypefaceValue
-                } ?: "Default"
-                val sourceFontName = loadedFonts.find {
-                    it == state.currentSourceTypefaceValue
-                } ?: "Default"
+                val translationIndex = loadedFonts.indexOf(state.currentTranslationFontValue)
+                val translationFontName = fontNames.getOrNull(translationIndex) ?: defaultFont
+                val sourceIndex = loadedFonts.indexOf(state.currentSourceFontValue)
+                val sourceFontName = fontNames.getOrNull(sourceIndex) ?: defaultFont
 
                 state.copy(
-                    isFontsLoading = false,
                     availableFonts = loadedFonts,
+                    availableFontNames = fontNames,
                     currentTranslationFontName = translationFontName,
                     currentSourceFontName = sourceFontName
                 )
@@ -417,7 +418,7 @@ class DefaultSettingsComponent(
 
         _state.update {
             it.copy(
-                currentTranslationTypefaceValue = newFileName,
+                currentTranslationFontValue = newFileName,
                 currentTranslationFontName = newName
             )
         }
@@ -458,7 +459,7 @@ class DefaultSettingsComponent(
 
         _state.update {
             it.copy(
-                currentSourceTypefaceValue = newValue,
+                currentSourceFontValue = newValue,
                 currentSourceFontName = newName
             )
         }
@@ -571,7 +572,10 @@ class DefaultSettingsComponent(
             )
         }
 
-        platform.configureLogger(newValue.toInt())
+        Logger.configure(
+            directoryProvider.logFile,
+            LogLevel.getLevel(newValue)
+        )
     }
 
     override fun downloadLatestRelease(release: CheckForLatestRelease.Release) {
