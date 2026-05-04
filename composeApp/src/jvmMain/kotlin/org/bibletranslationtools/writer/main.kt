@@ -9,6 +9,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.app_icon
+import btt_writer.composeapp.generated.resources.app_name
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
 import com.arkivanov.essenty.backhandler.BackDispatcher
@@ -20,6 +23,8 @@ import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.di.initKoin
 import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootContent
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.GlobalContext
 
 fun main() {
@@ -55,7 +60,8 @@ fun main() {
 
         Window(
             onCloseRequest = ::exitApplication,
-            title = "BTT-Writer",
+            title = stringResource(Res.string.app_name),
+            icon = painterResource(Res.drawable.app_icon),
             state = windowState,
             onKeyEvent = { event ->
                 if (event.key == Key.Escape && event.type == KeyEventType.KeyDown) {
