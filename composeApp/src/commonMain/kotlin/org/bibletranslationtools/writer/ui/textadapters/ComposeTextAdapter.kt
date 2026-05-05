@@ -6,16 +6,18 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
-import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
 import org.bibletranslationtools.writer.rendering.HtmlRenderer
 import org.bibletranslationtools.writer.rendering.model.LinkData
 import org.bibletranslationtools.writer.rendering.model.NodeStyle
 import org.bibletranslationtools.writer.rendering.model.RenderNode
+import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
 
 /**
  * Converts a List<RenderNode> to Compose AnnotatedString.
@@ -261,7 +263,10 @@ object ComposeTextAdapter {
                 if (node.pinned && onVerseClick != null) {
                     addLink(
                         LinkAnnotation.Clickable(
-                            tag = "VERSE_${node.startVerse}"
+                            tag = "VERSE_${node.startVerse}",
+                            styles = TextLinkStyles(
+                                style = SpanStyle(textDecoration = TextDecoration.None)
+                            )
                         ) { onVerseClick(node) },
                         start = start,
                         end = end
@@ -280,7 +285,12 @@ object ComposeTextAdapter {
                 val end = length
 
                 addLink(
-                    LinkAnnotation.Clickable(tag = "NOTE") {
+                    LinkAnnotation.Clickable(
+                        tag = "NOTE",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(textDecoration = TextDecoration.None)
+                        )
+                    ) {
                         onNoteClick(node, start, end)
                     },
                     start = start,
