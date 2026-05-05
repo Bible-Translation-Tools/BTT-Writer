@@ -80,7 +80,8 @@ kotlin {
                 implementation(libs.jgit.ssh.apache)
                 implementation(libs.bcprov.jdk18on)
                 // Provides the missing javax.management classes for Android
-                //implementation(libs.jmx)
+                // We can remove this only with minSdk = 33 and jgit 6+
+                implementation(libs.jmx)
 
                 // Ktor
                 implementation(libs.ktor.client.core)

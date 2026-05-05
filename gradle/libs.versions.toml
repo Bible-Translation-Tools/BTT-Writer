@@ -73,7 +73,7 @@ koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 jgit = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 jgit-ssh-apache = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.ssh.apache", version.ref = "jgit" }
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprovJdk18on" }
-# jmx = { module = "javax.management:jmx", version.ref = "jmx" }
+jmx = { module = "javax.management:jmx", version.ref = "jmx" }
 
 # PDF
 itextg = { group = "com.itextpdf", name = "itextg", version.ref = "itextg" }
