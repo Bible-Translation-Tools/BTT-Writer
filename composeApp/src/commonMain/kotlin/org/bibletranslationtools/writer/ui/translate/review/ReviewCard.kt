@@ -18,10 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.source.SourceTabItem
 import org.bibletranslationtools.writer.ui.translate.ReviewItem
 import org.bibletranslationtools.writer.ui.translate.chunk.ChunkSourceCard
+import org.bibletranslationtools.writer.utils.thenIf
+import org.koin.compose.koinInject
 
 @Composable
 fun ReviewCard(
@@ -52,6 +55,8 @@ fun ReviewCard(
     sourceSearchQuery: String? = null,
     targetSearchQuery: String? = null
 ) {
+    val platform: Platform = koinInject()
+
     val mainWeight by animateFloatAsState(
         targetValue = if (resourcesOpen) 0.333f else 0.49f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
@@ -68,6 +73,12 @@ fun ReviewCard(
         label = "endPadding"
     )
 
+    LaunchedEffect(Unit) {
+        if (!platform.isAndroid) {
+            onExpandedChange(true)
+        }
+    }
+
     LaunchedEffect(resourcesOpen, item.chunk.source, item.helps) {
         if (resourcesOpen) onRenderHelps()
     }
@@ -79,10 +90,12 @@ fun ReviewCard(
             .height(IntrinsicSize.Max)
             .padding(start = 16.dp)
             .padding(end = endPadding)
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { _, dragAmount ->
-                    if (dragAmount < -100) onExpandedChange(true)
-                    if (dragAmount > 100) onExpandedChange(false)
+            .thenIf(platform.isAndroid) {
+                Modifier.pointerInput(Unit) {
+                    detectHorizontalDragGestures { _, dragAmount ->
+                        if (dragAmount < -100) onExpandedChange(true)
+                        if (dragAmount > 100) onExpandedChange(false)
+                    }
                 }
             }
     ) {

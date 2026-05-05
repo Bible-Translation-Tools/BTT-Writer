@@ -36,6 +36,7 @@ interface Platform {
             return code.replace("[_-]$".toRegex(), "")
         }
     val isNetworkAvailable: Boolean
+    val isAndroid: Boolean
 
     fun exit()
 

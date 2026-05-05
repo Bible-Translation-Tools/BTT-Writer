@@ -71,6 +71,8 @@ class AndroidPlatform(
             return !installer.isNullOrEmpty()
         }
 
+    override val isAndroid = true
+
     override fun exit() {
         (context as? Activity)?.finishAffinity()
     }

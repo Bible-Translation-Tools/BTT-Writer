@@ -59,6 +59,8 @@ class DesktopPlatform(
             }
         }
 
+    override val isAndroid = false
+
     override fun exit() {
         exitProcess(0)
     }

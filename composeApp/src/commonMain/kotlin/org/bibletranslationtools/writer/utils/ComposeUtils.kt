@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.utils
 
+import androidx.compose.ui.Modifier
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.allStringResources
 import kotlinx.coroutines.runBlocking
@@ -19,3 +20,8 @@ fun resolveStringResource(stringResourceKey: String, defaultKey: String = "empty
         ?: Res.allStringResources[defaultKey]
         ?: throw IllegalArgumentException("Resource by key $stringResourceKey or $defaultKey are not found.")
 }
+
+inline fun Modifier.thenIf(
+    condition: Boolean,
+    builder: Modifier.() -> Modifier
+): Modifier = if (condition) this.then(builder()) else this
