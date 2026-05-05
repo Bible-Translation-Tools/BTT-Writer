@@ -7,10 +7,14 @@ import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.coroutines.toBlockingObservableSettings
 import com.russhwolf.settings.datastore.DataStoreSettings
 import okio.Path.Companion.toPath
+import org.bibletranslationtools.writer.DesktopBackupNotifier
+import org.bibletranslationtools.writer.DesktopBackupScheduler
+import org.bibletranslationtools.writer.DesktopDirectoryProvider
 import org.bibletranslationtools.writer.DesktopPlatform
 import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.DesktopDirectoryProvider
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.BackupNotifier
+import org.bibletranslationtools.writer.core.BackupScheduler
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -19,6 +23,8 @@ import java.io.File
 actual val platformModule = module {
     singleOf(::DesktopPlatform).bind<Platform>()
     singleOf(::DesktopDirectoryProvider).bind<DirectoryProvider>()
+    singleOf(::DesktopBackupScheduler).bind<BackupScheduler>()
+    singleOf(::DesktopBackupNotifier).bind<BackupNotifier>()
 
     @OptIn(ExperimentalSettingsApi::class, ExperimentalSettingsImplementation::class)
     single<ObservableSettings> {

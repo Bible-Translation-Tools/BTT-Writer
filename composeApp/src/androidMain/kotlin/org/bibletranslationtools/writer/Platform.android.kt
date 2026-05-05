@@ -21,6 +21,7 @@ import io.github.vinceglb.filekit.context
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.runBlocking
 import org.bibletranslationtools.logger.GithubReporter
 import org.bibletranslationtools.logger.Logger
@@ -183,7 +184,9 @@ class AndroidPlatform(
         val sendTo = runBlocking { getString(Res.string.send_to) }
 
         context.startActivity(
-            Intent.createChooser(intent, sendTo),
+            Intent.createChooser(intent, sendTo).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         )
     }
 }
@@ -217,21 +220,20 @@ actual fun getSupportedTstudioExtensions(): FileKitType.File =
 
 actual val PlatformFile.displayName: String
     get() {
-        val uri = toAndroidUri()
-        val context = FileKit.context
+        path.substringAfterLast("/").takeIf { it.isNotBlank() }?.let { return it }
 
-        return when (uri.scheme) {
-            "file" -> uri.lastPathSegment.orEmpty()
-            "content" -> {
-                context.contentResolver
-                    .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-                    ?.use { cursor ->
-                        if (cursor.moveToFirst()) {
-                            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            if (index >= 0) cursor.getString(index) else null
-                        } else null
-                    } ?: name
-            }
-            else -> name
+        val uri = toAndroidUri(authority = null)
+        if (uri.scheme == "content") {
+            val context = FileKit.context
+            context.contentResolver
+                .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (index >= 0) cursor.getString(index)?.let { return it }
+                    }
+                }
         }
+
+        return uri.lastPathSegment ?: name
     }

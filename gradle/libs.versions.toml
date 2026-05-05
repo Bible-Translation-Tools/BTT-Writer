@@ -1,9 +1,9 @@
 [versions]
 agp = "9.2.0"
 kotlin = "2.3.21"
-android-compileSdk = "36"
+android-compileSdk = "37"
 android-minSdk = "26"
-android-targetSdk = "36"
+android-targetSdk = "37"
 app-version-name = "2.0"
 app-version-code = "51"
 androidx-activity = "1.13.0"
@@ -27,7 +27,7 @@ decompose = "3.5.0"
 itextg = "5.5.10"
 settings = "1.3.0"
 preferences-core = "1.2.1"
-filekit = "0.13.0"
+filekit = "0.14.0"
 htmlconverter = "1.1.0"
 foundation = "1.11.0"
 oshi-core = "7.0.1"
@@ -36,6 +36,7 @@ gogs-client = "2.0.2"
 resource-container = "1.0.2"
 resource-catalog-client = "1.0.3"
 logger = "3.0.1"
+foreground = "0.1.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -100,6 +101,7 @@ gogs-client = { group = "org.bibletranslationtools", name = "gogs-client", versi
 resource-container = { group = "org.bibletranslationtools", name = "resource-container", version.ref = "resource-container" }
 resource-catalog-client = { group = "org.bibletranslationtools", name = "resource-catalog-client", version.ref = "resource-catalog-client" }
 bible-logger = { group = "org.bibletranslationtools", name = "logger", version.ref = "logger" }
+foreground = { group = "org.unfoldingword.tools", name = "foreground", version.ref = "foreground" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

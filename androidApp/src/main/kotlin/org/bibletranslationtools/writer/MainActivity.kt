@@ -11,8 +11,10 @@ import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.init
 import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.core.BackupScheduler
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootContent
@@ -24,6 +26,7 @@ class MainActivity : ComponentActivity() {
     private val platform: Platform by inject()
     private val preference: Preference by inject()
     private val directoryProvider: DirectoryProvider by inject()
+    private val backupScheduler: BackupScheduler by inject()
 
     private lateinit var root: RootComponent
 
@@ -67,7 +70,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startBackupService() {
-//        val backupIntent = Intent(baseContext, BackupService::class.java)
-//        baseContext.startService(backupIntent)
+        val interval = preference.getPref(
+            Preference.KEY_PREF_BACKUP_INTERVAL,
+            "5"
+        ).toInt()
+        backupScheduler.start(interval)
     }
 }

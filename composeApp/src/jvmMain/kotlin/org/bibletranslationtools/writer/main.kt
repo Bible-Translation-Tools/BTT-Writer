@@ -12,6 +12,7 @@ import androidx.compose.ui.window.rememberWindowState
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.app_icon
 import btt_writer.composeapp.generated.resources.app_name
+import btt_writer.composeapp.generated.resources.pref_default_backup_interval
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.extensions.compose.lifecycle.LifecycleController
 import com.arkivanov.essenty.backhandler.BackDispatcher
@@ -19,11 +20,14 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.core.BackupScheduler
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.di.initKoin
 import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootContent
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.GlobalContext
@@ -36,8 +40,18 @@ fun main() {
     val platform: Platform = KoinPlatform.getKoin().get()
     val preference: Preference = KoinPlatform.getKoin().get()
     val directoryProvider: DirectoryProvider = KoinPlatform.getKoin().get()
+    val backupScheduler: BackupScheduler = KoinPlatform.getKoin().get()
 
     platform.initLogger(preference, directoryProvider)
+
+    fun startBackupService() {
+        val interval = preference.getPref(
+            Preference.KEY_PREF_BACKUP_INTERVAL,
+            getStringBlocking(Res.string.pref_default_backup_interval)
+        ).toInt()
+
+        backupScheduler.start(interval)
+    }
 
     startBackupService()
 
@@ -77,9 +91,4 @@ fun main() {
             }
         }
     }
-}
-
-private fun startBackupService() {
-//        val backupIntent = Intent(baseContext, BackupService::class.java)
-//        baseContext.startService(backupIntent)
 }

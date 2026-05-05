@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer.di
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.ArchiveImporter
+import org.bibletranslationtools.writer.core.BackupRunner
 import org.bibletranslationtools.writer.usecases.DownloadImages
 import org.bibletranslationtools.writer.core.ProcessUSFM
 import org.bibletranslationtools.writer.core.Profile
@@ -50,6 +51,7 @@ import org.koin.dsl.module
 expect val platformModule: Module
 
 val sharedModule = module {
+    singleOf(::BackupRunner)
     singleOf(::BackupRC)
     singleOf(::Translator)
     singleOf(::ArchiveImporter)

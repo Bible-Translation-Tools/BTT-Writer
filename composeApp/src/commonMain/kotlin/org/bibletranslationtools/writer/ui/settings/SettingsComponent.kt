@@ -53,6 +53,7 @@ import org.bibletranslationtools.logger.LogLevel
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.BackupScheduler
 import org.bibletranslationtools.writer.core.ComponentScope
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Progress
@@ -187,7 +188,7 @@ class DefaultSettingsComponent(
     private val preference: Preference by inject()
     private val directoryProvider: DirectoryProvider by inject()
     private val typography: Typography by inject()
-    //private val backupController: BackupController by inject()
+    private val backupScheduler: BackupScheduler by inject()
     private val platform: Platform by inject()
 
 
@@ -556,7 +557,7 @@ class DefaultSettingsComponent(
             )
         }
 
-        //backupController.restartServiceIfRunning()
+        backupScheduler.restart(newValue.toInt())
     }
 
     override fun updateLoggingLevel(newValue: String) {

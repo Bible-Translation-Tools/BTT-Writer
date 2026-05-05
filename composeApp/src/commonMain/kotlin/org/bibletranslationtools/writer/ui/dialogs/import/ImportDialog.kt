@@ -90,7 +90,7 @@ fun ImportDialog(
         file?.let(component::importUsfm)
     }
 
-    val openProjectContent =rememberFilePickerLauncher(
+    val openProjectContent = rememberFilePickerLauncher(
         type = getSupportedTstudioExtensions(),
         directory = PlatformFile("Downloads"),
         dialogSettings = FileKitDialogSettings.createDefault()
