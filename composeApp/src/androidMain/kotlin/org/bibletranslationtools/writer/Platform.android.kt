@@ -10,7 +10,6 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.os.Process
 import android.provider.OpenableColumns
 import androidx.compose.ui.platform.ClipEntry
 import androidx.core.content.FileProvider
@@ -42,8 +41,8 @@ class AndroidPlatform(
 
     override val info: AppInfo
         get() = AppInfo(
-            versionName = AppConfig.versionName,
-            versionCode = AppConfig.versionCode,
+            versionName = BuildInfo.VERSION_NAME,
+            versionCode = BuildInfo.VERSION_CODE.toInt(),
             model = Build.MODEL,
             device = Build.DEVICE,
             manufacturer = Build.MANUFACTURER
@@ -72,20 +71,6 @@ class AndroidPlatform(
             return !installer.isNullOrEmpty()
         }
 
-    override fun restart() {
-//        val backupIntent = Intent(context, BackupService::class.java)
-//        context.stopService(backupIntent)
-        // TODO Implement backup
-
-        val packageName = context.packageName
-        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-        if (intent != null) {
-            context.startActivity(Intent.makeRestartActivityTask(intent.component))
-            Process.killProcess(Process.myPid())
-            RuntimeWrapper.exit(0)
-        }
-    }
-
     override fun exit() {
         (context as? Activity)?.finishAffinity()
     }
@@ -112,7 +97,7 @@ class AndroidPlatform(
         val am = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
         var message = "System Resources:\n"
         val numProcessors = RuntimeWrapper.availableProcessors
-        message += "Number of processors: $numProcessors " +
+        message += "Number of processor cores: $numProcessors " +
                 "(${Platform.MINIMUM_NUMBER_OF_PROCESSORS} required)\n"
         val maxMem = RuntimeWrapper.maxMemory
         message += "JVM max memory: ${getFormattedSize(maxMem)} " +

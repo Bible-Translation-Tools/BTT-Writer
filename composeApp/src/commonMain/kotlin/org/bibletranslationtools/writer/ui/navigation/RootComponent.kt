@@ -2,7 +2,6 @@ package org.bibletranslationtools.writer.ui.navigation
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.pref_default_color_theme
-import btt_writer.composeapp.generated.resources.pref_default_logging_level
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -25,8 +24,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import org.bibletranslationtools.logger.LogLevel
-import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
@@ -53,13 +50,9 @@ import org.bibletranslationtools.writer.ui.splash.DefaultSplashComponent
 import org.bibletranslationtools.writer.ui.splash.SplashComponent
 import org.bibletranslationtools.writer.ui.translate.DefaultTranslateComponent
 import org.bibletranslationtools.writer.ui.translate.TranslateComponent
-import org.bibletranslationtools.writer.utils.FileUtilities
-import org.bibletranslationtools.writer.utils.getStringBlocking
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.File
-import java.io.IOException
 
 interface RootComponent {
 
@@ -161,26 +154,6 @@ class DefaultRootComponent(
     )
 
     init {
-        preference.getPref(
-            Preference.KEY_PREF_LOGGING_LEVEL,
-            getStringBlocking(Res.string.pref_default_logging_level)
-        ).let { minLogLevel ->
-            Logger.configure(
-                directoryProvider.logFile,
-                LogLevel.getLevel(minLogLevel)
-            )
-        }
-
-        val dir = File(directoryProvider.externalAppDir, "crashes")
-        if (!dir.exists()) {
-            try {
-                FileUtilities.forceMkdir(dir)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        Logger.registerGlobalExceptionHandler(dir)
-
         coroutineScope.launch {
             val theme = preference.getPref(
                 Preference.KEY_PREF_COLOR_THEME,
@@ -294,7 +267,7 @@ class DefaultRootComponent(
             is HomeComponent.Result.OpenProject -> {
                 openTranslate(result.translationId, result.mergeConflictFilterOn)
             }
-            is HomeComponent.Result.ExitApp -> onExitApp()
+            is HomeComponent.Result.ExitApp -> { onExitApp() }
             is HomeComponent.Result.OpenNewTranslation -> openNewTranslation()
             is HomeComponent.Result.ChangeTranslationLanguage -> {
                 openNewTranslation(result.disabledLanguages, result.translationId)
@@ -359,7 +332,7 @@ class DefaultRootComponent(
         when (result) {
             is SettingsComponent.Result.NavigateBack -> navigation.pop()
             is SettingsComponent.Result.OpenDeveloperTools -> openDevTools()
-            is SettingsComponent.Result.MigrationFinished -> platform.restart()
+            is SettingsComponent.Result.MigrationFinished -> restart()
             is SettingsComponent.Result.Logout -> openProfile(false)
             is SettingsComponent.Result.ThemeUpdated -> _currentTheme.value = result.theme
         }
@@ -403,7 +376,7 @@ class DefaultRootComponent(
 
     private fun onCrashResult(result: CrashComponent.Result) {
         when (result) {
-            CrashComponent.Result.Restart -> platform.restart()
+            CrashComponent.Result.Restart -> restart()
             CrashComponent.Result.Exit -> platform.exit()
         }
     }
@@ -465,5 +438,9 @@ class DefaultRootComponent(
 
     private fun openCrashReporter() {
         navigation.replaceAll(Config.Crash)
+    }
+
+    private fun restart() {
+        navigation.replaceAll(Config.Splash)
     }
 }

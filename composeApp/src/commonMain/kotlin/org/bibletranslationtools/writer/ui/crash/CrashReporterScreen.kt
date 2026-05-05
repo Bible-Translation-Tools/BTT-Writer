@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -78,60 +79,64 @@ fun CrashReporterScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 24.dp)
-                .imePadding()
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { paddingValues ->
+        Surface(
+            modifier = Modifier.fillMaxSize()
+                .padding(paddingValues),
         ) {
-            OutlinedTextField(
-                value = state.notes,
-                onValueChange = component::updateNotes,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
-                placeholder = {
-                    Text(stringResource(Res.string.crash_details))
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(bottom = 8.dp)
-                    .focusRequester(focusRequester)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 24.dp)
+                    .imePadding()
             ) {
-                Button(
-                    onClick = component::flushAndRestart,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                ) {
-                    Text(stringResource(Res.string.title_cancel))
-                }
-
-                Button(
-                    onClick = {
-                        focusManager.clearFocus()
-                        showConfirmDialog = true
+                OutlinedTextField(
+                    value = state.notes,
+                    onValueChange = component::updateNotes,
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    placeholder = {
+                        Text(stringResource(Res.string.crash_details))
                     },
                     modifier = Modifier
+                        .fillMaxWidth()
                         .weight(1f)
-                        .padding(start = 4.dp)
+                        .padding(bottom = 8.dp)
+                        .focusRequester(focusRequester)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(stringResource(Res.string.title_upload))
+                    Button(
+                        onClick = component::flushAndRestart,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
+                        Text(stringResource(Res.string.title_cancel))
+                    }
+
+                    Button(
+                        onClick = {
+                            focusManager.clearFocus()
+                            showConfirmDialog = true
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 4.dp)
+                    ) {
+                        Text(stringResource(Res.string.title_upload))
+                    }
                 }
             }
         }

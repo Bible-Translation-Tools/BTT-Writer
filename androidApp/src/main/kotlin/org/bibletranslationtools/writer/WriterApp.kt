@@ -2,7 +2,6 @@ package org.bibletranslationtools.writer
 
 import android.app.Application
 import org.bibletranslationtools.resourcecatalog.initAndroid
-import org.bibletranslationtools.writer.android.BuildConfig
 import org.bibletranslationtools.writer.di.initKoin
 import org.bibletranslationtools.writer.di.platformModule
 import org.bibletranslationtools.writer.di.sharedModule
@@ -16,12 +15,6 @@ class WriterApp : Application() {
         super.onCreate()
 
         initAndroid(this)
-
-        AppConfig.init(
-            versionName = BuildConfig.VERSION_NAME,
-            versionCode = BuildConfig.VERSION_CODE,
-            githubToken = ""
-        )
 
         initKoin {
             androidLogger(Level.WARNING)

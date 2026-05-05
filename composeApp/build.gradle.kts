@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,6 +8,36 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlin.serialization)
+}
+
+val versionName = libs.versions.app.version.name.get()
+val versionCode = libs.versions.app.version.code.get()
+val desktopVersion = "$versionName.${versionCode}"
+
+val generateBuildInfo = tasks.register("generateBuildInfo") {
+    val outputDir = layout.buildDirectory.dir("generated/buildinfo/kotlin")
+    val versionNameValue = versionName
+    val versionCodeValue = versionCode
+
+    inputs.property("versionName", versionNameValue)
+    inputs.property("versionCode", versionCodeValue)
+    outputs.dir(outputDir)
+
+    doLast {
+        val pkgDir = outputDir.get().asFile.resolve("org/bibletranslationtools/writer")
+        pkgDir.mkdirs()
+        pkgDir.resolve("BuildInfo.kt").writeText(
+            """
+            package org.bibletranslationtools.writer
+
+            internal object BuildInfo {
+                const val VERSION_NAME = "$versionNameValue"
+                const val VERSION_CODE = "$versionCodeValue"
+                const val OAUTH_TOKEN = "bad_token"
+            }
+            """.trimIndent()
+        )
+    }
 }
 
 kotlin {
@@ -30,6 +61,8 @@ kotlin {
         }
 
         commonMain {
+            kotlin.srcDir(generateBuildInfo)
+
             dependencies {
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
@@ -98,6 +131,7 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlinx.coroutinesSwing)
+                implementation(libs.oshi.core)
             }
         }
     }
@@ -121,7 +155,19 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "org.bibletranslationtools.writer"
-            packageVersion = "1.0.0"
+            packageVersion = desktopVersion
+
+            modules(
+                "java.instrument",
+                "java.management",
+                "java.prefs",
+                "java.rmi",
+                "java.security.jgss",
+                "java.sql",
+                "java.xml.crypto",
+                "jdk.security.auth",
+                "jdk.unsupported"
+            )
 
             macOS {
                 iconFile.set(project.file("icons/icon.icns"))
@@ -134,4 +180,8 @@ compose.desktop {
             }
         }
     }
+}
+
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    dependsOn(generateBuildInfo)
 }

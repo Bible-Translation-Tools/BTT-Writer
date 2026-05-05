@@ -20,22 +20,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.di.initKoin
 import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootContent
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.GlobalContext
+import org.koin.mp.KoinPlatform
 
 fun main() {
 
-    AppConfig.init(
-        versionName = "1.0.0",
-        versionCode = 1,
-        githubToken = ""
-    )
-
     initKoin()
+
+    val platform: Platform = KoinPlatform.getKoin().get()
+    val preference: Preference = KoinPlatform.getKoin().get()
+    val directoryProvider: DirectoryProvider = KoinPlatform.getKoin().get()
+
+    platform.initLogger(preference, directoryProvider)
 
     startBackupService()
 

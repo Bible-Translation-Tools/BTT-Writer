@@ -12,18 +12,26 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.init
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.ui.navigation.DefaultRootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import org.bibletranslationtools.writer.ui.navigation.RootContent
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    private val platform: Platform by inject()
+    private val preference: Preference by inject()
+    private val directoryProvider: DirectoryProvider by inject()
 
     private lateinit var root: RootComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        platform.initLogger(preference, directoryProvider)
 
         FileKit.init(this)
         startBackupService()

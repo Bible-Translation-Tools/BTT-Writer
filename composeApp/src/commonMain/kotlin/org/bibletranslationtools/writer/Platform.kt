@@ -1,10 +1,19 @@
 package org.bibletranslationtools.writer
 
 import androidx.compose.ui.platform.ClipEntry
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.pref_default_logging_level
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.LogLevel
+import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.FileUtilities
+import org.bibletranslationtools.writer.utils.getStringBlocking
 import java.io.File
+import java.io.IOException
 import java.text.DecimalFormat
 import java.util.Locale
 
@@ -15,25 +24,6 @@ data class AppInfo(
     val device: String,
     val manufacturer: String
 )
-
-object AppConfig {
-    var versionName: String = ""
-        private set
-    var versionCode: Int = 0
-        private set
-    var githubToken: String = ""
-        private set
-
-    fun init(
-        versionName: String,
-        versionCode: Int,
-        githubToken: String
-    ) {
-        this.versionName = versionName
-        this.versionCode = versionCode
-        this.githubToken = githubToken
-    }
-}
 
 interface Platform {
     val info: AppInfo
@@ -47,7 +37,6 @@ interface Platform {
         }
     val isNetworkAvailable: Boolean
 
-    fun restart()
     fun exit()
 
     fun shareApp()
@@ -66,6 +55,28 @@ interface Platform {
         if (size >= 100) return (size + 0.5).toLong().toString() + units
         val decimalFormat = if (size >= 10) DecimalFormat("#.#") else DecimalFormat("#.##")
         return decimalFormat.format(size) + units
+    }
+
+    fun initLogger(preference: Preference, directoryProvider: DirectoryProvider) {
+        preference.getPref(
+            Preference.KEY_PREF_LOGGING_LEVEL,
+            getStringBlocking(Res.string.pref_default_logging_level)
+        ).let { minLogLevel ->
+            Logger.configure(
+                directoryProvider.logFile,
+                LogLevel.getLevel(minLogLevel)
+            )
+        }
+
+        val dir = File(directoryProvider.externalAppDir, "crashes")
+        if (!dir.exists()) {
+            try {
+                FileUtilities.forceMkdir(dir)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        Logger.registerGlobalExceptionHandler(dir)
     }
 
     companion object {

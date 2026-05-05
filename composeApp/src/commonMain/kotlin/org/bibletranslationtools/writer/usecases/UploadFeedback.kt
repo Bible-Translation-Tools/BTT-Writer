@@ -1,7 +1,7 @@
 package org.bibletranslationtools.writer.usecases
 
 import org.bibletranslationtools.logger.Logger
-import org.bibletranslationtools.writer.AppConfig
+import org.bibletranslationtools.writer.BuildInfo
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.getGithubReporter
@@ -20,7 +20,7 @@ class UploadFeedback(
         val logFile = directoryProvider.logFile
 
         // TRICKY: make sure the github_oauth2 token has been set
-        val githubTokenIdentifier = AppConfig.githubToken
+        val githubTokenIdentifier = BuildInfo.OAUTH_TOKEN
         val githubUrl = preference.getGithubBugReportRepo()
 
         if (githubTokenIdentifier.isNotEmpty()) {

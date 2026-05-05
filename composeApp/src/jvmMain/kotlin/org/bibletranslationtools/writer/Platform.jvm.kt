@@ -7,35 +7,60 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.name
 import org.bibletranslationtools.logger.Context
 import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.Logger
+import oshi.SystemInfo
+import java.awt.GraphicsEnvironment
+import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.StringSelection
 import java.awt.datatransfer.Transferable
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Socket
+import kotlin.system.exitProcess
 
 class DesktopPlatform(
     private val directoryProvider: DirectoryProvider
 ) : Platform {
 
+    companion object {
+        val TAG = this::javaClass.name
+    }
+
+    private val systemInfo = SystemInfo()
+    private val hardware = systemInfo.hardware.computerSystem
+    private val memory = systemInfo.hardware.memory
+
     override val info: AppInfo
         get() = AppInfo(
-            versionName = AppConfig.versionName,
-            versionCode = AppConfig.versionCode,
-            model = "Build.MODEL",
-            device = "Build.DEVICE",
-            manufacturer = "Build.MANUFACTURER"
+            versionName = BuildInfo.VERSION_NAME,
+            versionCode = BuildInfo.VERSION_CODE.toInt(),
+            model = hardware.model.takeIf { it.isNotBlank() } ?: "Unknown Model",
+            device = "${System.getProperty("os.name")} (${System.getProperty("os.arch")})",
+            manufacturer = hardware.manufacturer.takeIf {
+                it.isNotBlank()
+            } ?: "Unknown Manufacturer"
         )
 
     override val isStoreVersion = false
 
     override val isNetworkAvailable: Boolean
-        get() = TODO("Not yet implemented")
-
-    override fun restart() {
-        TODO("Not yet implemented")
-    }
+        get() {
+            return try {
+                Socket().use { socket ->
+                    socket.connect(
+                        InetSocketAddress("8.8.8.8", 53),
+                        1500
+                    )
+                    true
+                }
+            } catch (_: Exception) {
+                false
+            }
+        }
 
     override fun exit() {
-        TODO("Not yet implemented")
+        exitProcess(0)
     }
 
     override fun shareApp() {
@@ -47,11 +72,48 @@ class DesktopPlatform(
     }
 
     override fun calculateSystemResources(): String {
-        TODO("Not yet implemented")
+        var message = "System Resources:\n"
+
+        val numProcessors = Runtime.getRuntime().availableProcessors()
+        message += "Number of processor cores: $numProcessors " +
+                "(${Platform.MINIMUM_NUMBER_OF_PROCESSORS} required)\n"
+
+        val maxMem = Runtime.getRuntime().maxMemory()
+        message += "JVM max memory: ${getFormattedSize(maxMem)} " +
+                "(${getFormattedSize(Platform.MINIMUM_REQUIRED_RAM)} required)\n"
+
+        message += "Available memory on the system: " +
+                "${getFormattedSize(memory.available)}\n"
+        message += "Total memory on the system (OSHI): " +
+                "${getFormattedSize(memory.total)}\n"
+
+        message += "Low memory threshold on the system: N/A (Desktop)\n"
+        message += "Low memory state on the system: N/A (Desktop)\n"
+
+        message += "Manufacturer: ${hardware.manufacturer.takeIf { it.isNotBlank() } ?: "Unknown"}\n"
+        message += "Model: ${hardware.model.takeIf { it.isNotBlank() } ?: "Unknown"}\n"
+        message += "Version: ${systemInfo.operatingSystem.family}\n"
+        message += "Version Release: ${systemInfo.operatingSystem.versionInfo.version}\n"
+
+        if (!GraphicsEnvironment.isHeadless()) {
+            val toolkit = Toolkit.getDefaultToolkit()
+            val screenSize = toolkit.screenSize
+            val dpi = toolkit.screenResolution
+
+            message += "\nScreen size ${screenSize.height}H*${screenSize.width}W"
+            message += ", dpi: ${dpi}X*${dpi}Y"
+        } else {
+            message += "\nScreen size: Headless environment (No display)"
+        }
+
+        Logger.i(this.javaClass.simpleName, "system resources check:\n$message")
+
+        return message
     }
 
     override fun getTotalRam(): Long {
-        TODO("Not yet implemented")
+        val gb = memory.total / (1024.0 * 1024.0 * 1024.0)
+        return (kotlin.math.round(gb * 100) / 100).toLong()
     }
 }
 
