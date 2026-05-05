@@ -235,12 +235,13 @@ class ExportProjects(
     ): Result {
         val success = try {
             val fontPath = typography.getAssetPath(TranslationType.TARGET)
+            val fontFile = directoryProvider.getAssetAsFile(fontPath)
             val fontSize = typography.getFontSize(TranslationType.TARGET)
             val licenseFontName = getString(Res.string.pref_default_translation_typeface)
-            val licenseFontPath = "assets/fonts/$licenseFontName"
+            val licenseFontPath = directoryProvider.getAssetAsFile("font/$licenseFontName").absolutePath
             val targetLanguageRtl = "rtl" == targetTranslation.targetLanguageDirection
             val printer = PdfPrinter(
-                targetTranslation, targetTranslation.format, fontPath,
+                targetTranslation, targetTranslation.format, fontFile.absolutePath,
                 fontSize, targetLanguageRtl, licenseFontPath, imagesDir, directoryProvider,
                 catalogClient
             )

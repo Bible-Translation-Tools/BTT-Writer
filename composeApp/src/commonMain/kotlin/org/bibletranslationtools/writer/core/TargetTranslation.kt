@@ -788,7 +788,7 @@ class TargetTranslation private constructor(
             manifestAccessor.save(manifest)
 
             val licenseFile = File(targetTranslationDir, LICENSE_FILE)
-            val asset = directoryProvider.getAssetAsFile(LICENSE_FILE)
+            val asset = directoryProvider.getAssetAsFile("files/$LICENSE_FILE")
             asset.inputStream().use { input ->
                 licenseFile.outputStream().use { output ->
                     input.copyTo(output)

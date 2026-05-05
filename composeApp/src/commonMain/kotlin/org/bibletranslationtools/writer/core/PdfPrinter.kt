@@ -117,8 +117,11 @@ class PdfPrinter(
             BaseColor.BLUE
         )
 
-        licenseBaseFont =
-            BaseFont.createFont(licenseFontPath, BaseFont.IDENTITY_H, true)
+        licenseBaseFont = BaseFont.createFont(
+            licenseFontPath,
+            BaseFont.IDENTITY_H,
+            true
+        )
         licenseFont = Font(licenseBaseFont, 20f)
     }
 

@@ -149,7 +149,7 @@ interface DirectoryProvider {
             val cacheFile = File(cacheDir, "assets/$path")
             if (!cacheFile.exists()) {
                 cacheFile.parentFile?.mkdirs()
-                val bytes = Res.readBytes("files/$path")
+                val bytes = Res.readBytes(path)
                 cacheFile.writeBytes(bytes)
             }
             cacheFile
@@ -182,7 +182,7 @@ interface DirectoryProvider {
 
             // extract resource containers
             containersDir.mkdirs()
-            getAssetAsFile("containers.zip").inputStream().use {
+            getAssetAsFile("files/containers.zip").inputStream().use {
                 Zip.unzipFromStream(it, containersDir)
             }
         }

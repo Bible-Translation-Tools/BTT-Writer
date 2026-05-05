@@ -386,7 +386,7 @@ class TargetTranslationMigrator(
     private suspend fun ensureLicenseFile(path: File) {
         val licenseFile = File(path, TargetTranslation.LICENSE_FILE)
         if (licenseFile.exists()) return
-        directoryProvider.getAssetAsFile(TargetTranslation.LICENSE_FILE).inputStream()
+        directoryProvider.getAssetAsFile("files/${TargetTranslation.LICENSE_FILE}").inputStream()
             .use { input -> licenseFile.outputStream().use { input.copyTo(it) } }
     }
 
