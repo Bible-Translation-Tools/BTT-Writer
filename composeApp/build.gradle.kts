@@ -154,8 +154,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.bibletranslationtools.writer"
+            packageName = "BTT Writer 2.0"
             packageVersion = desktopVersion
+            description = "Bible Translation Tools Writer 2.0"
+            copyright = "© 2026 Wycliffe Associates"
+            vendor = "unfoldingWord"
 
             modules(
                 "java.instrument",
