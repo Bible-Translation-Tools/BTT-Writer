@@ -49,7 +49,7 @@ import org.bibletranslationtools.resourcecontainer.Project
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
-import org.bibletranslationtools.writer.core.DownloadImages
+import org.bibletranslationtools.writer.usecases.DownloadImages
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Progress

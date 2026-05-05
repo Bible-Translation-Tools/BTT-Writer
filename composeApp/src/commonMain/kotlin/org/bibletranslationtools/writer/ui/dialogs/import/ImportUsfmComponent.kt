@@ -26,7 +26,7 @@ import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
-import org.bibletranslationtools.writer.core.ImportSession
+import org.bibletranslationtools.writer.core.ImportUsfmSession
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.MissingNameItem
 import org.bibletranslationtools.writer.core.ProcessUSFM
@@ -115,7 +115,7 @@ class DefaultImportUsfmComponent(
     private val _state = MutableStateFlow(ImportUsfmComponent.State())
     override val state: StateFlow<ImportUsfmComponent.State> = _state.asStateFlow()
 
-    private var session: ImportSession? = null
+    private var session: ImportUsfmSession? = null
     private var missingNameCounter = 0
 
     init {

@@ -62,7 +62,7 @@ import java.util.regex.Pattern
  * Single-use session for importing one PlatformFile into a project structure.
  * All mutable state lives here so [ProcessUSFM] can stay stateless and singleton.
  */
-class ImportSession internal constructor(
+class ImportUsfmSession internal constructor(
     private val platform: Platform,
     private val directoryProvider: DirectoryProvider,
     private val profile: Profile,
@@ -128,11 +128,6 @@ class ImportSession internal constructor(
      */
     suspend fun summary(): String = buildSummary()
 
-    /**
-     * Strips temp-folder paths from a file path for display.
-     */
-    fun shortPath(path: String): String = getShortFilePath(path)
-
     internal suspend fun run(file: PlatformFile) {
         updateStatus(Res.string.initializing_import)
         isSuccess = try {
@@ -167,22 +162,6 @@ class ImportSession internal constructor(
     fun cleanup() {
         FileUtilities.deleteQuietly(tempDir)
     }
-
-    suspend fun runText(text: String, name: String, useName: String?): ImportResult {
-        currentBook = 0
-        _booksMissingNames.clear()
-        errorsByBook.clear()
-        foundBooks.clear()
-        val success = processBook(text, name, promptForName = true, useName = useName)
-        return toResult(success)
-    }
-
-    suspend fun toResult(success: Boolean): ImportResult = ImportResult(
-        success = success,
-        importedProjects = importedProjects.toList(),
-        booksMissingNames = booksMissingNames.toList(),
-        summary = buildSummary()
-    )
 
     // ---------------------------------------------------------------
     // File reading
@@ -256,7 +235,11 @@ class ImportSession internal constructor(
             chapterCount = 1
 
             extractBookID(book)
-            if (useName != null) bookShortName = useName
+            if (useName != null) {
+                bookShortName = useName
+                _booksMissingNames.removeAll { it.contents == book }
+                errorsByBook[currentBook] = ""
+            }
 
             if (bookShortName.isNullOrEmpty()) {
                 addError(Res.string.missing_book_short_name)
@@ -693,7 +676,7 @@ class ImportSession internal constructor(
     private fun getVerseRange(verse: String): IntArray? {
         return try {
             intArrayOf(verse.toInt(), 0)
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             val range = verse.split("-".toRegex())
             if (range.size < 2) null
             else intArrayOf(range[0].toInt(), range[1].toInt())
@@ -863,9 +846,6 @@ class ImportSession internal constructor(
     private suspend fun addError(resource: StringResource, vararg args: Any) =
         addMessage(getString(resource, *args), isError = true)
 
-    private suspend fun addError(message: String) =
-        addMessage(message, isError = true)
-
     private suspend fun addWarning(message: String) =
         addMessage(message, isError = false)
 
@@ -885,7 +865,9 @@ class ImportSession internal constructor(
 
     private fun setBookName(shortName: String, description: String) {
         ensureBookSlot()
-        foundBooks[currentBook] = if (shortName.isNotEmpty()) "$shortName = $description" else description
+        foundBooks[currentBook] = if (shortName.isNotEmpty()) {
+            "$shortName = $description"
+        } else description
     }
 
     private fun ensureBookSlot() {
@@ -916,7 +898,7 @@ class ImportSession internal constructor(
     )
 
     companion object {
-        private val TAG: String = ImportSession::class.java.simpleName
+        private val TAG: String = ImportUsfmSession::class.java.simpleName
 
         private const val CHAPTER_TITLE_MARKER = "\\\\cl\\s([^\\n]*)"
         val PATTERN_CHAPTER_TITLE_MARKER: Pattern = Pattern.compile(CHAPTER_TITLE_MARKER)

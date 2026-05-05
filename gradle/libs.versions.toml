@@ -1,6 +1,6 @@
 [versions]
-agp = "9.0.0"
-kotlin = "2.3.20"
+agp = "9.2.0"
+kotlin = "2.3.21"
 android-compileSdk = "36"
 android-minSdk = "26"
 android-targetSdk = "36"
@@ -30,7 +30,7 @@ preferences-core = "1.2.1"
 filekit = "0.13.0"
 htmlconverter = "1.1.0"
 foundation = "1.11.0"
-oshi-core = "6.4.13"
+oshi-core = "7.0.1"
 
 gogs-client = "2.0.2"
 resource-container = "1.0.2"

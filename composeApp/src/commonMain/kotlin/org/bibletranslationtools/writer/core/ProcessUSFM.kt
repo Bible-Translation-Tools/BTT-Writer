@@ -13,12 +13,12 @@ import java.io.File
  * Factory for USFM import sessions.
  *
  * This service is stateless — each call to [startImport] returns a fresh
- * [ImportSession] that holds the per-import state (parsed books, missing
+ * [ImportUsfmSession] that holds the per-import state (parsed books, missing
  * names, temp files) and exposes the operations needed to drive the import
  * flow: inspecting parse results, resolving missing book names interactively,
  * and reading the final list of importable project folders.
  *
- * Callers are responsible for invoking [ImportSession.cleanup] when the
+ * Callers are responsible for invoking [ImportUsfmSession.cleanup] when the
  * session is no longer needed, to remove temporary files.
  *
  * Inject as a singleton via Koin.
@@ -30,16 +30,16 @@ class ProcessUSFM(
     private val catalogClient: ResourceCatalogClient
 ) {
     /**
-     * Starts a new import session. The returned [ImportSession] holds state
+     * Starts a new import session. The returned [ImportUsfmSession] holds state
      * across multiple interactions (e.g. resolving missing book names) and
-     * must be closed via [ImportSession.cleanup] when done.
+     * must be closed via [ImportUsfmSession.cleanup] when done.
      */
     suspend fun startImport(
         targetLanguage: TargetLanguage,
         file: PlatformFile,
         onProgress: (Float, String?) -> Unit = { _, _ -> }
-    ): ImportSession = withContext(Dispatchers.IO) {
-        val session = ImportSession(
+    ): ImportUsfmSession = withContext(Dispatchers.IO) {
+        val session = ImportUsfmSession(
             platform = platform,
             directoryProvider = directoryProvider,
             profile = profile,

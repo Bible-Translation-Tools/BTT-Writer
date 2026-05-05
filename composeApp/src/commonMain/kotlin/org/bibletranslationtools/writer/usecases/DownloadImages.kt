@@ -1,4 +1,4 @@
-package org.bibletranslationtools.writer.core
+package org.bibletranslationtools.writer.usecases
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.mb_downloaded
@@ -45,7 +45,7 @@ class DownloadImages(private val directoryProvider: DirectoryProvider) {
                 val outOf = getString(Res.string.out_of)
                 val unpacking = getString(Res.string.unpacking)
                 onProgress(0f, unpacking)
-                Logger.i(TAG, "unpacking: ")
+                Logger.Companion.i(TAG, "unpacking: ")
 
                 Zip.unzip(fullPath, tempDir)
                 FileUtilities.deleteQuietly(fullPath)
