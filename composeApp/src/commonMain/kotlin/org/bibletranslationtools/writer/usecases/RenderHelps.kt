@@ -21,7 +21,7 @@ class RenderHelps(
         result["notes"] = ArrayList<Any>()
 
         if (chunk.config.containsKey("words")) {
-            val links = getWordsLinks(chunk.config["words"]!!, chunk)
+            val links = getWordsLinks(chunk.config["words"]!!.distinct(), chunk)
             if (links.isNotEmpty()) {
                 result["words"] = links
             }

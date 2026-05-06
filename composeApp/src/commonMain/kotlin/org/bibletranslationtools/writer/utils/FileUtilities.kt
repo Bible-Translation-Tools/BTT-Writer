@@ -347,7 +347,7 @@ object FileUtilities {
             if (srcFile.absolutePath() in exclusionList) continue
 
             if (srcFile.isDirectory()) {
-                doCopyDirectory(srcFile, dstFile, filter, exclusionList)
+                doCopyDirectory(srcFile, dstFile, null, exclusionList)
             } else {
                 srcFile.copyTo(dstFile)
             }

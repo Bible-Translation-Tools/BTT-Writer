@@ -4,10 +4,10 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.copying_file
 import btt_writer.composeapp.generated.resources.migrating_translation
 import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.isDirectory
+import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.exists
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.TargetTranslationMigrator
-import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.jetbrains.compose.resources.getString
 import java.io.File
@@ -24,11 +24,17 @@ class MigrateTranslations(
         // Migrate translations
 
         val tempTranslations = directoryProvider.createTempDir("translations")
-        FileUtilities.copyDirectory(
-            appDataFolder,
-            PlatformFile(tempTranslations)
-        ) {
-            it.isDirectory() && it.displayName == directoryProvider.translationsDir.name
+        val kmpTranslationsSrc = appDataFolder / directoryProvider.translationsDir.name
+        val desktopTranslationsDir = appDataFolder / "targetTranslations"
+
+        val translationsSrc = when {
+            kmpTranslationsSrc.exists() -> kmpTranslationsSrc
+            desktopTranslationsDir.exists() -> desktopTranslationsDir
+            else -> null
+        }
+
+        translationsSrc?.let {
+            FileUtilities.copyDirectory(it, PlatformFile(tempTranslations))
         }
 
         migrateTranslations(tempTranslations, onProgress)
@@ -36,12 +42,17 @@ class MigrateTranslations(
 
         // Migrate backups
         val tempBackups = directoryProvider.createTempDir("backups")
-        FileUtilities.copyDirectory(
-            appDataFolder,
-            PlatformFile(tempBackups)
-        ) {
-            it.isDirectory() && it.displayName == directoryProvider.backupsDir.name
+        val kmpBackupsSrc = appDataFolder / directoryProvider.backupsDir.name
+        val autoBackupsSrc = appDataFolder / "automatic_backups"
+        val backupsSrc = mutableListOf<PlatformFile>()
+
+        if (kmpBackupsSrc.exists()) backupsSrc.add(kmpBackupsSrc)
+        if (autoBackupsSrc.exists()) backupsSrc.add(autoBackupsSrc)
+
+        backupsSrc.forEach { src ->
+            FileUtilities.copyDirectory(src, PlatformFile(tempBackups))
         }
+
         copyBackups(tempBackups, onProgress)
     }
 
