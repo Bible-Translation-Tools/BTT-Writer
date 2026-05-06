@@ -22,7 +22,7 @@ import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.unit.TestUtils
+import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.usecases.RegisterSSHKeys
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.jetbrains.compose.resources.getString

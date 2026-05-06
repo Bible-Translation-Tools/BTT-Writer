@@ -26,7 +26,7 @@ import org.bibletranslationtools.writer.core.NativeSpeaker
 import org.bibletranslationtools.writer.core.ProcessUSFM
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.unit.TestUtils
+import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.junit.After
 import org.junit.Before

@@ -31,7 +31,7 @@ import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.inputStream
-import org.bibletranslationtools.writer.unit.TestUtils
+import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
