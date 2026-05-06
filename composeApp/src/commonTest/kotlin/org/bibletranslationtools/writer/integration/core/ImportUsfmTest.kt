@@ -2,10 +2,13 @@ package org.bibletranslationtools.writer.integration.core
 
 import io.github.vinceglb.filekit.PlatformFile
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.ChunkMarker
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.TestDirectoryProvider
 import org.bibletranslationtools.writer.core.ImportUsfmSession
 import org.bibletranslationtools.writer.core.ProcessUSFM
 import org.bibletranslationtools.writer.core.Profile
@@ -33,6 +36,7 @@ import kotlin.test.assertTrue
 
 class ImportUsfmTest : KoinTest {
 
+    private val directoryProvider: DirectoryProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val processUSFM: ProcessUSFM by inject()
 
@@ -47,14 +51,12 @@ class ImportUsfmTest : KoinTest {
             modules(
                 sharedModule,
                 platformModule,
-                module {
-                    single<Preference> { mockk(relaxed = true) }
-                },
-                module {
-                    single<Profile> { mockk(relaxed = true) }
-                }
+                module { single<DirectoryProvider> { TestDirectoryProvider() } },
+                module { single<Preference> { mockk(relaxed = true) } },
+                module { single<Profile> { mockk(relaxed = true) } }
             )
         }
+        runBlocking { directoryProvider.deployDefaultLibrary() }
     }
 
     @After

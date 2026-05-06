@@ -5,6 +5,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.TestDirectoryProvider
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.di.platformModule
@@ -38,6 +40,7 @@ class AdvancedGogsRepoSearchTest : KoinTest {
             modules(
                 sharedModule,
                 platformModule,
+                module { single<DirectoryProvider> { TestDirectoryProvider() } },
                 module { single<Preference> { mockk(relaxed = true) } },
                 module { single<Profile> { mockk(relaxed = true) } }
             )

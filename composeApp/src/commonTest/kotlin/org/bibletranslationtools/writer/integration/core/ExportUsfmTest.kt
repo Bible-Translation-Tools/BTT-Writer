@@ -3,10 +3,13 @@ package org.bibletranslationtools.writer.integration.core
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.TestDirectoryProvider
 import org.bibletranslationtools.writer.core.ImportUsfmSession
 import org.bibletranslationtools.writer.core.ProcessUSFM
 import org.bibletranslationtools.writer.core.Profile
@@ -37,6 +40,7 @@ import java.util.regex.Pattern
 
 class ExportUsfmTest : KoinTest {
 
+    private val directoryProvider: DirectoryProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val exportProjects: ExportProjects by inject()
     private val processUSFM: ProcessUSFM by inject()
@@ -56,10 +60,12 @@ class ExportUsfmTest : KoinTest {
             modules(
                 sharedModule,
                 platformModule,
+                module { single<DirectoryProvider> { TestDirectoryProvider() } },
                 module { single<Preference> { mockk(relaxed = true) } },
                 module { single<Profile> { mockk(relaxed = true) } }
             )
         }
+        runBlocking { directoryProvider.deployDefaultLibrary() }
         targetLanguage = catalogClient.library.getTargetLanguage("aae")
     }
 

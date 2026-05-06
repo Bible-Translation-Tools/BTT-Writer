@@ -2,6 +2,7 @@ package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import org.bibletranslationtools.writer.TestDirectoryProvider
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
@@ -51,10 +52,12 @@ class BackupRCTest : KoinTest {
             modules(
                 sharedModule,
                 platformModule,
+                module { single<DirectoryProvider> { TestDirectoryProvider() } },
                 module { single<Preference> { mockk(relaxed = true) } },
                 module { single<Profile> { mockk(relaxed = true) } }
             )
         }
+        runBlocking { directoryProvider.deployDefaultLibrary() }
     }
 
     @After

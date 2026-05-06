@@ -1,6 +1,8 @@
 package org.bibletranslationtools.writer.integration.core
 
 import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.TestDirectoryProvider
 import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.di.platformModule
 import org.bibletranslationtools.writer.di.sharedModule
@@ -14,6 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.core.context.GlobalContext.stopKoin
+import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import java.io.IOException
@@ -31,7 +34,11 @@ class UsxBrokenRenderTest : KoinTest {
     fun setUp() {
         Logger.flush()
         startKoin {
-            modules(sharedModule, platformModule)
+            modules(
+                sharedModule,
+                platformModule,
+                module { single<DirectoryProvider> { TestDirectoryProvider() } }
+            )
         }
     }
 
