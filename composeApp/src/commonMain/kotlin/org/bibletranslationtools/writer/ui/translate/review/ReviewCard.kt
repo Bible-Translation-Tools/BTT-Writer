@@ -55,8 +55,6 @@ fun ReviewCard(
     sourceSearchQuery: String? = null,
     targetSearchQuery: String? = null
 ) {
-    val platform: Platform = koinInject()
-
     val mainWeight by animateFloatAsState(
         targetValue = if (resourcesOpen) 0.333f else 0.49f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy),
@@ -73,12 +71,6 @@ fun ReviewCard(
         label = "endPadding"
     )
 
-    LaunchedEffect(Unit) {
-        if (!platform.isAndroid) {
-            onExpandedChange(true)
-        }
-    }
-
     LaunchedEffect(resourcesOpen, item.chunk.source, item.helps) {
         if (resourcesOpen) onRenderHelps()
     }
@@ -90,11 +82,23 @@ fun ReviewCard(
             .height(IntrinsicSize.Max)
             .padding(start = 16.dp)
             .padding(end = endPadding)
-            .thenIf(platform.isAndroid) {
-                Modifier.pointerInput(Unit) {
-                    detectHorizontalDragGestures { _, dragAmount ->
-                        if (dragAmount < -100) onExpandedChange(true)
-                        if (dragAmount > 100) onExpandedChange(false)
+            .pointerInput(Unit) {
+                var totalDrag = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { totalDrag = 0f },
+                    onDragEnd = { totalDrag = 0f },
+                    onDragCancel = { totalDrag = 0f }
+                ) { _, dragAmount ->
+                    totalDrag += dragAmount
+                    when {
+                        totalDrag < -200f -> {
+                            onExpandedChange(true)
+                            totalDrag = 0f
+                        }
+                        totalDrag > 200f -> {
+                            onExpandedChange(false)
+                            totalDrag = 0f
+                        }
                     }
                 }
             }
