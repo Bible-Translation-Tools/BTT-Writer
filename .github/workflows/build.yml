@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: mobile/build/outputs/apk/debug/*.apk
+          path: androidApp/build/outputs/apk/debug/*.apk
 
   build-desktop-macos:
     name: Build Desktop macOS
