@@ -79,7 +79,7 @@ kotlin {
                 implementation(libs.jgit)
                 implementation(libs.jgit.ssh.apache)
                 implementation(libs.bcprov.jdk18on)
-                // Provides the missing javax.management classes for Android
+                // Provides the missing javax.management classes for jgit Android
                 // We can remove this only with minSdk = 33 and jgit 6+
                 implementation(libs.jmx)
 
