@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
@@ -112,6 +113,8 @@ fun SettingsScreen(
     ) { directory: PlatformFile? ->
         directory?.let(component::migrateOldAppData)
     }
+
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(component) {
         component.event.collect {
@@ -414,7 +417,7 @@ fun SettingsScreen(
                 title = stringResource(Res.string.apk_update_available),
                 message = stringResource(Res.string.download_latest_apk),
                 onConfirm = {
-                    component.downloadLatestRelease(resultObj.release)
+                    uriHandler.openUri(resultObj.release.downloadUrl)
                     component.dismissUpdateResultDialog()
                 },
                 onDismiss = { component.dismissUpdateResultDialog() },

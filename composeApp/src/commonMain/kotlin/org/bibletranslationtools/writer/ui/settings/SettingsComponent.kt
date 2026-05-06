@@ -66,7 +66,6 @@ import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.data.setPref
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
-import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.GogsLogout
 import org.bibletranslationtools.writer.usecases.MigrateTranslations
 import org.jetbrains.compose.resources.getString
@@ -86,7 +85,6 @@ interface SettingsComponent {
     fun checkForLatestRelease()
     fun setCheckHardwareEnabled(enabled: Boolean)
     fun setTmLinksEnabled(enabled: Boolean)
-    fun downloadLatestRelease(release: CheckForLatestRelease.Release)
     fun dismissUpdateResultDialog()
     fun updateColorTheme(newValue: String)
     fun updateTranslationTypeface(newFileName: String)
@@ -181,7 +179,6 @@ class DefaultSettingsComponent(
     KoinComponent, ProgressOwner, ComponentScope {
 
     private val checkForLatestRelease: CheckForLatestRelease by inject()
-    private val downloadLatestRelease: DownloadLatestRelease by inject()
     private val profile: Profile by inject()
     private val logout: GogsLogout by inject()
     private val migrateTranslations: MigrateTranslations by inject()
@@ -577,10 +574,6 @@ class DefaultSettingsComponent(
             directoryProvider.logFile,
             LogLevel.getLevel(newValue)
         )
-    }
-
-    override fun downloadLatestRelease(release: CheckForLatestRelease.Release) {
-        downloadLatestRelease.execute(release)
     }
 
     override fun onContentServerChanged(newValue: String) {

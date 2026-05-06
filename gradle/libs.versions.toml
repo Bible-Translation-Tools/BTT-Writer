@@ -8,7 +8,7 @@ app-version-name = "2.0"
 app-version-code = "51"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.10.0"
-composeHotReload = "1.0.0"
+composeHotReload = "1.1.0"
 composeMultiplatform = "1.10.3"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.11.0"
@@ -37,6 +37,10 @@ resource-container = "1.0.2"
 resource-catalog-client = "1.0.3"
 logger = "3.0.1"
 foreground = "0.1.0"
+
+mockk = "1.14.9"
+junit = "4.13.2"
+mockwebserver = "5.3.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -102,6 +106,14 @@ resource-container = { group = "org.bibletranslationtools", name = "resource-con
 resource-catalog-client = { group = "org.bibletranslationtools", name = "resource-catalog-client", version.ref = "resource-catalog-client" }
 bible-logger = { group = "org.bibletranslationtools", name = "logger", version.ref = "logger" }
 foreground = { group = "org.unfoldingword.tools", name = "foreground", version.ref = "foreground" }
+
+# Tests
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
+koin-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
+mock-webserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -1,7 +1,6 @@
 package org.bibletranslationtools.writer.usecases
 
 import btt_writer.composeapp.generated.resources.Res
-import btt_writer.composeapp.generated.resources.importing_file
 import btt_writer.composeapp.generated.resources.overwrite_content
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.isDirectory
@@ -101,8 +100,6 @@ class ImportProjects(
         overwrite: Boolean,
         onProgress: (Float, String?) -> Unit = {_,_->}
     ): ImportFilesResult {
-        onProgress(-1f, getString(Res.string.importing_file))
-
         var count = 0
         val size = projects.size
         val numSteps = 4
@@ -179,7 +176,7 @@ class ImportProjects(
             return ImportSourceResult(
                 success = false,
                 hasConflict = false,
-                platformFile = platformFile,
+                file = platformFile,
                 error = "Should be a directory"
             )
         }
@@ -213,7 +210,7 @@ class ImportProjects(
                     success = false,
                     hasConflict = true,
                     error = conflictMessage,
-                    platformFile = platformFile
+                    file = platformFile
                 )
             }
         } catch (e: Exception) {
@@ -384,7 +381,7 @@ class ImportProjects(
     data class ImportSourceResult(
         val success: Boolean,
         val hasConflict: Boolean,
-        val platformFile: PlatformFile? = null,
+        val file: PlatformFile? = null,
         val error: String? = null
     )
 

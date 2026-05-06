@@ -115,6 +115,7 @@ kotlin {
                 implementation(libs.multiplatform.settings.coroutines)
                 implementation(libs.datastore.preferences.core)
 
+                // FileKit
                 implementation(libs.filekit.core)
                 implementation(libs.filekit.dialogs)
                 implementation(libs.filekit.dialogs.compose)
@@ -125,6 +126,12 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test)
                 implementation(libs.koin.test)
+
+                //implementation(libs.junit)
+                implementation(libs.mockk)
+                implementation(libs.mockk.agent)
+                implementation(libs.mock.webserver)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

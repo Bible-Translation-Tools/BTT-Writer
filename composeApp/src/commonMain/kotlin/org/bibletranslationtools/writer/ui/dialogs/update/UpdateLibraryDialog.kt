@@ -234,7 +234,8 @@ fun UpdateLibraryDialog(
             message = stringResource(Res.string.download_latest_apk),
             onDismiss = component::clearLatestRelease,
             onConfirm = {
-                component.downloadLatestRelease(release)
+                component.clearLatestRelease()
+                uriHandler.openUri(release.downloadUrl)
             }
         )
     }

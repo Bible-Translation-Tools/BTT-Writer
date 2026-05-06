@@ -31,6 +31,10 @@ class PushTargetTranslation(
     private val getRepository: GetRepository,
     private val transportCallback: TransportCallback
 ) {
+    companion object {
+        val TAG = PushTargetTranslation::javaClass.name
+    }
+
     data class Result(
         val status: Status,
         val message: String?
@@ -47,7 +51,7 @@ class PushTargetTranslation(
                 val repo: Repo = targetTranslation.repo
                 return push(repo, repository!!.sshUrl, onProgress)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.e(TAG, "Failed to push target translation", e)
             }
         } else {
             return Result(Status.AUTH_FAILURE, null)

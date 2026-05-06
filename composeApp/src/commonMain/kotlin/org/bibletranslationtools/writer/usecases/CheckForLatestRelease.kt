@@ -33,10 +33,14 @@ class CheckForLatestRelease(
                 try {
                     if (build > platform.info.versionCode) {
                         releaseInfo.assets.firstOrNull()?.let { asset ->
+                            val url = if (platform.isStoreVersion) {
+                                "https://play.google.com/store/apps/details?id=org.bibletranslationtools.writer"
+                            } else asset.browserDownloadUrl
+
                             release = Release(
-                                releaseInfo.name,
-                                asset.browserDownloadUrl,
-                                asset.size,
+                                name = releaseInfo.name,
+                                downloadUrl = url,
+                                downloadSize = asset.size,
                                 build
                             )
                         }

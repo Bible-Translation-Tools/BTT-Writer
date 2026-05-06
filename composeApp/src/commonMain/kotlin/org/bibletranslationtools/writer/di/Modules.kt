@@ -19,7 +19,6 @@ import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
 import org.bibletranslationtools.writer.usecases.CloneRepository
 import org.bibletranslationtools.writer.usecases.CreateRepository
-import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.DownloadResourceContainers
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.usecases.GetAvailableSources
@@ -85,7 +84,6 @@ val sharedModule = module {
     singleOf(::UpdateCatalogs)
     singleOf(::TranslationProgress)
     singleOf(::CheckForLatestRelease)
-    singleOf(::DownloadLatestRelease)
     singleOf(::UploadCrashReport)
     singleOf(::CloneRepository)
     singleOf(::ImportIndex)

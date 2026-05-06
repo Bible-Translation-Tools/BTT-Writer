@@ -2,7 +2,6 @@ package org.bibletranslationtools.writer.ui.crash
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.checking_for_updates
-import btt_writer.composeapp.generated.resources.downloading
 import btt_writer.composeapp.generated.resources.uploading
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
@@ -27,7 +26,6 @@ import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
-import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.UploadCrashReport
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -41,19 +39,19 @@ interface CrashComponent {
     val isNetworkAvailable: Boolean
 
     fun checkForLatestRelease()
+    fun clearLatestRelease()
     fun uploadCrashReport()
     fun updateNotes(notes: String)
-    fun downloadLatestRelease()
     fun flushAndRestart()
 
     data class CrashState(
         val notes: String = "",
-        val success: Boolean = false
+        val success: Boolean = false,
+        val latestRelease: CheckForLatestRelease.Release? = null
     )
 
     sealed interface Event {
         data object UploadError : Event
-        data object UpdateAvailable : Event
     }
 
     sealed interface Result {
@@ -70,7 +68,6 @@ class DefaultCrashComponent(
         KoinComponent, ComponentScope, ProgressOwner {
 
     private val checkForLatestRelease: CheckForLatestRelease by inject()
-    private val downloadLatestRelease: DownloadLatestRelease by inject()
     private val uploadCrashReport: UploadCrashReport by inject()
     private val platform: Platform by inject()
 
@@ -85,7 +82,6 @@ class DefaultCrashComponent(
     private val _event = Channel<CrashComponent.Event>(Channel.BUFFERED)
     override val event = _event.receiveAsFlow()
 
-    private var release: CheckForLatestRelease.Release? = null
     override val isNetworkAvailable: Boolean get() = platform.isNetworkAvailable
 
     init {
@@ -104,12 +100,15 @@ class DefaultCrashComponent(
                 checkForLatestRelease.execute()
             }
             if (result.release != null) {
-                release = result.release
-                _event.trySend(CrashComponent.Event.UpdateAvailable)
+                _state.update { it.copy(latestRelease = result.release) }
             } else {
                 uploadCrashReport()
             }
         }
+    }
+
+    override fun clearLatestRelease() {
+        _state.update { it.copy(latestRelease = null) }
     }
 
     override fun uploadCrashReport() {
@@ -129,18 +128,6 @@ class DefaultCrashComponent(
 
     override fun updateNotes(notes: String) {
         _state.update { it.copy(notes = notes) }
-    }
-
-    override fun downloadLatestRelease() {
-        release?.let { release ->
-            Logger.flush()
-            launchWithProgress(Res.string.downloading) {
-                withContext(Dispatchers.IO) {
-                    downloadLatestRelease.execute(release)
-                }
-                onResult(CrashComponent.Result.Exit)
-            }
-        }
     }
 
     override fun flushAndRestart() {

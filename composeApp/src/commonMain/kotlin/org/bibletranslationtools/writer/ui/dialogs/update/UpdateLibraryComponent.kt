@@ -35,7 +35,6 @@ import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
-import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.ImportIndex
 import org.bibletranslationtools.writer.usecases.UpdateCatalogs
 import org.bibletranslationtools.writer.usecases.UpdateSource
@@ -54,7 +53,6 @@ interface UpdateLibraryComponent {
     fun downloadIndex()
     fun updateLanguages()
     fun checkAppUpdate()
-    fun downloadLatestRelease(release: CheckForLatestRelease.Release)
     fun clearResult()
     fun clearLatestRelease()
     fun clearUpdateSourceResult()
@@ -85,7 +83,6 @@ class DefaultUpdateLibraryComponent(
     private val importIndex: ImportIndex by inject()
     private val updateCatalogs: UpdateCatalogs by inject()
     private val checkForLatestRelease: CheckForLatestRelease by inject()
-    private val downloadLatestRelease: DownloadLatestRelease by inject()
     private val updateSource: UpdateSource by inject()
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
@@ -217,15 +214,6 @@ class DefaultUpdateLibraryComponent(
                     title = getString(Res.string.check_for_updates),
                     message = getString(Res.string.have_latest_app_update)
                 )
-            }
-        }
-    }
-
-    override fun downloadLatestRelease(release: CheckForLatestRelease.Release) {
-        launchWithProgress {
-            _state.update { it.copy(latestRelease = null) }
-            withContext(Dispatchers.IO) {
-                downloadLatestRelease.execute(release)
             }
         }
     }

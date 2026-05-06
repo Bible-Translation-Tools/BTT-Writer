@@ -313,7 +313,7 @@ fun ImportDialog(
             title = stringResource(Res.string.confirm),
             message = result.error ?: "Unknown error",
             onConfirm = {
-                result.platformFile?.let { uri ->
+                result.file?.let { uri ->
                     component.importSource(uri, true)
                 }
                 component.clearSourceConflict()

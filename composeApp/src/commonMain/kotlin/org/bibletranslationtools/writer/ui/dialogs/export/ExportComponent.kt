@@ -49,7 +49,6 @@ import org.bibletranslationtools.resourcecontainer.Project
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
-import org.bibletranslationtools.writer.usecases.DownloadImages
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Progress
@@ -63,6 +62,7 @@ import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.CreateRepository
+import org.bibletranslationtools.writer.usecases.DownloadImages
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.usecases.GogsLogout
 import org.bibletranslationtools.writer.usecases.PullTargetTranslation
@@ -171,6 +171,10 @@ class DefaultExportComponent(
     override lateinit var targetTranslation: TargetTranslation
     override lateinit var projectName: String
     override lateinit var projectTitle: String
+
+    companion object {
+        val TAG = ExportComponent::javaClass.name
+    }
 
     init {
         val translation = runBlocking {
@@ -324,8 +328,8 @@ class DefaultExportComponent(
                     exportFile
                 } catch (e: Exception) {
                     Logger.e(
-                        this@DefaultExportComponent::javaClass.name,
-                        "Failed to export the target translation " + targetTranslation.id,
+                        TAG,
+                        "Failed to export the target translation ${targetTranslation.id}",
                         e
                     )
                     null
@@ -411,13 +415,13 @@ class DefaultExportComponent(
             PullTargetTranslation.Status.UP_TO_DATE,
             PullTargetTranslation.Status.UNKNOWN -> {
                 Logger.i(
-                    this.javaClass.name,
-                    "Changes on the server were synced with " + targetTranslation.id
+                    TAG,
+                    "Changes on the server were synced with ${targetTranslation.id}"
                 )
                 pushTargetTranslation(handle)
             }
             PullTargetTranslation.Status.AUTH_FAILURE -> {
-                Logger.i(this.javaClass.name, "Authentication failed")
+                Logger.i(TAG, "Authentication failed: ${result.message}")
                 if (!directoryProvider.hasSSHKeys()) {
                     registerSSHKeys(false, handle)
                 } else {
@@ -426,15 +430,15 @@ class DefaultExportComponent(
             }
             PullTargetTranslation.Status.NO_REMOTE_REPO -> {
                 Logger.i(
-                    this.javaClass.name,
-                    "The repository " + targetTranslation.id + " could not be found"
+                    TAG,
+                    "The repository ${targetTranslation.id} could not be found"
                 )
                 createRepository(handle)
             }
             PullTargetTranslation.Status.MERGE_CONFLICTS -> {
                 Logger.i(
-                    this.javaClass.name,
-                    "The server contains conflicting changes for " + targetTranslation.id
+                    TAG,
+                    "The server contains conflicting changes for ${targetTranslation.id}"
                 )
                 val conflicted = MergeConflictsHandler.isTranslationMergeConflicted(
                     targetTranslation.id,
@@ -443,8 +447,8 @@ class DefaultExportComponent(
                 if (!conflicted) {
                     // probably the manifest or license gave a false positive
                     Logger.i(
-                        this.javaClass.name,
-                        "Changes on the server were synced with " + targetTranslation.id
+                        TAG,
+                        "Changes on the server were synced with ${targetTranslation.id}"
                     )
                     pushTargetTranslation(handle)
                 } else {
@@ -478,26 +482,24 @@ class DefaultExportComponent(
         when {
             result.status == PushTargetTranslation.Status.OK -> {
                 Logger.i(
-                    this.javaClass.name,
+                    TAG,
                     "The target translation " + targetTranslation.id + " was pushed to the server"
                 )
                 reportUploadSuccess(result.message)
             }
             result.status == PushTargetTranslation.Status.AUTH_FAILURE -> {
-                Logger.i(this.javaClass.name, "Authentication failed")
+                Logger.w(TAG, "Authentication failed: ${result.message}")
                 _event.trySend(ExportComponent.Event.AuthRequested)
             }
             result.status.isRejected -> {
-                Logger.i(this.javaClass.name, "Push Rejected")
+                Logger.w(TAG, "Push Rejected: ${result.message}")
                 val title = getString(Res.string.upload_failed)
                 val message = getString(Res.string.push_rejected)
                 _state.update {
                     it.copy(mergeConflict = DialogMessage(title, message))
                 }
             }
-            else -> {
-                reportUploadFailed()
-            }
+            else -> reportUploadFailed()
         }
     }
 
@@ -518,7 +520,7 @@ class DefaultExportComponent(
             }
         }
         if (registered) {
-            Logger.i(this.javaClass.name, "SSH keys were registered with the server")
+            Logger.i(TAG, "SSH keys were registered with the server")
             pullTargetTranslation(MergeStrategy.RECURSIVE, handle)
         } else {
             _event.trySend(ExportComponent.Event.AuthRequested)
@@ -535,7 +537,7 @@ class DefaultExportComponent(
         }
         if (created) {
             Logger.i(
-                this.javaClass.name,
+                TAG,
                 "A new repository " + targetTranslation.id + " was created on the server"
             )
             pullTargetTranslation(MergeStrategy.RECURSIVE, handle)

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
@@ -57,7 +58,6 @@ fun CrashReporterScreen(
     component: CrashComponent
 ) {
     var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
-    var showUpdateAvailableDialog by rememberSaveable { mutableStateOf(false) }
     var showUploadErrorDialog by rememberSaveable { mutableStateOf(false) }
 
     val state by component.state.collectAsStateWithLifecycle()
@@ -65,13 +65,11 @@ fun CrashReporterScreen(
 
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(component) {
         component.event.collect { event ->
             when (event) {
-                is CrashComponent.Event.UpdateAvailable -> {
-                    showUpdateAvailableDialog = true
-                }
                 is CrashComponent.Event.UploadError -> {
                     showUploadErrorDialog = true
                 }
@@ -159,25 +157,25 @@ fun CrashReporterScreen(
         )
     }
 
-    if (showUpdateAvailableDialog) {
+    state.latestRelease?.let { release ->
         BaseDialog(
             title = stringResource(Res.string.apk_update_available),
             message = stringResource(Res.string.upload_report_or_download_latest_apk),
-            onDismiss = { showUpdateAvailableDialog = false }
+            onDismiss = component::clearLatestRelease
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TextButton(onClick = {
-                    showUpdateAvailableDialog = false
+                    component.clearLatestRelease()
                     component.flushAndRestart()
                 }) {
                     Text(stringResource(Res.string.title_cancel))
                 }
                 TextButton(onClick = {
-                    showUpdateAvailableDialog = false
-                    component.downloadLatestRelease()
+                    component.clearLatestRelease()
+                    uriHandler.openUri(release.downloadUrl)
                 }) {
                     Text(stringResource(Res.string.download_update))
                 }
@@ -185,7 +183,7 @@ fun CrashReporterScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(onClick = {
-                    showUpdateAvailableDialog = false
+                    component.clearLatestRelease()
                     component.uploadCrashReport()
                 }) {
                     Text(stringResource(Res.string.label_continue))

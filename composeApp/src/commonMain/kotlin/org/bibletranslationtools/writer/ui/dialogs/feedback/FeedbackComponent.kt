@@ -28,7 +28,6 @@ import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
-import org.bibletranslationtools.writer.usecases.DownloadLatestRelease
 import org.bibletranslationtools.writer.usecases.UploadFeedback
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -43,7 +42,6 @@ interface FeedbackComponent {
 
     fun reportBug(message: String)
     fun uploadFeedback(message: String)
-    fun downloadLatestRelease(release: CheckForLatestRelease.Release)
     fun clearError()
     fun clearRelease()
 
@@ -67,7 +65,6 @@ class DefaultFeedbackComponent(
     ComponentScope, ProgressOwner, KoinComponent {
 
     private val checkForLatestRelease: CheckForLatestRelease by inject()
-    private val downloadLatestRelease: DownloadLatestRelease by inject()
     private val uploadFeedback: UploadFeedback by inject()
     private val platform: Platform by inject()
 
@@ -115,15 +112,6 @@ class DefaultFeedbackComponent(
             }
 
             doUploadFeedback(message, handle)
-        }
-    }
-
-    override fun downloadLatestRelease(release: CheckForLatestRelease.Release) {
-        launchWithProgress {
-            _state.update { it.copy(release = null) }
-            withContext(Dispatchers.IO) {
-                downloadLatestRelease.execute(release)
-            }
         }
     }
 
