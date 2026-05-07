@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -154,10 +153,10 @@ fun MergeConflictCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(bgColor)
-                            .padding(horizontal = 8.dp)
                             .clickable {
                                 selectedIndex = index
                             }
+                            .padding(horizontal = 8.dp)
                     )
                 }
 
@@ -185,8 +184,7 @@ fun MergeConflictCard(
                             colors = ButtonDefaults.textButtonColors(
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
                                 contentColor = MaterialTheme.colorScheme.onErrorContainer
-                            ),
-                            shape = RoundedCornerShape(0)
+                            )
                         ) {
                             Text(
                                 text = stringResource(Res.string.confirm)

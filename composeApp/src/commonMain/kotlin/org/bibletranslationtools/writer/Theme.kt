@@ -20,103 +20,26 @@ import org.bibletranslationtools.writer.data.getPrefFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-// --- Brand Colors ---
-val PrimaryBlueLight = Color(0xFF0250D3)
-val PrimaryBlueDark = Color(0xFF6A91D3)
-val PrimaryDarkBlue = Color(0xFF003389)
-val PrimaryDarkBlueMuted = Color(0xFF445E89)
-val PrimaryLightBlue = Color(0xFFE2F0FF)
+val PrimaryFixed = Color(0xFF003389)
+val TertiaryFixed = Color(0xFF00A56C)
 
-// --- Accent (Secondary) Colors ---
-val AccentGreenLight = Color(0xFF00A56C)
-val AccentLightGreenLight = Color(0xFFC0E9D6)
-val AccentGreenDark = Color(0xFF52A588)
-val AccentLightGreenDark = Color(0xFF8EA89E)
-
-// --- Tertiary Colors ---
-val TertiaryBlueLight = Color(0xFF00BAFF)
-val TertiaryLightBlueLight = Color(0xFFE2F0FF)
-val TertiaryBlueDark = Color(0xFF51AFC7)
-val TertiaryLightBlueDark = Color(0xFF92B4CE)
-val TertiaryTextLight = Color(0xFF272727)
-
-// --- Backgrounds & Surfaces ---
 val BackgroundLight = Color(0xFFE0E0E0)
-val BackgroundDark = Color(0xFF1C1C1C)
 val SurfaceLight = Color(0xFFE9E9E9)
+val PrimaryLight = Color(0xFF0250D3)
+val TertiaryLight = Color(0xFF00BAFF)
+val OnTertiaryLight = Color(0xFF272727)
+val TertiaryContainerLight = Color(0xFFE2F0FF)
+val ErrorContainerLight = Color(0xFFFF9800)
+val OnErrorContainerLight = Color(0xFFE9E9E9)
+
+val BackgroundDark = Color(0xFF1C1C1C)
 val SurfaceDark = Color(0xFF272727)
-
-// --- Text Colors ---
-val TextPrimaryDark = Color(0xFF1C1C1C)
-val TextPrimaryLight = Color(0xFFD2D2D2)
-val TextSecondaryDark = Color(0xFF888888)
-val TextSecondaryLight = Color(0xFFA4A4A4)
-val TextReverseLight = Color(0xFFFFFFFF)
-val TextReverseDark = Color(0xFF1C1C1C)
-
-// --- Borders & Extras ---
-val BorderLight = Color(0xFFDDDDDD)
-val BorderDark = Color(0xFF333333)
-val ErrorLight = Color(0xFFFF0000)
-val ErrorDark = Color(0xFFFF8080)
-val WarningLight = Color(0xFFFF9800)
-val WarningDark = Color(0xFFC49C54)
-
-private val LightColors = lightColorScheme(
-    primary = PrimaryBlueLight,
-    onPrimary = TextReverseLight,
-    primaryContainer = PrimaryLightBlue,
-    onPrimaryContainer = PrimaryDarkBlue,
-
-    secondary = AccentGreenLight,
-    onSecondaryContainer = AccentLightGreenLight,
-    onSecondary = TextReverseLight,
-
-    tertiary = TertiaryBlueLight,
-    tertiaryContainer = TertiaryLightBlueLight,
-    onTertiary = TertiaryTextLight,
-
-    background = BackgroundLight,
-    onBackground = TextPrimaryDark,
-
-    surface = SurfaceLight,
-    onSurface = TextPrimaryDark,
-    surfaceVariant = BorderLight,
-    onSurfaceVariant = TextSecondaryDark,
-
-    error = ErrorLight,
-    errorContainer = WarningLight,
-    onError = TextReverseLight,
-    onErrorContainer = SurfaceLight
-)
-
-private val DarkColors = darkColorScheme(
-    primary = PrimaryBlueDark,
-    onPrimary = TextReverseLight,
-    primaryContainer = PrimaryDarkBlueMuted,
-    onPrimaryContainer = PrimaryLightBlue,
-
-    secondary = AccentGreenDark,
-    onSecondaryContainer = AccentLightGreenDark,
-    onSecondary = TextPrimaryLight,
-
-    tertiary = TertiaryBlueDark,
-    tertiaryContainer = TertiaryLightBlueDark,
-    onTertiary = TertiaryTextLight,
-
-    background = BackgroundDark,
-    onBackground = TextPrimaryLight,
-
-    surface = SurfaceDark,
-    onSurface = TextPrimaryLight,
-    surfaceVariant = BorderDark,
-    onSurfaceVariant = TextSecondaryLight,
-
-    error = ErrorDark,
-    errorContainer = WarningDark,
-    onError = TextReverseDark,
-    onErrorContainer = SurfaceDark
-)
+val PrimaryDark = Color(0xFF6A91D3)
+val TertiaryDark = Color(0xFF51AFC7)
+val OnTertiaryDark = Color(0xFF272727)
+val TertiaryContainerDark = Color(0xFF92B4CE)
+val ErrorContainerDark = Color(0xFFC49C54)
+val OnErrorContainerDark = Color(0xFFE9E9E9)
 
 val AppTypography = Typography(
     titleLarge = TextStyle(
@@ -184,8 +107,30 @@ fun AppTheme(
     }
 
     val colorScheme = when {
-        isDark -> DarkColors
-        else -> LightColors
+        isDark -> darkColorScheme(
+            background = BackgroundDark,
+            surface = SurfaceDark,
+            primary = PrimaryDark,
+            primaryFixed = PrimaryFixed,
+            tertiary = TertiaryDark,
+            tertiaryFixed = TertiaryFixed,
+            onTertiary = OnTertiaryDark,
+            tertiaryContainer = TertiaryContainerDark,
+            errorContainer = ErrorContainerDark,
+            onErrorContainer = OnErrorContainerDark
+        )
+        else -> lightColorScheme(
+            background = BackgroundLight,
+            surface = SurfaceLight,
+            primary = PrimaryLight,
+            primaryFixed = PrimaryFixed,
+            tertiary = TertiaryLight,
+            tertiaryFixed = TertiaryFixed,
+            onTertiary = OnTertiaryLight,
+            tertiaryContainer = TertiaryContainerLight,
+            errorContainer = ErrorContainerLight,
+            onErrorContainer = OnErrorContainerLight
+        )
     }
 
     MaterialTheme(

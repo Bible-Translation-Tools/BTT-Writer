@@ -3,7 +3,6 @@ package org.bibletranslationtools.writer.ui.translate.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,12 +53,14 @@ fun SourceTabRow(
         if (index == -1) 0 else index
     }
 
-    Row(
-        modifier = modifier.fillMaxWidth().height(56.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+    Box(
+        modifier = modifier.fillMaxWidth().height(56.dp)
     ) {
-        ShrinkableTabRow(modifier = Modifier.weight(1f, fill = false)) {
+        ShrinkableTabRow(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 48.dp)
+        ) {
             sourceTabs.forEachIndexed { index, tab ->
                 val isSelected = (index == selectedIndex)
                 val color = if (isSelected) {
@@ -121,7 +122,10 @@ fun SourceTabRow(
         }
 
         if (sourceTabs.size < MAX_SOURCE_ITEMS) {
-            IconButton(onClick = onAddClick) {
+            IconButton(
+                onClick = onAddClick,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
                 Icon(
                     imageVector = Icons.Default.Tab,
                     contentDescription = "Add Source",

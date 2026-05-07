@@ -47,7 +47,6 @@ import btt_writer.composeapp.generated.resources.translators
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.writer.core.Typography
-import org.bibletranslationtools.writer.ui.PrimaryDarkBlue
 import org.bibletranslationtools.writer.ui.components.CardsSkeletonList
 import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
 import org.bibletranslationtools.writer.ui.dialogs.export.ExportDialog
@@ -214,7 +213,7 @@ fun PublishButton(
         modifier = modifier,
         shape = RoundedCornerShape(4.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) PrimaryDarkBlue else {
+            containerColor = if (selected) MaterialTheme.colorScheme.primaryFixed else {
                 MaterialTheme.colorScheme.surfaceVariant
             },
             contentColor = if (selected) Color.White else {

@@ -90,7 +90,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test successful file processing`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -107,7 +107,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test processing bad usfm file fails`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-bad-file.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-bad-file.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -142,7 +142,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test book with single chapter fails`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-single-chapter.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-single-chapter.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -162,7 +162,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test book with missing verse fails`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-missing-verse.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-missing-verse.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -181,7 +181,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test book with missing verse range fails`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-missing-range.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-missing-range.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -200,7 +200,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test book with extra verse fails`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-extra-verse.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-extra-verse.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"
@@ -219,7 +219,7 @@ class ProcessUSFMTest {
 
     @Test
     fun `test processing usfm file without header`() = runTest {
-        val usfmContent = TestUtils.getResource("mrk-no-header.usfm") ?: ""
+        val usfmContent = TestUtils.getResource("mrk-no-header.usfm")
         val file = createTempUsfmFile("mrk.usfm", usfmContent)
         mockChunkMarkers()
         every { targetLanguage.slug } returns "aa"

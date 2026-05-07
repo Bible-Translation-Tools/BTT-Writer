@@ -286,7 +286,7 @@ class MergeConflictsParseTest : KoinTest {
 
     @Throws(IOException::class)
     private fun doDetectMergeConflict(testFile: String): Boolean {
-        testText = TestUtils.getResource(testFile)!!
+        testText = TestUtils.getResource(testFile)
         assertNotNull(testText)
         assertFalse(testText.isEmpty())
 
@@ -306,17 +306,17 @@ class MergeConflictsParseTest : KoinTest {
         testTextFile: String,
         expectTextFile: String
     ): String? {
-        testText = TestUtils.getResource(testTextFile)!!
+        testText = TestUtils.getResource(testTextFile)
         assertNotNull(testText)
         assertFalse(testText.isEmpty())
-        expectedText = TestUtils.getResource(expectTextFile)!!
+        expectedText = TestUtils.getResource(expectTextFile)
         assertNotNull(expectedText)
         assertFalse(expectedText.isEmpty())
 
         lastMergeConflictCards = ParseMergeConflicts.execute(testText)
         foundConflictCount = lastMergeConflictCards.size
         if (foundConflictCount >= sourceGroup) {
-            return lastMergeConflictCards.get(sourceGroup - 1).toString()
+            return lastMergeConflictCards[sourceGroup - 1].toString()
         }
         return null
     }

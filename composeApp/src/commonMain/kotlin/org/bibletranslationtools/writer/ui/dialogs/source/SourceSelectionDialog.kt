@@ -1,6 +1,7 @@
 package org.bibletranslationtools.writer.ui.dialogs.source
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,8 +30,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import btt_writer.composeapp.generated.resources.Res
@@ -162,18 +161,14 @@ fun SourceSelectionDialog(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = { dismissWithKeyboard(component::onUpdateSources) },
-                modifier = Modifier.weight(1f)
+                onClick = { dismissWithKeyboard(component::onUpdateSources) }
             ) {
                 Text(
                     text = stringResource(Res.string.update_sources_label),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
             TextButton(onClick = { dismissWithKeyboard(onDismiss) }) {
                 Text(
                     stringResource(Res.string.title_cancel),

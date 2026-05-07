@@ -128,7 +128,7 @@ private fun PieProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
     progressColor: Color = MaterialTheme.colorScheme.primary,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant
+    backgroundColor: Color = MaterialTheme.colorScheme.outlineVariant
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress.coerceIn(0f, 1f),

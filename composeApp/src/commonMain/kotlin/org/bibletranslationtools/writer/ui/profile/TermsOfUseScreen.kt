@@ -1,6 +1,5 @@
 package org.bibletranslationtools.writer.ui.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -85,14 +84,16 @@ fun TermsOfUseScreen(component: TermsOfUseComponent) {
 
             Button(
                 onClick = { openLegalDocumentId = Res.string.license_pdf.key },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 Text(stringResource(Res.string.view_license_agreement))
             }
 
             Button(
                 onClick = { openLegalDocumentId = Res.string.translation_guidlines.key },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 16.dp)
             ) {
                 Text(stringResource(Res.string.view_translation_guidelines))
             }

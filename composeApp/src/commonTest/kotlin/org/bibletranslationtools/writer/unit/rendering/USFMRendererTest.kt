@@ -398,14 +398,14 @@ class USFMRendererTest {
     fun `getLeadingMajorSectionHeading returns heading when leading`() {
         val input = """\ms GENESIS"""
         val heading = renderer().getLeadingMajorSectionHeading(input)
-        assertEquals("GENESIS", heading.toString())
+        assertEquals("GENESIS", heading)
     }
 
     @Test
     fun `getLeadingMajorSectionHeading returns empty when not leading`() {
         val input = """some text \ms GENESIS"""
         val heading = renderer().getLeadingMajorSectionHeading(input)
-        assertEquals("", heading.toString())
+        assertEquals("", heading)
     }
 
     @Test

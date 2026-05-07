@@ -33,7 +33,6 @@ import org.bibletranslationtools.writer.core.TextStyleType
 import org.bibletranslationtools.writer.core.TranslationType
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.core.Validation
-import org.bibletranslationtools.writer.ui.AccentGreenLight
 import org.bibletranslationtools.writer.utils.getComposeTextStyle
 import org.jetbrains.compose.resources.stringResource
 
@@ -104,7 +103,7 @@ fun ValidationCard(
                                     Icons.Default.DoneAll
                                 } else Icons.Default.Done,
                                 contentDescription = "Valid",
-                                tint = AccentGreenLight
+                                tint = MaterialTheme.colorScheme.tertiaryFixed
                             )
                         }
                         is Validation.InvalidGroup -> {
@@ -118,7 +117,8 @@ fun ValidationCard(
                             Button(
                                 onClick = { onReviewClick(item.validation) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
                                 ),
                                 shape = RoundedCornerShape(4.dp)
                             ) {
