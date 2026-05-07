@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -290,27 +289,16 @@ fun ReviewTargetCard(
                             onTextLayout = { textLayoutResult = it },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .pointerInput(
-                                    currentItem.renderedTargetText,
-                                    currentItem.targetMode
-                                ) {
-                                    if (currentItem.targetMode != TargetMode.MARKER) {
-                                        return@pointerInput
-                                    }
+                                .pointerInput(currentItem.renderedTargetText, currentItem.targetMode) {
+                                    if (currentItem.targetMode != TargetMode.MARKER) return@pointerInput
 
                                     detectDragGesturesAfterLongPress(
                                         onDragStart = { offset ->
-                                            val layout = textLayoutResult
-                                                ?: return@detectDragGesturesAfterLongPress
+                                            val layout = textLayoutResult ?: return@detectDragGesturesAfterLongPress
                                             val renderedText = currentItem.renderedTargetText
+                                            val charOffset = layout.getOffsetForPosition(offset)
 
-                                            val verseAnnotation = findVerseAnnotationAtPosition(
-                                                layout,
-                                                renderedText,
-                                                offset
-                                            ) ?: return@detectDragGesturesAfterLongPress
-
-                                            val ctx = buildDragContext(renderedText, verseAnnotation)
+                                            val ctx = buildDragContext(renderedText, charOffset)
                                                 ?: return@detectDragGesturesAfterLongPress
 
                                             dragContext = ctx
@@ -319,23 +307,13 @@ fun ReviewTargetCard(
 
                                         onDrag = { change, _ ->
                                             change.consume()
-                                            val layout = textLayoutResult
-                                                ?: return@detectDragGesturesAfterLongPress
-
-                                            val renderedText = currentItem.renderedTargetText
-                                            val text = renderedText.text
+                                            val layout = textLayoutResult ?: return@detectDragGesturesAfterLongPress
+                                            val text = currentItem.renderedTargetText.text
 
                                             dragPosition = change.position
-                                            val snapped = snapToClosestOffset(
-                                                layout,
-                                                text,
-                                                change.position
-                                            )
+                                            val snapped = snapToClosestOffset(layout, text, change.position)
                                             insertionOffset = snapped
-                                            highlightWordRange = wordRangeFromOffset(
-                                                renderedText,
-                                                snapped
-                                            )
+                                            highlightWordRange = wordRangeFromOffset(text, snapped)
                                         },
 
                                         onDragEnd = {
@@ -402,11 +380,7 @@ fun ReviewTargetCard(
                     )
                     Switch(
                         checked = currentItem.targetMode == TargetMode.COMPLETE,
-                        onCheckedChange = onDoneToggle,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.primary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                        onCheckedChange = onDoneToggle
                     )
                 }
             }
@@ -450,10 +424,13 @@ fun VersePin(
     }
 }
 
-private fun buildDragContext(
-    renderedText: AnnotatedString,
-    verseAnnotation: AnnotatedString.Range<String>
-): DragContext? {
+private fun buildDragContext(renderedText: AnnotatedString, charOffset: Int): DragContext? {
+    val verseAnnotation = renderedText.getStringAnnotations(
+        VERSE_MARKER_TAG,
+        maxOf(0, charOffset - 1),
+        minOf(charOffset + 2, renderedText.length)
+    ).firstOrNull() ?: return null
+
     val verseParts = verseAnnotation.item.split("|", limit = 3)
     val startVerse = verseParts.getOrNull(0)?.toIntOrNull() ?: return null
     val endVerse = verseParts.getOrNull(1)?.toIntOrNull() ?: 0
@@ -477,32 +454,6 @@ private fun buildDragContext(
         label = formatVerseLabel(startVerse, endVerse),
         renderedText = renderedText
     )
-}
-
-private fun findVerseAnnotationAtPosition(
-    layout: TextLayoutResult,
-    renderedText: AnnotatedString,
-    position: Offset
-): AnnotatedString.Range<String>? {
-    val allMarkers = renderedText.getStringAnnotations(
-        VERSE_MARKER_TAG,
-        0,
-        renderedText.length
-    )
-
-    return allMarkers.firstOrNull { ann ->
-        // Check if the click position falls within the visual bounds of this annotation
-        val startBox = layout.getBoundingBox(ann.start)
-        val endBox = layout.getBoundingBox((ann.end - 1).coerceAtLeast(ann.start))
-
-        // Combined bounding box across the annotation's range
-        val left = minOf(startBox.left, endBox.left)
-        val right = maxOf(startBox.right, endBox.right)
-        val top = minOf(startBox.top, endBox.top)
-        val bottom = maxOf(startBox.bottom, endBox.bottom)
-
-        position.x in left..right && position.y in top..bottom
-    }
 }
 
 private fun computeTargetRawPosition(ctx: DragContext, displayOffset: Int): Int? {
@@ -565,26 +516,15 @@ private fun safeBoundingBox(layout: TextLayoutResult, offset: Int): Rect {
     }
 }
 
-private fun wordRangeFromOffset(
-    annotated: AnnotatedString,
-    offset: Int
-): IntRange? {
-    val text = annotated.text
+private fun wordRangeFromOffset(text: String, offset: Int): IntRange? {
     if (offset < 0 || offset >= text.length) return null
     if (text[offset].isWhitespace()) return null
 
-    // Don't form a word range that overlaps a verse marker
-    val markers = annotated.getStringAnnotations(VERSE_MARKER_TAG, 0, text.length)
-
-    fun isVerseMarker(pos: Int): Boolean = markers.any { pos in it.start until it.end }
-
-    if (isVerseMarker(offset)) return null
-
     var start = offset
-    while (start > 0 && !text[start - 1].isWhitespace() && !isVerseMarker(start - 1)) start--
+    while (start > 0 && !text[start - 1].isWhitespace()) start--
 
     var end = offset
-    while (end < text.length && !text[end].isWhitespace() && !isVerseMarker(end)) end++
+    while (end < text.length && !text[end].isWhitespace()) end++
 
     return start..end
 }

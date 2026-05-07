@@ -52,7 +52,7 @@ class RenderHelpsTest : BaseIntegrationTest() {
         assertTrue("There should be a notes help", result.containsKey("notes"))
         assertEquals("There should be 10 notes", 10, (result["notes"] as List<*>).size)
         assertTrue("There should be a questions help", result.containsKey("questions"))
-        assertEquals("There should be 17 questions", 17, (result["questions"] as List<*>).size)
+        assertEquals("There should be 8 questions", 8, (result["questions"] as List<*>).size)
         assertTrue("There should be a words help", result.containsKey("words"))
         assertEquals("There should be 9 words", 9, (result["words"] as List<*>).size)
 
@@ -63,10 +63,10 @@ class RenderHelpsTest : BaseIntegrationTest() {
         assertTrue((note!! as TranslationHelp).body.contains("Jesus"))
 
         val question = (result["questions"] as List<*>).firstOrNull {
-            (it as TranslationHelp).title.contains("in the wilderness", ignoreCase = true)
+            (it as TranslationHelp).title.contains("into the wilderness", ignoreCase = true)
         }
         assertNotNull(question)
-        assertTrue((question!! as TranslationHelp).body.contains("tempted by Satan", ignoreCase = true))
+        assertTrue((question!! as TranslationHelp).body.contains("Spirit drove Jesus", ignoreCase = true))
 
         val word = (result["words"] as List<*>).firstOrNull {
             (it as Link).chapter == "goodnews"

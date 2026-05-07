@@ -59,7 +59,7 @@ object Util {
         return try {
             val chunks = rc.chunks(chapter)
             if (chunks != null) {
-                chunks.sortedWith { o1, o2 ->
+                val sorted = chunks.sortedWith { o1, o2 ->
                     val i1 = o1.toIntOrNull()
                     val i2 = o2.toIntOrNull()
 
@@ -70,7 +70,7 @@ object Util {
                         else -> i1.compareTo(i2)
                     }
                 }
-                verseToChunk(verse, chunks)
+                verseToChunk(verse, sorted)
             } else {
                 verse
             }
