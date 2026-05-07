@@ -1,20 +1,13 @@
 package org.bibletranslationtools.writer.integration.core
 
 import io.github.vinceglb.filekit.PlatformFile
-import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.ChunkMarker
-import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.TestDirectoryProvider
+import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.core.ImportUsfmSession
 import org.bibletranslationtools.writer.core.ProcessUSFM
-import org.bibletranslationtools.writer.core.Profile
-import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.di.platformModule
-import org.bibletranslationtools.writer.di.sharedModule
 import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.utils.FileUtilities
@@ -22,10 +15,6 @@ import org.bibletranslationtools.writer.utils.Util
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.context.GlobalContext.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
 import org.koin.test.inject
 import java.io.File
 import java.util.regex.Pattern
@@ -34,9 +23,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class ImportUsfmTest : KoinTest {
+class ImportUsfmTest : BaseIntegrationTest() {
 
-    private val directoryProvider: DirectoryProvider by inject()
+    override val needsLibrary = true
+
     private val catalogClient: ResourceCatalogClient by inject()
     private val processUSFM: ProcessUSFM by inject()
 
@@ -47,22 +37,11 @@ class ImportUsfmTest : KoinTest {
     @Before
     fun setUp() {
         Logger.flush()
-        startKoin {
-            modules(
-                sharedModule,
-                platformModule,
-                module { single<DirectoryProvider> { TestDirectoryProvider() } },
-                module { single<Preference> { mockk(relaxed = true) } },
-                module { single<Profile> { mockk(relaxed = true) } }
-            )
-        }
-        runBlocking { directoryProvider.deployDefaultLibrary() }
     }
 
     @After
     fun tearDown() {
         session?.cleanup()
-        stopKoin()
     }
 
     @Test
@@ -555,7 +534,7 @@ class ImportUsfmTest : KoinTest {
             }
             chapters = chunks.keys.sorted().toTypedArray()
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

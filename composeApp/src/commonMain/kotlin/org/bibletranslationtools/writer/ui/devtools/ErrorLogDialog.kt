@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.label_close
 import btt_writer.composeapp.generated.resources.log_details
+import org.bibletranslationtools.logger.LogEntry
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.OverlayDialog
-import org.bibletranslationtools.logger.LogEntry
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -101,7 +101,7 @@ fun LogItemRow(log: LogEntry, onClick: () -> Unit) {
             .padding(vertical = 12.dp, horizontal = 8.dp)
     ) {
         Text(
-            text = log.message ?: "Log Entry", 
+            text = log.message,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

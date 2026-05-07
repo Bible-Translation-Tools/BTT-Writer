@@ -1,30 +1,22 @@
 package org.bibletranslationtools.writer.integration.core
 
 import org.bibletranslationtools.logger.Logger
-import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.TestDirectoryProvider
+import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.core.TranslationFormat
-import org.bibletranslationtools.writer.di.platformModule
-import org.bibletranslationtools.writer.di.sharedModule
 import org.bibletranslationtools.writer.rendering.RenderingGroup
 import org.bibletranslationtools.writer.rendering.RenderingProvider
 import org.bibletranslationtools.writer.ui.textadapters.ComposeTextAdapter
 import org.bibletranslationtools.writer.TestUtils
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.context.GlobalContext.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
 import org.koin.test.inject
 import java.io.IOException
 
 // End-to-end integration tests that verify the full rendering pipeline:
 // USX input -> USXRenderer.render() -> ComposeTextAdapter.convert() -> AnnotatedString.text
 // Expected output is stored in resources/usx/ _processed.data files.
-class UsxBrokenRenderTest : KoinTest {
+class UsxBrokenRenderTest : BaseIntegrationTest() {
 
     private val renderingProvider: RenderingProvider by inject()
 
@@ -33,18 +25,6 @@ class UsxBrokenRenderTest : KoinTest {
     @Before
     fun setUp() {
         Logger.flush()
-        startKoin {
-            modules(
-                sharedModule,
-                platformModule,
-                module { single<DirectoryProvider> { TestDirectoryProvider() } }
-            )
-        }
-    }
-
-    @After
-    fun tearDown() {
-        stopKoin()
     }
 
     @Test

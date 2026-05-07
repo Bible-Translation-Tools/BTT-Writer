@@ -2,21 +2,14 @@ package org.bibletranslationtools.writer.integration.core
 
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
-import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
-import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.TestDirectoryProvider
+import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.core.ImportUsfmSession
 import org.bibletranslationtools.writer.core.ProcessUSFM
-import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.di.platformModule
-import org.bibletranslationtools.writer.di.sharedModule
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
@@ -25,10 +18,6 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.context.GlobalContext.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
 import org.koin.test.inject
 import java.io.File
 import java.io.FileInputStream
@@ -38,9 +27,10 @@ import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-class ExportUsfmTest : KoinTest {
+class ExportUsfmTest : BaseIntegrationTest() {
 
-    private val directoryProvider: DirectoryProvider by inject()
+    override val needsLibrary = true
+
     private val catalogClient: ResourceCatalogClient by inject()
     private val exportProjects: ExportProjects by inject()
     private val processUSFM: ProcessUSFM by inject()
@@ -56,16 +46,6 @@ class ExportUsfmTest : KoinTest {
     fun setUp() {
         errorLog = null
         Logger.flush()
-        startKoin {
-            modules(
-                sharedModule,
-                platformModule,
-                module { single<DirectoryProvider> { TestDirectoryProvider() } },
-                module { single<Preference> { mockk(relaxed = true) } },
-                module { single<Profile> { mockk(relaxed = true) } }
-            )
-        }
-        runBlocking { directoryProvider.deployDefaultLibrary() }
         targetLanguage = catalogClient.library.getTargetLanguage("aae")
     }
 
@@ -73,7 +53,6 @@ class ExportUsfmTest : KoinTest {
     fun tearDown() {
         usfmSession?.cleanup()
         FileUtilities.deleteQuietly(tempFolder)
-        stopKoin()
     }
 
     @Test
@@ -333,7 +312,7 @@ class ExportUsfmTest : KoinTest {
         if (text.isNotEmpty()) {
             // find instance
             val matcher = regexPattern.matcher(text)
-            var foundItem: String? = null
+            var foundItem: String?
             if (matcher.find()) {
                 foundItem = matcher.group(1)
                 return foundItem.trim { it <= ' ' }
@@ -405,7 +384,7 @@ class ExportUsfmTest : KoinTest {
         val inputMatcher = ImportUsfmSession.PATTERN_CHAPTER_NUMBER_MARKER.matcher(usfmInputText)
 
         var lastInputChapterStart = -1
-        var chapterIn: String? = ""
+        var chapterIn: String?
         var chapterInInt = -1
         while (inputMatcher.find()) {
             chapterIn = inputMatcher.group(1) // chapter number in input

@@ -1,21 +1,14 @@
 package org.bibletranslationtools.writer.integration.usecases
 
-import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.bibletranslationtools.writer.TestDirectoryProvider
 import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
-import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.TestUtils
-import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.ZIP_EXTENSION
-import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.di.platformModule
-import org.bibletranslationtools.writer.di.sharedModule
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
@@ -24,49 +17,29 @@ import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
-import org.koin.core.component.inject
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
+import org.koin.test.inject
 import java.io.File
 
 
-class BackupRCTest : KoinTest {
+class BackupRCTest : BaseIntegrationTest() {
+
+    override val needsLibrary = true
 
     private val backupRC: BackupRC by inject()
-    private val directoryProvider: DirectoryProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val importProjects: ImportProjects by inject()
-    private val profile: Profile by inject()
     private val translator: Translator by inject()
     private val platform: Platform by inject()
+    private val profile: org.bibletranslationtools.writer.core.Profile by inject()
 
     private var tempDir: File? = null
-
-    @Before
-    fun setup() {
-        startKoin {
-            modules(
-                sharedModule,
-                platformModule,
-                module { single<DirectoryProvider> { TestDirectoryProvider() } },
-                module { single<Preference> { mockk(relaxed = true) } },
-                module { single<Profile> { mockk(relaxed = true) } }
-            )
-        }
-        runBlocking { directoryProvider.deployDefaultLibrary() }
-    }
 
     @After
     fun tearDown() {
         FileUtilities.deleteQuietly(tempDir)
         deleteBackups()
-        runBlocking { directoryProvider.clearCache() }
         FileUtilities.deleteQuietly(directoryProvider.translationsDir)
-        stopKoin()
     }
 
     @Test
@@ -193,7 +166,7 @@ class BackupRCTest : KoinTest {
                 assertNotNull("rc should not be null", rc)
 
                 catalogClient.library.getTranslation(rc.slug)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

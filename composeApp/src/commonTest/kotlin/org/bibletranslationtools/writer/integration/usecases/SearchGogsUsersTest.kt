@@ -1,0 +1,126 @@
+package org.bibletranslationtools.writer.integration.usecases
+
+import io.mockk.every
+import kotlinx.coroutines.test.runTest
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.bibletranslationtools.writer.BaseIntegrationTest
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.usecases.SearchGogsUsers
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.koin.core.component.inject
+
+
+class SearchGogsUsersTest : BaseIntegrationTest() {
+
+    private val preference: Preference by inject()
+    private val searchGogsUsers: SearchGogsUsers by inject()
+
+    private val server = MockWebServer()
+
+    @Before
+    fun setUp() {
+        server.start()
+
+        every {
+            preference.getPref(Preference.KEY_PREF_GOGS_API, any(), String::class)
+        } returns server.url("/search").toString()
+    }
+
+    @After
+    fun tearDown() {
+        server.shutdown()
+    }
+
+    @Test
+    fun searchParticularUser() = runTest {
+        val user = "test"
+        var progressMessage: String? = null
+        val onProgress: (Float, String?) -> Unit = { _, message ->
+            progressMessage = message
+        }
+
+        val successResponse = """
+            {
+                "data": [
+                    {
+                        "id": 222,
+                        "full_name": "Test",
+                        "email": "test@noreply.example.org",
+                        "username": "test"
+                    }
+                ],
+                "ok": true
+            }
+        """.trimIndent()
+        server.enqueue(MockResponse()
+            .setBody(successResponse)
+            .addHeader("Content-Type", "application/json")
+            .setResponseCode(200))
+
+        val gogsUser = searchGogsUsers.execute(user, 1, onProgress).singleOrNull()
+
+        assertNotNull("Gogs user should not be null", gogsUser)
+        assertEquals("Ids should match", gogsUser?.id, 222)
+        assertEquals("Usernames should match", gogsUser?.username, user)
+        assertTrue("Progress message should not be empty", !progressMessage.isNullOrEmpty())
+    }
+
+    @Test
+    fun searchMultipleUsersByQuery() = runTest {
+        val successResponse = """
+            {
+                "data": [
+                    {
+                        "id": 222,
+                        "full_name": "Test",
+                        "email": "test@noreply.example.org",
+                        "username": "test"
+                    },
+                    {
+                        "id": 333,
+                        "full_name": "Test 2",
+                        "email": "test2@noreply.example.org",
+                        "username": "test2"
+                    }
+                ],
+                "ok": true
+            }
+        """.trimIndent()
+        server.enqueue(MockResponse()
+            .setBody(successResponse)
+            .addHeader("Content-Type", "application/json")
+            .setResponseCode(200))
+
+        val userQuery = "test"
+        val gogsUsers = searchGogsUsers.execute(userQuery, 3)
+
+        assertTrue("Gogs users should not be empty", gogsUsers.isNotEmpty())
+
+        val expectedUsers = gogsUsers.filter { it.username.contains(userQuery) }
+        assertEquals("Number of users should match", expectedUsers.size, gogsUsers.size)
+    }
+
+    @Test
+    fun searchNonExistentUsers() = runTest {
+        val successResponse = """
+            {
+                "data": [],
+                "ok": true
+            }
+        """.trimIndent()
+        server.enqueue(MockResponse()
+            .setBody(successResponse)
+            .addHeader("Content-Type", "application/json")
+            .setResponseCode(200))
+
+        val userQuery = "non-existent-user"
+        val gogsUsers = searchGogsUsers.execute(userQuery, 3)
+        assertTrue("Gogs users should be empty", gogsUsers.isEmpty())
+    }
+}

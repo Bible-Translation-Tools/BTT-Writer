@@ -1,30 +1,21 @@
 package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.TestDirectoryProvider
-import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.di.platformModule
-import org.bibletranslationtools.writer.di.sharedModule
 import org.bibletranslationtools.writer.usecases.AdvancedGogsRepoSearch
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.component.inject
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.core.context.GlobalContext.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
+import org.koin.test.inject
 
 
-class AdvancedGogsRepoSearchTest : KoinTest {
+class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
 
     private val advancedGogsRepoSearch: AdvancedGogsRepoSearch by inject()
     private val preference: Preference by inject()
@@ -34,27 +25,14 @@ class AdvancedGogsRepoSearchTest : KoinTest {
     @Before
     fun setUp() {
         server.start()
-        val serverUrl = server.url("/search").toString()
-
-        startKoin {
-            modules(
-                sharedModule,
-                platformModule,
-                module { single<DirectoryProvider> { TestDirectoryProvider() } },
-                module { single<Preference> { mockk(relaxed = true) } },
-                module { single<Profile> { mockk(relaxed = true) } }
-            )
-        }
-
         every {
             preference.getPref(Preference.KEY_PREF_GOGS_API, any(), String::class)
-        } returns serverUrl
+        } returns server.url("/search").toString()
     }
 
     @After
     fun tearDown() {
         server.shutdown()
-        stopKoin()
     }
 
     @Test

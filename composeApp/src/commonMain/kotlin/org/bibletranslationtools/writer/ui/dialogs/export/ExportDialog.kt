@@ -198,7 +198,7 @@ fun ExportDialog(
                     onClick = {
                         usfmPickerLauncher.launch(
                             suggestedName = component.targetTranslation.id,
-                            extension = Translator.USFM_EXTENSION
+                            defaultExtension = Translator.USFM_EXTENSION
                         )
                     }
                 )
@@ -222,7 +222,7 @@ fun ExportDialog(
                 onClick = {
                     projectPickerLauncher.launch(
                         suggestedName = component.targetTranslation.id,
-                        extension = Translator.TSTUDIO_EXTENSION
+                        defaultExtension = Translator.TSTUDIO_EXTENSION
                     )
                 }
             )
@@ -318,7 +318,7 @@ fun ExportDialog(
                 } else {
                     pdfPickerLauncher.launch(
                         suggestedName = component.targetTranslation.id,
-                        extension = Translator.PDF_EXTENSION
+                        defaultExtension = Translator.PDF_EXTENSION
                     )
                 }
             }
@@ -332,7 +332,8 @@ fun ExportDialog(
             onDismiss = { showInternetUsageDialog = false },
             onConfirm = {
                 pdfPickerLauncher.launch(
-                    "${component.targetTranslation.id}.${Translator.PDF_EXTENSION}"
+                    suggestedName = component.targetTranslation.id,
+                    defaultExtension = Translator.PDF_EXTENSION
                 )
             }
         )

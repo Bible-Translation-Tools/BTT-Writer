@@ -81,7 +81,7 @@ class CreateRepositoryTest {
     }
 
     @Test
-    fun `test create repository fails because remote exists`() = runTest {
+    fun `test create repository succeeds because remote exists`() = runTest {
         val user: User = mockk {
             every { token }.returns(Token("token", "abcd"))
         }
@@ -92,7 +92,7 @@ class CreateRepositoryTest {
         val success = CreateRepository(preference, profile)
             .execute(targetTranslation, onProgress)
 
-        assertFalse(success)
+        assertTrue(success)
 
         verify { onProgress(any(), any()) }
         verify { preference.getPref(any(), any(), String::class) }

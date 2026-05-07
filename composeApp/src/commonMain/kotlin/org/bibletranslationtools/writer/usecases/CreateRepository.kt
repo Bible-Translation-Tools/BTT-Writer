@@ -34,10 +34,10 @@ class CreateRepository(
             val repo = api.createRepo(templateRepo, user)
             val response = api.getLastResponse()
 
-            // 409 - Repository already exists
-            val success = response?.success == true || response?.code == 409
+            val alreadyExists = response?.code == 409
+            val created = repo != null && response?.success == true
 
-            if (repo != null && success) {
+            if (created || alreadyExists) {
                 return true
             } else {
                 Logger.w(
