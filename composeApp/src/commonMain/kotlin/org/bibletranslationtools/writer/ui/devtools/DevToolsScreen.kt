@@ -48,11 +48,11 @@ import btt_writer.composeapp.generated.resources.ssh_keys_generated
 import btt_writer.composeapp.generated.resources.success
 import btt_writer.composeapp.generated.resources.system_resources_check
 import btt_writer.composeapp.generated.resources.title_activity_developer
-import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
-import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.textClipEntry
+import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
+import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,9 +121,9 @@ fun DevToolsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSecondary
                 )
             )
         },
@@ -138,7 +138,7 @@ fun DevToolsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f))
                     .padding(16.dp)
             ) {
                 Row(modifier = Modifier.padding(bottom = 8.dp)) {

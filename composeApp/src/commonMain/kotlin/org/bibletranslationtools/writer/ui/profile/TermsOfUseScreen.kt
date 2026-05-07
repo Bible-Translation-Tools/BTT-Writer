@@ -61,7 +61,7 @@ fun TermsOfUseScreen(component: TermsOfUseComponent) {
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.secondary
                 )
             )
         }

@@ -56,7 +56,7 @@ fun TranslateSidebar(
         modifier = modifier
             .fillMaxHeight()
             .width(56.dp)
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.secondary),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(

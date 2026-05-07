@@ -20,21 +20,28 @@ import org.bibletranslationtools.writer.data.getPrefFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
-val PrimaryFixed = Color(0xFF003389)
+// Fixed colors
+val SecondaryFixed = Color(0xFF003389)
 val TertiaryFixed = Color(0xFF00A56C)
 
+// Light colors
 val BackgroundLight = Color(0xFFE0E0E0)
 val SurfaceLight = Color(0xFFE9E9E9)
-val PrimaryLight = Color(0xFF0250D3)
+val PrimaryLight = Color(0xFF009673)
+val PrimaryContainerLight = Color(0xFFCBDFD0)
+val SecondaryLight = Color(0xFF0250D3)
 val TertiaryLight = Color(0xFF00BAFF)
 val OnTertiaryLight = Color(0xFF272727)
 val TertiaryContainerLight = Color(0xFFE2F0FF)
 val ErrorContainerLight = Color(0xFFFF9800)
 val OnErrorContainerLight = Color(0xFFE9E9E9)
 
+// Dark colors
 val BackgroundDark = Color(0xFF1C1C1C)
 val SurfaceDark = Color(0xFF272727)
-val PrimaryDark = Color(0xFF6A91D3)
+val PrimaryDark = Color(0xFF52A588)
+val PrimaryContainerDark = Color(0xFF2E534D)
+val SecondaryDark = Color(0xFF6A91D3)
 val TertiaryDark = Color(0xFF51AFC7)
 val OnTertiaryDark = Color(0xFF272727)
 val TertiaryContainerDark = Color(0xFF92B4CE)
@@ -111,7 +118,9 @@ fun AppTheme(
             background = BackgroundDark,
             surface = SurfaceDark,
             primary = PrimaryDark,
-            primaryFixed = PrimaryFixed,
+            primaryContainer = PrimaryContainerDark,
+            secondary = SecondaryDark,
+            secondaryFixed = SecondaryFixed,
             tertiary = TertiaryDark,
             tertiaryFixed = TertiaryFixed,
             onTertiary = OnTertiaryDark,
@@ -123,7 +132,9 @@ fun AppTheme(
             background = BackgroundLight,
             surface = SurfaceLight,
             primary = PrimaryLight,
-            primaryFixed = PrimaryFixed,
+            primaryContainer = PrimaryContainerLight,
+            secondary = SecondaryLight,
+            secondaryFixed = SecondaryFixed,
             tertiary = TertiaryLight,
             tertiaryFixed = TertiaryFixed,
             onTertiary = OnTertiaryLight,

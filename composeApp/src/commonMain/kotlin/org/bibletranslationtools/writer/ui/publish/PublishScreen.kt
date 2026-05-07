@@ -95,9 +95,9 @@ fun PublishScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        titleContentColor = MaterialTheme.colorScheme.onSecondary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSecondary
                     )
                 )
             },
@@ -114,7 +114,7 @@ fun PublishScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(MaterialTheme.colorScheme.secondary)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth()
@@ -213,7 +213,7 @@ fun PublishButton(
         modifier = modifier,
         shape = RoundedCornerShape(4.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryFixed else {
+            containerColor = if (selected) MaterialTheme.colorScheme.secondaryFixed else {
                 MaterialTheme.colorScheme.surfaceVariant
             },
             contentColor = if (selected) Color.White else {

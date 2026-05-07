@@ -103,9 +103,9 @@ fun DraftScreen(
                    }
                },
                colors = TopAppBarDefaults.topAppBarColors(
-                   containerColor = MaterialTheme.colorScheme.primary,
-                   titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                   navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                   containerColor = MaterialTheme.colorScheme.secondary,
+                   titleContentColor = MaterialTheme.colorScheme.onSecondary,
+                   navigationIconContentColor = MaterialTheme.colorScheme.onSecondary
                )
            )
        },

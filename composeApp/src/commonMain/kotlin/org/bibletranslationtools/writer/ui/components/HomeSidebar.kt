@@ -35,7 +35,7 @@ fun HomeSidebar(
         modifier = Modifier
             .width(56.dp)
             .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.secondary),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
