@@ -9,6 +9,9 @@ import org.bibletranslationtools.writer.Platform
 class DownloadResourceContainers(
     private val catalogClient: ResourceCatalogClient
 ) {
+    companion object {
+        val TAG = DownloadResourceContainers::javaClass.name
+    }
 
     data class Result(
         val downloadedContainers: List<ResourceContainer>,
@@ -139,7 +142,7 @@ class DownloadResourceContainers(
             onProgress(progress, resourceContainerSlug)
 
             Logger.i(
-                this.javaClass.simpleName,
+                TAG,
                 "Loading ID: $resourceContainerSlug"
             )
 
@@ -152,16 +155,15 @@ class DownloadResourceContainers(
                 )
                 downloadedContainers.add(rc)
                 Logger.i(
-                    this.javaClass.simpleName,
+                    TAG,
                     "download Success: " + translation.resourceContainerSlug
                 )
                 passSuccess = true
             } catch (e: Exception) {
                 Logger.e(
-                    this.javaClass.simpleName,
+                    TAG,
                     "download source Failed: $resourceContainerSlug", e
                 )
-                e.printStackTrace()
                 failureMessages[resourceContainerSlug] = e.message ?: "Unknown error"
                 failedSourceDownloads.add(resourceContainerSlug)
             }
@@ -205,10 +207,9 @@ class DownloadResourceContainers(
                             }
                         } catch (e: java.lang.Exception) {
                             Logger.w(
-                                this.javaClass.simpleName,
+                                TAG,
                                 "download translation words Failed: $resourceContainerSlug", e
                             )
-                            e.printStackTrace()
                         }
 
                         passSuccess = passSuccess and downloadHelps(
@@ -297,7 +298,7 @@ class DownloadResourceContainers(
             }
         } else {
             Logger.i(
-                this.javaClass.simpleName,
+                TAG,
                 "'$name' already downloaded for: $languageSlug"
             )
         }
@@ -340,13 +341,13 @@ class DownloadResourceContainers(
             )
             if (helps.isEmpty()) {
                 Logger.i(
-                    this.javaClass.simpleName,
+                    TAG,
                     "No '$name' for: $resourceContainerSlug"
                 )
             }
             for (help in helps) {
                 Logger.i(
-                    this.javaClass.simpleName,
+                    TAG,
                     "Loading " + name + " ID: " + help.resourceContainerSlug
                 )
                 onProgress(progress, help.resourceContainerSlug)
@@ -356,13 +357,12 @@ class DownloadResourceContainers(
                     help.resource.slug
                 )
                 downloadedContainers.add(rc)
-                Logger.i(this.javaClass.simpleName, name + " download Success: " + rc.slug)
+                Logger.i(TAG, name + " download Success: " + rc.slug)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
             val resource = languageSlug + "_" + projectSlug + "_" + resourceSlug
             Logger.w(
-                this.javaClass.simpleName,
+                TAG,
                 "$name download Helps Failed: $resource", e
             )
             failedHelpsDownloads.add(resource)

@@ -16,6 +16,10 @@ class UpdateCatalogs(
 ) {
     data class Result(val success: Boolean, val addedCount: Int)
 
+    companion object {
+        val TAG = UpdateCatalogs::javaClass.name
+    }
+
     suspend fun execute(
         force: Boolean,
         onProgress: (Float, String?) -> Unit = {_,_->}
@@ -29,9 +33,9 @@ class UpdateCatalogs(
             initialLanguages.add(l.slug)
         }
 
-        Logger.i(this.javaClass.simpleName, "Initial target languages count: " + targetLanguages.size)
+        Logger.i(TAG, "Initial target languages count: " + targetLanguages.size)
         Logger.i(
-            this.javaClass.simpleName,
+            TAG,
             "Unique target languages slug count: " + initialLanguages.size
         )
 
@@ -55,20 +59,20 @@ class UpdateCatalogs(
             }
             success = true
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Failed to update catalogs", e)
         }
 
         if (success) {
             targetLanguages = catalogClient.library.getTargetLanguages()
             Logger.i(
-                this.javaClass.simpleName,
+                TAG,
                 "Final target languages count: " + targetLanguages.size
             )
             for (l in targetLanguages) {
                 if (!initialLanguages.contains(l.slug)) {
                     addedCount++
                     Logger.i(
-                        this.javaClass.simpleName,
+                        TAG,
                         "New target languages " + addedCount + ": " + l.slug
                     )
                 }

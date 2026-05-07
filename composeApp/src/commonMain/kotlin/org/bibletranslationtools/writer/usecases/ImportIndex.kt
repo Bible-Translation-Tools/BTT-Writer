@@ -20,6 +20,10 @@ class ImportIndex(
     private val preference: Preference,
     private val catalogClient: ResourceCatalogClient
 ) {
+    companion object {
+        val TAG = ImportIndex::javaClass.name
+    }
+
     @Suppress("DefaultLocale")
     suspend fun download(onProgress: (Float, String?) -> Unit = { _, _->}): Boolean {
         val message = getString(Res.string.downloading_index)
@@ -74,7 +78,7 @@ class ImportIndex(
                 }
             }
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Failed to import index", e)
+            Logger.e(TAG, "Failed to import index", e)
             false
         } finally {
             catalogClient.openLibrary()

@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.usecases
 
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.data.Preference
@@ -9,6 +10,10 @@ class MergeTargetTranslation(
     private val backupRC: BackupRC,
     private val preference: Preference
 ) {
+    companion object {
+        val TAG = MergeTargetTranslation::javaClass.name
+    }
+
     data class Result(
         val success: Boolean,
         val status: Status,
@@ -46,7 +51,7 @@ class MergeTargetTranslation(
                 status = Status.MERGE_CONFLICTS
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, "Failed to merge translations", e)
             status = Status.MERGE_ERROR
         }
 

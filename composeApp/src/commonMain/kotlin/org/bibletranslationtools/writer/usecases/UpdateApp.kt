@@ -24,6 +24,10 @@ class UpdateApp(
 ) {
     private var updateLibrary = true
 
+    companion object {
+        val TAG = UpdateApp::javaClass.name
+    }
+
     suspend fun execute(onProgress: (Float, String?) -> Unit = {_,_->}) {
         var lastVersionCode = preference.getPref(
             "last_version_code",
@@ -50,13 +54,13 @@ class UpdateApp(
             val translations = catalogClient.library.getImportedTranslations()
             val backupFiles = arrayListOf<File>()
             if (translations.isNotEmpty()) {
-                Logger.i("UpdateAppTask", "Backing up imported RCs")
+                Logger.i(TAG, "Backing up imported RCs")
             }
             for (t in translations) {
                 try {
                     backupFiles.add(backupRC.backupResourceContainer(t))
                 } catch (_: Exception) {
-                    Logger.e("UpdateAppTask", "Failed exporting rc " + t.resourceContainerSlug)
+                    Logger.e(TAG, "Failed exporting rc " + t.resourceContainerSlug)
                 }
             }
 
@@ -64,14 +68,14 @@ class UpdateApp(
                 catalogClient.closeLibrary()
                 directoryProvider.deleteLibrary()
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to delete library: ${e.message}")
             }
 
             try {
                 directoryProvider.deployDefaultLibrary()
 
                 // restore backups
-                if (backupFiles.isNotEmpty()) Logger.i("UpdateAppTask", "Restoring backed up RCs")
+                if (backupFiles.isNotEmpty()) Logger.i(TAG, "Restoring backed up RCs")
                 for (f in backupFiles) {
                     // TRICKY: the backup generates closed RCs but the import requires RCs to be opened.
                     val opened = File("$f.tmp")
@@ -79,12 +83,12 @@ class UpdateApp(
                         ResourceContainer.open(f, opened)
                         catalogClient.importResourceContainer(opened)
                     } catch (_: Exception) {
-                        Logger.e("UpdateAppTask", "Failed to restore RC from $f")
+                        Logger.e(TAG, "Failed to restore RC from $f")
                     }
                     FileUtilities.deleteQuietly(opened)
                 }
             } catch (e: java.lang.Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to restore backups", e)
             }
 
             catalogClient.openLibrary()
@@ -120,13 +124,10 @@ class UpdateApp(
         }
         if (dirs != null) {
             for (tt in dirs) {
-                Logger.i(
-                    this.javaClass.simpleName,
-                    "Migrating: $tt"
-                )
+                Logger.i(TAG, "Migrating: $tt")
                 if (migrator.migrate(tt) == null) {
                     Logger.w(
-                        this.javaClass.name,
+                        TAG,
                         "Failed to migrate the target translation " + tt.name
                     )
                 }
@@ -140,7 +141,7 @@ class UpdateApp(
                 tt.commitSync()
             } catch (e: java.lang.Exception) {
                 Logger.e(
-                    this.javaClass.name,
+                    TAG,
                     "Failed to commit migration changes to target translation " + tt.id,
                     e
                 )
@@ -157,7 +158,7 @@ class UpdateApp(
                 tt.updateGenerator(platform.info.versionCode.toString())
             } catch (_: java.lang.Exception) {
                 Logger.e(
-                    this.javaClass.name,
+                    TAG,
                     "Failed to update the generator in the target translation " + tt.id
                 )
             }

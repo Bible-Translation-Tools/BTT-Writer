@@ -47,6 +47,7 @@ abstract class BaseIntegrationTest : KoinTest {
     @After
     fun baseTearDown() {
         runBlocking { directoryProvider.clearCache() }
+        (directoryProvider as? TestDirectoryProvider)?.cleanup()
         stopKoin()
     }
 }

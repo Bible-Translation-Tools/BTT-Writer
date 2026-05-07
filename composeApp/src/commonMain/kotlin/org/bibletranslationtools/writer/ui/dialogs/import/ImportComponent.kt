@@ -118,6 +118,10 @@ class DefaultImportComponent(
     ComponentContext by componentContext,
     ComponentScope, ProgressOwner, KoinComponent {
 
+    companion object {
+        val TAG = ImportComponent::javaClass.name
+    }
+
     private val translator: Translator by inject()
     private val advancedGogsRepoSearch: AdvancedGogsRepoSearch by inject()
     private val cloneRepository: CloneRepository by inject()
@@ -365,7 +369,7 @@ class DefaultImportComponent(
                     languageName = targetLanguageSlug
                 }
             } catch (e: StringIndexOutOfBoundsException) {
-                e.printStackTrace()
+                Logger.w(TAG, "Error in mapRepository", e)
                 projectName = targetTranslationSlug
                 unsupportedTag = getString(Res.string.unsupported)
             }
@@ -404,7 +408,7 @@ class DefaultImportComponent(
                 result.cloneDir?.let {
                     val clonedDir = targetTranslationMigrator.migrate(it)
 
-                    Logger.i(this.javaClass.name, "Repository cloned from $it")
+                    Logger.i(TAG, "Repository cloned from $it")
 
                     clonedDir?.let { tempRepoDir ->
                         TargetTranslation.open(tempRepoDir)?.let { tempTargetTranslation ->
@@ -448,7 +452,7 @@ class DefaultImportComponent(
                                     }
                                 } catch (e: Exception) {
                                     Logger.e(
-                                        this.javaClass.name,
+                                        TAG,
                                         "Failed to merge translation",
                                         e
                                     )
@@ -468,7 +472,7 @@ class DefaultImportComponent(
                                     )
                                 } catch (e: IOException) {
                                     Logger.e(
-                                        this.javaClass.name,
+                                        TAG,
                                         "Failed to overite translation",
                                         e
                                     )
@@ -476,17 +480,17 @@ class DefaultImportComponent(
                                 }
                             }
                         } ?: run {
-                            Logger.e(this.javaClass.name, "Failed to open the online backup")
+                            Logger.e(TAG, "Failed to open the online backup")
                             reportImportFailed("Failed to open the online backup")
                         }
                     } ?: run {
-                        Logger.e(this.javaClass.name, "Failed to migrate project")
+                        Logger.e(TAG, "Failed to migrate project")
                         reportImportFailed("Failed to migrate project")
                     }
                 }
             }
             CloneRepository.Status.AUTH_FAILURE -> {
-                Logger.i(this.javaClass.name, "Authentication failed")
+                Logger.i(TAG, "Authentication failed")
                 if (!directoryProvider.hasSSHKeys()) {
                     registerSSHKeys(false, handle) {
                         cloneRepository(repo, overwrite, handle)
@@ -568,7 +572,7 @@ class DefaultImportComponent(
             }
         }
         if (registered) {
-            Logger.i(this.javaClass.name, "SSH keys were registered with the server")
+            Logger.i(TAG, "SSH keys were registered with the server")
             onSuccess()
         } else {
             _event.trySend(ImportComponent.Event.AuthRequested)

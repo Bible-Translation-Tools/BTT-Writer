@@ -134,7 +134,7 @@ class Translator (
                     targetTranslationDir
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.e(TAG, "Failed to create target translation", e)
             }
         }
         return targetTranslation!!
@@ -258,11 +258,11 @@ class Translator (
             translation.setParentDraft(draftTranslation)
             translation.commitSync()
         } catch (e: IOException) {
-            Logger.e(this.javaClass.name, "Failed to import target translation", e)
+            Logger.e(TAG, "Failed to import target translation", e)
             // TODO: 1/20/2016 revert changes
         } catch (e: Exception) {
             Logger.e(
-                this.javaClass.name,
+                TAG,
                 "Failed to save target translation before importing target translation",
                 e
             )
@@ -301,6 +301,7 @@ class Translator (
     }
 
     companion object {
+        val TAG = Translator::javaClass.name
         const val TSTUDIO_EXTENSION = "tstudio"
         const val ZIP_EXTENSION = "zip"
         const val USFM_EXTENSION = "usfm"

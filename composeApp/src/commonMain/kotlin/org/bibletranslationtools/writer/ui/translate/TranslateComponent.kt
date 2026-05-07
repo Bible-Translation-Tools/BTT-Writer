@@ -198,6 +198,10 @@ class DefaultTranslateComponent(
     ComponentContext by componentContext,
     ComponentScope, ProgressOwner, KoinComponent {
 
+    companion object {
+        val TAG = TranslateComponent::javaClass.name
+    }
+
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val preference: Preference by inject()
@@ -264,7 +268,7 @@ class DefaultTranslateComponent(
 
         if (translation == null) {
             Logger.e(
-                this::javaClass.name,
+                TAG,
                 "A valid target translation id is required. " +
                         "Received $translationId but the translation could not be found"
             )
@@ -643,10 +647,9 @@ class DefaultTranslateComponent(
                 }
             } catch (e: Exception) {
                 Logger.e(
-                    this.javaClass.name,
+                    TAG,
                     "Error while adding source $slug for ${targetTranslation.id}"
                 )
-                e.printStackTrace()
             }
 
             val translation = getTranslation(slug)
@@ -660,7 +663,7 @@ class DefaultTranslateComponent(
             targetTranslation.setSourceTranslations(sources)
         } catch (e: Exception) {
             Logger.e(
-                this.javaClass.name,
+                TAG,
                 "Failed to set source translations for the target translation ${targetTranslation.id}",
                 e
             )
@@ -780,7 +783,7 @@ class DefaultTranslateComponent(
                         targetTranslation.commit()
                     } catch (e: Exception) {
                         Logger.e(
-                            this::javaClass.name,
+                            TAG,
                             "Failed to commit the latest translation of " +
                                     targetTranslation.id,
                             e
@@ -797,7 +800,7 @@ class DefaultTranslateComponent(
                 targetTranslation.commit()
             } catch (e: Exception) {
                 Logger.e(
-                    this::javaClass.name,
+                    TAG,
                     "Failed to commit changes before closing translation",
                     e
                 )

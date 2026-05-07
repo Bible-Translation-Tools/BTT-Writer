@@ -23,6 +23,7 @@ class PassageLinkSpan(
         private set
 
     companion object {
+        val TAG = PassageLinkSpan::javaClass.name
         // e.g. [[:en:bible:notes:gen:01:03|1:5]]
         val PATTERN: Pattern = Pattern.compile("\\[\\[:(((?!]]).)*)\\|(((?!]]).)*)]]")
     }
@@ -62,7 +63,7 @@ class PassageLinkSpan(
                 frameId = chapterFrame[1]
             }
         } else {
-            Logger.w(this.javaClass.name, "invalid passage link address $address")
+            Logger.w(TAG, "invalid passage link address $address")
         }
     }
 

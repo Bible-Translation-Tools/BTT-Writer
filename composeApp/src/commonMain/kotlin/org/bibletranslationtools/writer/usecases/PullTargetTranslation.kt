@@ -21,6 +21,10 @@ class PullTargetTranslation(
     private val profile: Profile,
     private val transportCallback: TransportCallback
 ) {
+    companion object {
+        val TAG = PullTargetTranslation::javaClass.name
+    }
+
     data class Result(
         val status: Status,
         val message: String?
@@ -35,29 +39,31 @@ class PullTargetTranslation(
         if (profile.gogsUser != null) {
             try {
                 targetTranslation.commitSync()
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 Logger.w(
-                    this.javaClass.name,
-                    "Failed to commit the target translation " + targetTranslation.id,
+                    TAG,
+                    "Failed to commit the target translation ${targetTranslation.id}",
                     e
                 )
             }
             val repo = targetTranslation.repo
             createBackupBranch(repo)
 
-            sourceURL ?: run {
-                getRepository.execute(
-                    targetTranslation,
-                    onProgress
-                )?.sshUrl
-            }?.let { remoteUrl ->
-                return pull(repo, remoteUrl, targetTranslation, mergeStrategy, onProgress)
-            }
+            val remoteUrl = sourceURL
+                ?: getRepository.execute(targetTranslation, onProgress)?.sshUrl
+                ?: run {
+                    Logger.e(TAG, "Failed to get repository. Check internet connection.")
+                    return Result(
+                        Status.UNKNOWN,
+                        "Failed to get repository. Check internet connection."
+                    )
+                }
+
+            return pull(repo, remoteUrl, targetTranslation, mergeStrategy, onProgress)
         } else {
+            Logger.e(TAG, "Auth failed. User is not authorized.")
             return Result(Status.AUTH_FAILURE, getString(Res.string.auth_failure_retry))
         }
-
-        return Result(Status.UNKNOWN, null)
     }
 
     private fun createBackupBranch(repo: Repo) {
@@ -72,7 +78,7 @@ class PullTargetTranslation(
                 .setForce(true)
                 .call()
         } catch (e: java.lang.Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, "Failed to create backup branch", e)
         }
     }
 
@@ -91,7 +97,8 @@ class PullTargetTranslation(
             repo.deleteRemote("origin")
             repo.setRemote("origin", remote)
             git = repo.git
-        } catch (e: IOException) {
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to set remote origin", e)
             return Result(status, e.message)
         }
 
@@ -112,7 +119,7 @@ class PullTargetTranslation(
 
                 // revert manifest merge conflict to avoid corruption
                 if (conflicts.containsKey("manifest.json")) {
-                    Logger.i("PullTargetTranslationTask", "Reverting to server manifest")
+                    Logger.i(TAG, "Reverting to server manifest")
                     try {
                         git.checkout()
                             .setStage(CheckoutCommand.Stage.THEIRS)
@@ -122,8 +129,7 @@ class PullTargetTranslation(
                         targetTranslation.manifestAccessor.reload()
                         manifest = targetTranslation.mergeManifests(manifest)
                     } catch (e: CheckoutConflictException) {
-                        // failed to reset manifest.json
-                        Logger.e(this.javaClass.name, "Failed to reset manifest: " + e.message, e)
+                        Logger.e(TAG, "Failed to reset manifest: ${e.message}", e)
                     } finally {
                         targetTranslation.manifestAccessor.save(manifest)
                     }
@@ -131,14 +137,14 @@ class PullTargetTranslation(
 
                 // keep our license
                 if (conflicts.containsKey("LICENSE.md")) {
-                    Logger.i("PullTargetTranslationTask", "Reverting to local license")
+                    Logger.i(TAG, "Reverting to local license")
                     try {
                         git.checkout()
                             .setStage(CheckoutCommand.Stage.OURS)
                             .addPath("LICENSE.md")
                             .call()
                     } catch (e: CheckoutConflictException) {
-                        Logger.e(this.javaClass.name, "Failed to reset license: " + e.message, e)
+                        Logger.e(TAG, "Failed to reset license: ${e.message}", e)
                     }
                 }
             } else {
@@ -146,28 +152,28 @@ class PullTargetTranslation(
             }
             return Result(status, "Pulled Successfully!")
         } catch (e: TransportException) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             val cause = e.cause
             if (cause is NoRemoteRepositoryException) {
                 status = Status.NO_REMOTE_REPO
             } else if (isAuthFailure(e)) {
                 status = Status.AUTH_FAILURE
             }
-            return Result(status, null)
+            return Result(status, e.message)
         } catch (e: OutOfMemoryError) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             status = Status.OUT_OF_MEMORY
-            return Result(status, null)
+            return Result(status, e.message)
         } catch (e: Exception) {
             val cause = e.cause
             if (cause is NoRemoteRepositoryException) {
                 status = Status.NO_REMOTE_REPO
             }
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
-            return Result(status, null)
+            Logger.e(TAG, e.message ?: "Error", e)
+            return Result(status, e.message)
         } catch (e: Throwable) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
-            return Result(status, null)
+            Logger.e(TAG, e.message ?: "Error", e)
+            return Result(status, e.message)
         }
     }
 

@@ -11,6 +11,10 @@ class UploadCrashReport(
     private val directoryProvider: DirectoryProvider,
     private val preference: Preference
 ) {
+    companion object {
+        val TAG = UploadCrashReport::javaClass.name
+    }
+
     suspend fun execute(message: String): Boolean {
         var uploaded = false
 
@@ -30,7 +34,7 @@ class UploadCrashReport(
                     // upload most recent stacktrace
                     uploaded = reporter.reportCrash(message, stackTraces[0], logFile)
                 } catch (e: IOException) {
-                    e.printStackTrace()
+                    Logger.w(TAG, "Failed to report crash", e)
                 }
 
                 if (!uploaded) {

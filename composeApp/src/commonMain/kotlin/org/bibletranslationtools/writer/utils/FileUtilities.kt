@@ -11,7 +11,6 @@ import io.github.vinceglb.filekit.list
 import io.github.vinceglb.filekit.path
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.displayName
-import java.io.Closeable
 import java.io.File
 import java.io.FileFilter
 import java.io.FileInputStream
@@ -25,6 +24,8 @@ import java.io.OutputStream
  * This class provides some utility methods for handling files
  */
 object FileUtilities {
+
+    val TAG = FileUtilities::javaClass.name
 
     /**
      * Filter applied during recursive directory copy.
@@ -153,7 +154,7 @@ object FileUtilities {
                 try {
                     fileOrDirectory.delete()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Logger.w(TAG, "Failed to delete $fileOrDirectory: ${e.message}")
                     return false
                 }
             }
@@ -413,18 +414,6 @@ object FileUtilities {
                 // preserve date
                 destFile.setLastModified(srcFile.lastModified())
             }
-        }
-    }
-
-    /**
-     * closes the closable without throwing an exception
-     * @param closable
-     */
-    fun closeQuietly(closable: Closeable) {
-        try {
-            closable.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 

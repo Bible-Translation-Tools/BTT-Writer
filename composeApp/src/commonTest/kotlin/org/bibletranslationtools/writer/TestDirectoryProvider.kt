@@ -9,4 +9,8 @@ class TestDirectoryProvider : DirectoryProvider {
     override val internalAppDir = File(root, "internal").apply { mkdirs() }
     override val externalAppDir = File(root, "external").apply { mkdirs() }
     override val cacheDir = File(root, "cache").apply { mkdirs() }
+
+    fun cleanup() {
+        root.deleteRecursively()
+    }
 }

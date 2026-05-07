@@ -86,6 +86,10 @@ class DefaultReviewModeComponent(
     KoinComponent, ComponentScope,
     ProgressOwner, ModeComponent<ReviewItem> {
 
+    companion object {
+        val TAG = ReviewModeComponent::javaClass.name
+    }
+
     private val preference: Preference by inject()
     private val renderHelps: RenderHelps by inject()
     private val renderingProvider: RenderingProvider by inject()
@@ -297,7 +301,7 @@ class DefaultReviewModeComponent(
                         marked++
                     } catch (e: Exception) {
                         Logger.e(
-                            this::javaClass.name,
+                            TAG,
                             "Error marking chunk done: ${item.id}",
                             e
                         )
@@ -310,7 +314,7 @@ class DefaultReviewModeComponent(
                         items.value.firstOrNull()?.chunk?.target?.commit()
                     } catch (e: Exception) {
                         Logger.e(
-                            this::javaClass.name,
+                            TAG,
                             "Failed to commit translation",
                             e
                         )
@@ -336,7 +340,7 @@ class DefaultReviewModeComponent(
                     item.chunk.target.commitSync()
                     history.loadCommits()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Logger.w(TAG, "Could not load commits after undo", e)
                 }
             }
             history.previous
@@ -978,14 +982,14 @@ class DefaultReviewModeComponent(
                     history.read(commit)
                 } catch (e: IllegalStateException) {
                     Logger.w(
-                        this@DefaultReviewModeComponent::javaClass.name,
+                        TAG,
                         "History navigation past end of file history",
                         e
                     )
                     ""
                 } catch (e: Exception) {
                     Logger.w(
-                        this@DefaultReviewModeComponent::javaClass.name,
+                        TAG,
                         "History read exception",
                         e
                     )

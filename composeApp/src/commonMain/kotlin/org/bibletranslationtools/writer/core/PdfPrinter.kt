@@ -5,7 +5,6 @@ import btt_writer.composeapp.generated.resources.artwork_attribution_pdf
 import btt_writer.composeapp.generated.resources.label_chapter_title_detailed
 import btt_writer.composeapp.generated.resources.license_pdf
 import btt_writer.composeapp.generated.resources.table_of_contents
-import org.bibletranslationtools.writer.usecases.ExportProjects.Companion.sortFrameTranslations
 import com.itextpdf.text.Anchor
 import com.itextpdf.text.BaseColor
 import com.itextpdf.text.Chapter
@@ -32,9 +31,11 @@ import com.itextpdf.text.pdf.draw.LineSeparator
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.usecases.ExportProjects.Companion.sortFrameTranslations
 import org.bibletranslationtools.writer.utils.Util
 import org.jetbrains.compose.resources.getString
 import java.io.File
@@ -92,7 +93,7 @@ class PdfPrinter(
                     resources[0].slug
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.e(TAG, "Failed to open resource container ${project.languageSlug} - ${project.slug}", e)
             }
         }
 
@@ -447,7 +448,7 @@ class PdfPrinter(
                                 addImage(document, table, imageFile.absolutePath)
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            Logger.w(TAG, "Failed to insert image", e)
                         }
                     }
                     // TODO: 11/13/2015 render body according to the format
@@ -838,17 +839,13 @@ class PdfPrinter(
     )
 
     companion object {
+        val TAG = PdfPrinter::javaClass.name
+
         private const val PAGE_NUMBER_FONT_SIZE = 10f
         private const val DEFAULT_INDENT_SPACING = 16f
         private const val VERTICAL_PADDING = 72.0f // 1 inch
         private const val HORIZONTAL_PADDING = 72.0f // 1 inch
         const val RATIO_OF_SP_TO_PT: Float = 2.5f
-
-        private fun addEmptyLine(paragraph: Paragraph, number: Int) {
-            repeat(number) {
-                paragraph.add(Paragraph(" "))
-            }
-        }
 
         private fun addSolidLine(table: PdfPTable) {
             val line = LineSeparator()

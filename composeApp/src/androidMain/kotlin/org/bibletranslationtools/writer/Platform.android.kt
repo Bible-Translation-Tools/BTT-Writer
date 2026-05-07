@@ -40,6 +40,10 @@ class AndroidPlatform(
     private val directoryProvider: DirectoryProvider
 ) : Platform {
 
+    companion object {
+        val TAG = AndroidPlatform::javaClass.name
+    }
+
     override val info: AppInfo
         get() = AppInfo(
             versionName = BuildInfo.VERSION_NAME,
@@ -128,7 +132,7 @@ class AndroidPlatform(
         message += ", density: ${displayMetrics.density}"
         message += ", dpi: ${displayMetrics.xdpi}X*${displayMetrics.ydpi}Y"
 
-        Logger.i(this.javaClass.simpleName, "system resources check:\n$message")
+        Logger.i(TAG, "system resources check:\n$message")
 
         return message
     }

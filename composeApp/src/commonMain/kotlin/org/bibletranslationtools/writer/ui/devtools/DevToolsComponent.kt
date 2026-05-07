@@ -93,6 +93,10 @@ class DefaultDevToolsComponent(
     ComponentContext by componentContext,
     KoinComponent, ProgressOwner, ComponentScope {
 
+    companion object {
+        val TAG = DevToolsComponent::javaClass.name
+    }
+
     private val directoryProvider: DirectoryProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val platform: Platform by inject()
@@ -228,7 +232,7 @@ class DefaultDevToolsComponent(
                     directoryProvider.deleteLibrary()
                     directoryProvider.deployDefaultLibrary()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Logger.w(TAG, "Failed to delete library", e)
                 } finally {
                     catalogClient.openLibrary()
                 }

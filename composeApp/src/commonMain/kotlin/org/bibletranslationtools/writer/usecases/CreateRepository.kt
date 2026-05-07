@@ -16,6 +16,10 @@ class CreateRepository(
     private val prefRepo: Preference,
     private val profile: Profile
 ) {
+    companion object {
+        val TAG = CreateRepository::javaClass.name
+    }
+
     suspend fun execute(
         targetTranslation: TargetTranslation,
         onProgress: (Float, String?) -> Unit = {_,_->}
@@ -41,7 +45,7 @@ class CreateRepository(
                 return true
             } else {
                 Logger.w(
-                    this.javaClass.name,
+                    TAG,
                     "Failed to create repository " + targetTranslation.id + ". Gogs responded with " + response?.code + ": " + response?.message
                 )
             }

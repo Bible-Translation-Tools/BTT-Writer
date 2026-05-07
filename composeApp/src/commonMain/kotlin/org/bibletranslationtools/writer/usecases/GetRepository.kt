@@ -10,6 +10,10 @@ class GetRepository(
     private val searchRepository: SearchGogsRepositories,
     private val profile: Profile
 ) {
+    companion object {
+        val TAG = GetRepository::javaClass.name
+    }
+
     suspend fun execute(
         translation: TargetTranslation,
         onProgress: (Float, String?) -> Unit = {_,_->}
@@ -17,7 +21,7 @@ class GetRepository(
         onProgress(-1f, "Getting repository")
 
         val user = profile.gogsUser ?: run {
-            Logger.e(this.javaClass.name, "Gogs user is not set")
+            Logger.e(TAG, "Gogs user is not set")
             return null
         }
 

@@ -22,6 +22,10 @@ class RegisterSSHKeys(
     private val preference: Preference,
     private val platform: Platform
 ) {
+    companion object {
+        val TAG = RegisterSSHKeys::javaClass.name
+    }
+
     suspend fun execute(
         force: Boolean,
         onProgress: (Float, String?) -> Unit = {_,_->}
@@ -48,8 +52,7 @@ class RegisterSSHKeys(
             try {
                 keyString = FileUtilities.readFileToString(directoryProvider.publicKey).trim()
             } catch (e: IOException) {
-                e.printStackTrace()
-                Logger.e(this.javaClass.name, "Failed to retrieve the public key", e)
+                Logger.e(TAG, "Failed to retrieve the public key", e)
                 return false
             }
 
@@ -71,7 +74,7 @@ class RegisterSSHKeys(
             } else {
                 val response = api.getLastResponse()
                 Logger.w(
-                    this.javaClass.name,
+                    TAG,
                     "Failed to register the public key. Gogs responded with " + response?.code + ": " + response?.message
                 )
             }

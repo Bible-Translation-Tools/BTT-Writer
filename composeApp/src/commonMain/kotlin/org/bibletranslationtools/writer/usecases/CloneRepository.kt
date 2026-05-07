@@ -16,6 +16,11 @@ class CloneRepository(
     private val directoryProvider: DirectoryProvider,
     private val transportCallback: TransportCallback
 ) {
+
+    companion object {
+        val TAG = CloneRepository::javaClass.name
+    }
+
     suspend fun execute(
         cloneUrl: String,
         onProgress: (Float, String?) -> Unit = {_,_->}
@@ -36,7 +41,7 @@ class CloneRepository(
                 cloneResult.repository.close()
                 status = Status.SUCCESS
             } catch (e: TransportException) {
-                Logger.e(this.javaClass.name, e.message ?: "Error", e)
+                Logger.e(TAG, e.message ?: "Error", e)
                 val cause = e.cause
                 if (cause != null) {
                     val subException = cause.cause
@@ -57,14 +62,14 @@ class CloneRepository(
                     }
                 }
             } catch (e: OutOfMemoryError) {
-                Logger.e(this.javaClass.name, e.message ?: "Error", e)
+                Logger.e(TAG, e.message ?: "Error", e)
                 status = Status.OUT_OF_MEMORY
             } catch (e: Throwable) {
-                Logger.e(this.javaClass.name, e.message ?: "Error", e)
+                Logger.e(TAG, e.message ?: "Error", e)
             }
         } catch (e: Exception) {
             Logger.e(
-                this.javaClass.name,
+                TAG,
                 "Failed to clone the repository $cloneUrl", e
             )
         } finally {

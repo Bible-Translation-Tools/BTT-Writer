@@ -88,7 +88,7 @@ class ExportProjects(
             }
             success = true
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Failed to export project", e)
+            Logger.e(TAG, "Failed to export project", e)
         } finally {
             FileUtilities.deleteQuietly(tempDir)
         }
@@ -211,7 +211,7 @@ class ExportProjects(
             }
             true
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Failed to export USFM file", e)
+            Logger.e(TAG, "Failed to export USFM file", e)
             false
         } finally {
             FileUtilities.deleteQuietly(tempDir)
@@ -262,7 +262,7 @@ class ExportProjects(
             }
             true
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Failed to export PDF file", e)
+            Logger.e(TAG, "Failed to export PDF file", e)
             false
         }
 
@@ -378,6 +378,7 @@ class ExportProjects(
     }
 
     companion object {
+        val TAG = ExportProjects::javaClass.name
         private const val GENERATOR_NAME = "ts-android"
         private const val TSTUDIO_PACKAGE_VERSION = 2
 

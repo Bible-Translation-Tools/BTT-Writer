@@ -75,6 +75,7 @@ class PushTargetTranslation(
             repo.setRemote("origin", remote)
             git = repo.git
         } catch (e: IOException) {
+            Logger.e(TAG, "Could not change origin", e)
             return Result(status, e.message)
         }
 
@@ -115,15 +116,11 @@ class PushTargetTranslation(
                         else -> status = Status.UNKNOWN
                     }
                 }
-
-//                if (status.isRejected) {
-//                     pushRejectedResults = r // save rejection data
-//                }
             }
             // give back the response message
             return Result(status, response.toString())
         } catch (e: TransportException) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             val cause = e.cause
             if (cause is NoRemoteRepositoryException) {
                 status = Status.NO_REMOTE_REPO
@@ -132,14 +129,14 @@ class PushTargetTranslation(
             }
             return Result(status, null)
         } catch (e: OutOfMemoryError) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             status = Status.OUT_OF_MEMORY
             return Result(status, null)
         } catch (e: java.lang.Exception) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             return Result(status, null)
         } catch (e: Throwable) {
-            Logger.e(this.javaClass.name, e.message ?: "Error", e)
+            Logger.e(TAG, e.message ?: "Error", e)
             return Result(status, null)
         }
     }

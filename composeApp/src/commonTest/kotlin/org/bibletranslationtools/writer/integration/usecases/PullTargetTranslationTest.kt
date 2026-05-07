@@ -106,7 +106,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
             PullTargetTranslation.Status.UNKNOWN,
             result.status
         )
-        assertNull("Message should be null", result.message)
+        assertNotNull("Message should not be null", result.message)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
@@ -274,7 +274,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
             PullTargetTranslation.Status.AUTH_FAILURE,
             result.status
         )
-        assertNull("Message should be null", result.message)
+        assertNotNull("Message should not be null", result.message)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
@@ -308,7 +308,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
             PullTargetTranslation.Status.NO_REMOTE_REPO,
             result.status
         )
-        assertNull("Message should be null", result.message)
+        assertNotNull("Message should not be null", result.message)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
@@ -338,7 +338,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
             PullTargetTranslation.Status.UNKNOWN,
             result.status
         )
-        assertNull("Message should be null", result.message)
+        assertNotNull("Message should not be null", result.message)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
@@ -368,7 +368,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
             PullTargetTranslation.Status.OUT_OF_MEMORY,
             result.status
         )
-        assertNull("Message should be null", result.message)
+        assertNotNull("Message should not be null", result.message)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 

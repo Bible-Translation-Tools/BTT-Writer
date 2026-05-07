@@ -12,6 +12,10 @@ class UploadFeedback(
     private val preference: Preference,
     private val directoryProvider: DirectoryProvider
 ) {
+    companion object {
+        val TAG = UploadFeedback::javaClass.name
+    }
+
     /**
      * Returns true if the upload was successful
      */
@@ -31,24 +35,19 @@ class UploadFeedback(
             try {
                 uploaded = reporter.reportBug(notes, logFile)
             } catch (e: IOException) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to upload bug report", e)
             }
 
-            if (!uploaded) {
-                Logger.e(
-                    this.javaClass.name,
-                    "Failed to upload bug report."
-                )
-            } else { // success
+            if (uploaded) {
                 try {
                     FileUtilities.writeStringToFile(logFile, "")
-                } catch (e: IOException) {
-                    e.printStackTrace()
+                } catch (_: IOException) {
+                    Logger.i(TAG, "Failed to reset log file")
                 }
-                Logger.i(this.javaClass.name, "Submitted bug report")
+                Logger.i(TAG, "Submitted bug report")
             }
         } else {
-            Logger.w(this.javaClass.name, "the github oauth2 token is missing")
+            Logger.w(TAG, "the github oauth2 token is missing")
         }
 
         return uploaded

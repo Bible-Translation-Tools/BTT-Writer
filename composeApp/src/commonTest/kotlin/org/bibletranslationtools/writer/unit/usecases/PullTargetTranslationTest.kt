@@ -35,7 +35,7 @@ import org.eclipse.jgit.merge.MergeStrategy
 import org.eclipse.jgit.transport.URIish
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
@@ -166,7 +166,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.UNKNOWN, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { profile.gogsUser }
         coVerify { getRepository.execute(any(), any()) }
@@ -325,7 +325,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.AUTH_FAILURE, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { onProgress(any(), "Downloading updates") }
         verify { profile.gogsUser }
@@ -365,7 +365,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.NO_REMOTE_REPO, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { onProgress(any(), "Downloading updates") }
         verify { profile.gogsUser }
@@ -404,7 +404,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.NO_REMOTE_REPO, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { onProgress(any(), "Downloading updates") }
         verify { profile.gogsUser }
@@ -440,7 +440,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.OUT_OF_MEMORY, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { onProgress(any(), "Downloading updates") }
         verify { profile.gogsUser }
@@ -476,7 +476,7 @@ class PullTargetTranslationTest {
         )
 
         assertEquals(PullTargetTranslation.Status.UNKNOWN, result.status)
-        assertNull(result.message)
+        assertNotNull(result.message)
 
         verify { onProgress(any(), "Downloading updates") }
         verify { profile.gogsUser }

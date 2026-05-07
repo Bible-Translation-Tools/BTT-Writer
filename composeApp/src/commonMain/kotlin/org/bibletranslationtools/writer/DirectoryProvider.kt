@@ -135,7 +135,7 @@ interface DirectoryProvider {
             privateKey.writeText(privateStr)
             publicKey.writeText(publicStr)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, "Failed to generate SSH keys", e)
         }
     }
 

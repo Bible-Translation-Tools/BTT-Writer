@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap
  * This should usually only be used to load source containers since they will not change very often.
  */
 object ContainerCache {
+    val TAG = ContainerCache::javaClass.name
+
     /**
      * A map of cached containers
      */
@@ -169,11 +171,11 @@ object ContainerCache {
                     if (container != null) {
                         links.add(link)
                     } else {
-                        Logger.w("ContainerCache", "RC not found for link $rawLink")
+                        Logger.w(TAG, "RC not found for link $rawLink")
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to parse link", e)
             }
         }
         return links
@@ -209,7 +211,7 @@ object ContainerCache {
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to parse link", e)
             }
         }
         return links

@@ -133,6 +133,7 @@ class Profile(
     }
 
     companion object {
+        val TAG = Profile::javaClass.name
         private const val SERIAL_VERSION_UID = 0L
 
         /**
@@ -168,7 +169,7 @@ class Profile(
                     user = user.copy(token = user.token)
                 }
             } catch (e: JsonDecodingException) {
-                Logger.w(this::javaClass.name, "Malformed profile json string", e)
+                Logger.w(TAG, "Malformed profile json string", e)
             }
 
             return Profile(prefs, directoryProvider).apply {

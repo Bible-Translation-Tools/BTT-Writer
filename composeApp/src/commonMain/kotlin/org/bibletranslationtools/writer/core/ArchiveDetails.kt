@@ -234,13 +234,14 @@ class ArchiveDetails private constructor(
                     else -> null
                 }
             } catch (e: Exception) {
-                Logger.e(ArchiveDetails::javaClass.name, "Failed to build ArchiveDetails instance", e)
+                Logger.e(TAG, "Failed to build ArchiveDetails instance", e)
                 null
             }
         }
     }
 
     companion object {
+        val TAG = ArchiveDetails::javaClass.name
         const val MANIFEST_JSON: String = "manifest.json"
 
         val archiveJson = Json {

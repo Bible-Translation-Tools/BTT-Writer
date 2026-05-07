@@ -108,7 +108,7 @@ class DesktopPlatform(
             message += "\nScreen size: Headless environment (No display)"
         }
 
-        Logger.i(this.javaClass.simpleName, "system resources check:\n$message")
+        Logger.i(TAG, "system resources check:\n$message")
 
         return message
     }

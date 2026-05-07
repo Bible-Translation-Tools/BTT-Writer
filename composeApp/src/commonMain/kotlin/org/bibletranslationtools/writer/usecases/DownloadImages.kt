@@ -100,7 +100,7 @@ class DownloadImages(private val directoryProvider: DirectoryProvider) {
             }
             true
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.w(TAG, "Failed to download images from $IMAGES_URL", e)
             false
         }
     }

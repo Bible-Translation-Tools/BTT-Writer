@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.git
 
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.GitCommand
@@ -40,7 +41,7 @@ class Repo(repositoryPath: String) {
         try {
             init.call()
         } catch (e: GitAPIException) {
-            e.printStackTrace()
+            Logger.w(TAG, "Failed to init repo: ${e.message}", e)
         }
     }
 
@@ -105,6 +106,7 @@ class Repo(repositoryPath: String) {
     }
 
     companion object {
+        val TAG = Repo::javaClass.name
         private var numRepos = 0
 
         /**
@@ -134,7 +136,7 @@ class Repo(repositoryPath: String) {
                 try {
                     Thread.sleep(500)
                 } catch (e: InterruptedException) {
-                    e.printStackTrace()
+                    Logger.i(TAG, "Exception in Thread.sleep. ${e.message}")
                 }
 
                 try {

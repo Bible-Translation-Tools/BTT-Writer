@@ -74,13 +74,15 @@ interface Platform {
             try {
                 FileUtilities.forceMkdir(dir)
             } catch (e: IOException) {
-                e.printStackTrace()
+                Logger.e(TAG, "Failed to create crashes directory", e)
             }
         }
         Logger.registerGlobalExceptionHandler(dir)
     }
 
     companion object {
+        val TAG = Platform::javaClass.name
+
         const val KB: Long = 1024
         const val MB: Long = KB * KB
         const val GB: Long = MB * KB

@@ -97,6 +97,10 @@ class DefaultSelectSourcesComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope, ProgressOwner {
 
+    companion object {
+        val TAG = SelectSourcesComponent::javaClass.name
+    }
+
     private val catalogClient: ResourceCatalogClient by inject()
     private val preference: Preference by inject()
     private val downloadResourceContainers: DownloadResourceContainers by inject()
@@ -252,7 +256,7 @@ class DefaultSelectSourcesComponent(
 
         if (selected) { // see if there are updates available to download
             Logger.i(
-                this::class.java.simpleName,
+                TAG,
                 "Checking for updates on " + sourceTranslation.resourceContainerSlug
             )
             try {
@@ -264,12 +268,12 @@ class DefaultSelectSourcesComponent(
                     )
                     hasUpdates = (lastModified > container.modifiedAt)
                     Logger.i(
-                        this::class.java.simpleName,
+                        TAG,
                         "Checking for updates on " + sourceTranslation.resourceContainerSlug + " finished, needs updates: " + hasUpdates
                     )
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Error while trying to cache resource container", e)
             }
 
             checkedUpdates = true

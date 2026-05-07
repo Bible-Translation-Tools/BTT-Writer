@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.usecases
 
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
@@ -11,6 +12,10 @@ class TranslationProgress(
     private val catalogClient: ResourceCatalogClient,
     private val preference: Preference
 ) {
+    companion object {
+        val TAG = TranslationProgress::javaClass.name
+    }
+
     fun execute(targetTranslation: TargetTranslation): Float {
         var progress: Float
 
@@ -21,7 +26,7 @@ class TranslationProgress(
         val container = try {
             catalogClient.openResourceContainer(sourceTranslation.resourceContainerSlug)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Could not open resource container ${sourceTranslation.resourceContainerSlug}", e)
             return 0f
         }
 

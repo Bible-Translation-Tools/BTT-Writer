@@ -30,6 +30,10 @@ class ImportProjects(
     private val catalogClient: ResourceCatalogClient,
     private val platform: Platform
 ) {
+    companion object {
+        val TAG = ImportProjects::javaClass.name
+    }
+
     suspend fun importProject(
         project: File,
         overwrite: Boolean = false
@@ -141,7 +145,7 @@ class ImportProjects(
                             conflictingTargetTranslation.merge(project, null)
                             conflictingTargetTranslations.add(conflictingTargetTranslation)
                         } catch (e: Exception) {
-                            Logger.e(this::javaClass.name, "Failed to merge import folder $project", e)
+                            Logger.e(TAG, "Failed to merge import folder $project", e)
                             success = false
                             continue
                         }
@@ -160,7 +164,7 @@ class ImportProjects(
 
             onProgress(1f, "Completed!")
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Failed to import folder $projects", e)
+            Logger.e(TAG, "Failed to import folder $projects", e)
             success = false
         }
 
@@ -189,7 +193,7 @@ class ImportProjects(
         val externalContainer = try {
             ResourceContainer.load(tempDir)
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Could not import RC", e)
+            Logger.e(TAG, "Could not import RC", e)
             return ImportSourceResult(
                 success = false,
                 hasConflict = false,
@@ -214,7 +218,7 @@ class ImportProjects(
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.i(TAG, "No conflicts. Continue.")
             // no conflicts. import
             importSource(tempDir)
         } finally {
@@ -230,7 +234,7 @@ class ImportProjects(
                 hasConflict = false
             )
         } catch (e: Exception) {
-            Logger.e(this::javaClass.name, "Could not import RC", e)
+            Logger.e(TAG, "Could not import RC", e)
             ImportSourceResult(
                 success = false,
                 hasConflict = false,
@@ -317,7 +321,7 @@ class ImportProjects(
                                 mergeConflict = true
                             }
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            Logger.e(TAG, "Merge failed for ${localTargetTranslation.id}. Skipping...", e)
                             continue
                         }
                     } else {

@@ -1,12 +1,17 @@
 package org.bibletranslationtools.writer.core.manifest
 
 import kotlinx.io.IOException
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.utils.FileUtilities
 import java.io.File
 
 class ManifestAccessor(private val manifestFile: File) {
     var manifest = generate()
         private set
+
+    companion object {
+        val TAG = ManifestAccessor::javaClass.name
+    }
 
     /**
      * Generates a new manifest object.
@@ -21,7 +26,6 @@ class ManifestAccessor(private val manifestFile: File) {
             try {
                 manifestFile.createNewFile()
             } catch (e: IOException) {
-                e.printStackTrace()
                 throw RuntimeException("Could not create manifest file at: ${manifestFile.absolutePath}", e)
             }
         }
@@ -40,7 +44,7 @@ class ManifestAccessor(private val manifestFile: File) {
                 buildManifest {}
             }
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.w(TAG, "Failed to load manifest, default to empty", e)
             buildManifest {}
         }
     }
@@ -53,7 +57,7 @@ class ManifestAccessor(private val manifestFile: File) {
             val jsonStr = manifestJson.encodeToString(manifest)
             FileUtilities.writeStringToFile(manifestFile, jsonStr)
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.e(TAG, "Failed to write to manifest file", e)
         }
     }
 

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.SourceLanguage
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
@@ -77,6 +78,10 @@ class DefaultDraftComponent(
     ComponentContext by componentContext,
     KoinComponent, ComponentScope, ProgressOwner {
 
+    companion object {
+        val TAG = DraftComponent::javaClass.name
+    }
+
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val importDraft: ImportDraft by inject()
@@ -109,7 +114,7 @@ class DefaultDraftComponent(
         return try {
             catalogClient.openResourceContainer(rcSlug)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Resource container not found: $rcSlug", e)
             null
         }
     }
@@ -118,7 +123,7 @@ class DefaultDraftComponent(
         return try {
             catalogClient.library.getSourceLanguage(draftTranslation.info.language.slug)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Source language not found: ${draftTranslation.info.language.slug}", e)
             null
         }
     }

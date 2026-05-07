@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.Project
 import org.bibletranslationtools.writer.Platform
@@ -108,6 +109,10 @@ class DefaultPublishComponent(
 ) : PublishComponent,
     ComponentContext by componentContext,
     KoinComponent, ComponentScope {
+
+    companion object {
+        val TAG = PublishComponent::javaClass.name
+    }
 
     private val translator: Translator by inject()
     private val catalogClient: ResourceCatalogClient by inject()
@@ -301,7 +306,7 @@ class DefaultPublishComponent(
                     resources[0].slug
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.w(TAG, "Failed to open resource container ${project.languageSlug}, ${project.slug}, ${resources[0].slug}", e)
                 null
             }
 

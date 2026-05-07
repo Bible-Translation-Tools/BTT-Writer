@@ -187,7 +187,7 @@ class TargetTranslation private constructor(
                     isFrameFinished("$chapterId-$frameId")
                 )
             } catch (e: IOException) {
-                e.printStackTrace()
+                Logger.w(TAG, "Could not open frame translation", e)
             }
         }
         return RenderingProvider.getFrameTranslation(frameId, chapterId, "", format, false)
@@ -224,7 +224,7 @@ class TargetTranslation private constructor(
         try {
             saveFrameTranslation(frameTranslation, translatedText)
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.e(TAG, "Could not save frame translation", e)
         }
     }
 
@@ -359,7 +359,7 @@ class TargetTranslation private constructor(
             )
             return true
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, "Could not open chunk", e)
         }
         return false
     }
@@ -375,7 +375,7 @@ class TargetTranslation private constructor(
         get() = try {
             repo.git.status().call().isClean
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Failed to get repo status", e)
             false
         }
 
@@ -463,7 +463,7 @@ class TargetTranslation private constructor(
                 .call()
             true
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.e(TAG, "Could not reset to master backup", e)
             false
         }
     }
@@ -543,7 +543,7 @@ class TargetTranslation private constructor(
             val commit = getGitHead(repo)
             commit?.name
         } catch (e: Exception) {
-            Logger.e(TAG, "Could not get commit hash", e)
+            Logger.w(TAG, "Could not get commit hash", e)
             null
         }
 
@@ -557,7 +557,7 @@ class TargetTranslation private constructor(
         try {
             saveChapterReferenceTranslation(chapterTranslation, translatedText)
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.e(TAG, "Could not save chapter reference", e)
         }
     }
 
@@ -565,7 +565,7 @@ class TargetTranslation private constructor(
         try {
             saveChapterTitleTranslation(chapterTranslation, translatedText)
         } catch (e: IOException) {
-            e.printStackTrace()
+            Logger.e(TAG, "Could not save chapter title", e)
         }
     }
 
@@ -605,7 +605,7 @@ class TargetTranslation private constructor(
         return try {
             FileHistory(repo, getFrameFile(frameTranslation.chapterId, frameTranslation.id))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Could not get chunk history", e)
             null
         }
     }
@@ -614,7 +614,7 @@ class TargetTranslation private constructor(
         return try {
             FileHistory(repo, getChapterTitleFile(chapterTranslation.id))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Could not get chapter title history", e)
             null
         }
     }
@@ -623,7 +623,7 @@ class TargetTranslation private constructor(
         return try {
             FileHistory(repo, getChapterReferenceFile(chapterTranslation.id))
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Could not get chapter reference history", e)
             null
         }
     }
@@ -632,7 +632,7 @@ class TargetTranslation private constructor(
         get() = try {
             FileHistory(repo, projectTitleFile)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.w(TAG, "Could not get project title history", e)
             null
         }
 
@@ -747,7 +747,7 @@ class TargetTranslation private constructor(
                             )
                         }
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        Logger.w(TAG, "Failed to open manifest file", e)
                         onError?.invoke()
                     }
                 } else {
