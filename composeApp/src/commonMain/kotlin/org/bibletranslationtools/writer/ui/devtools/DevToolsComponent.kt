@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.LogEntry
+import org.bibletranslationtools.logger.LogLevel
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.DirectoryProvider
@@ -46,6 +47,8 @@ import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -100,6 +103,7 @@ class DefaultDevToolsComponent(
     private val directoryProvider: DirectoryProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val platform: Platform by inject()
+    private val preference: Preference by inject()
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -141,8 +145,13 @@ class DefaultDevToolsComponent(
 
     override fun readErrorLog() {
         launchWithProgress(Res.string.reading_logs) {
+            val currentLevelStr = preference.getPref(
+                Preference.KEY_PREF_LOGGING_LEVEL,
+                LogLevel.Info.name
+            )
+            val currentLevel = LogLevel.getLevel(currentLevelStr)
             val logs = withContext(Dispatchers.IO) {
-                Logger.getLogEntries()
+                Logger.getLogEntries().filter { it.level >= currentLevel }
             }
             _state.update { it.copy(logs = logs) }
         }
