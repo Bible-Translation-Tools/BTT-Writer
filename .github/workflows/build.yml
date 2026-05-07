@@ -19,7 +19,7 @@ jobs:
       - name: Run tests
         run: |
           Xvfb :99 -screen 0 1024x768x24 &
-          DISPLAY=:99 ./gradlew jvmTest --info
+          DISPLAY=:99 ./gradlew jvmTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4

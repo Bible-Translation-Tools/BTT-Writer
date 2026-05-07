@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -195,4 +196,15 @@ compose.desktop {
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
     dependsOn(generateBuildInfo)
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("started", "passed", "skipped", "failed")
+
+        showStandardStreams = false
+        displayGranularity = 2
+        showExceptions = true
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
 }
