@@ -199,7 +199,12 @@ class DefaultImportComponent(
 
     override fun importBackup(backup: File) {
         val uri = PlatformFile(backup)
-        importProject(uri, false, Res.string.importing_file, backup.name)
+        importProject(
+            uri,
+            false,
+            Res.string.importing_file,
+            backup.name
+        )
     }
 
     override fun importRepo(repo: RepositoryItem, accepted: Boolean, overwrite: Boolean) {
@@ -281,7 +286,7 @@ class DefaultImportComponent(
                                 },
                                 onOverwrite = {
                                     launchWithProgress {
-                                        importProject(result.filePath, true)
+                                        importProject(result.file, true)
                                     }
                                 },
                                 onCancel = {
@@ -298,29 +303,35 @@ class DefaultImportComponent(
                         }
                         updateResult(
                             getString(Res.string.import_from_storage),
-                            getString(Res.string.import_success) +
-                                    "\n${result.readablePath}"
+                            getString(
+                                Res.string.import_success,
+                                result.file.displayName
+                            )
                         )
                     }
                     result.invalidFileName -> {
                         updateResult(
                             getString(Res.string.import_from_storage),
-                            getString(Res.string.invalid_file) +
-                                    "\n${result.readablePath}"
+                            getString(
+                                Res.string.invalid_file,
+                                result.file.displayName
+                            )
                         )
                     }
                     else -> {
                         updateResult(
                             getString(Res.string.import_from_storage),
-                            getString(Res.string.import_failed) +
-                                    "\n${result.readablePath}"
+                            getString(
+                                Res.string.import_failed,
+                                result.file.displayName
+                            )
                         )
                     }
                 }
             } else {
                 updateResult(
                     getString(Res.string.import_from_storage),
-                    "${getString(Res.string.invalid_file)}\n$filename"
+                    getString(Res.string.invalid_file, filename)
                 )
             }
         }

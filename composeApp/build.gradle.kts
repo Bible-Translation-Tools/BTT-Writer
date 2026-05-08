@@ -1,6 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -128,7 +128,7 @@ kotlin {
                 implementation(libs.kotlin.test)
                 implementation(libs.koin.test)
 
-                //implementation(libs.junit)
+                implementation(libs.junit)
                 implementation(libs.mockk)
                 implementation(libs.mockk.agent)
                 implementation(libs.mock.webserver)
@@ -198,11 +198,10 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
     dependsOn(generateBuildInfo)
 }
 
-tasks.withType<Test> {
+tasks.named<Test>("jvmTest") {
     testLogging {
-        events("started", "passed", "skipped", "failed")
+        events("passed", "skipped", "failed")
 
-        showStandardStreams = false
         displayGranularity = 2
         showExceptions = true
         exceptionFormat = TestExceptionFormat.SHORT

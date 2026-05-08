@@ -404,7 +404,7 @@
     <string name="import_from_sd">Import from SD Card</string>
     <string name="backup_to_door43">Upload to Server</string>
     <string name="translation_export_failed">Translation could not be exported</string>
-    <string name="invalid_file">Not a valid file</string>
+    <string name="invalid_file">Not a valid file: "<xliff:g example="file.txt" id="file">%1$s</xliff:g>"</string>
     <string name="software_licenses" translatable="false">
 <![CDATA[
 <h1>Software Licenses</h1>
@@ -594,9 +594,9 @@ Do you want to enable SD card access?  If so then:
     <string name="title_file_browser">File Browser</string>
     <string name="no_item_selected">No Item Selected</string>
     <string name="backup_failed">Failed Backing up to:</string>
-    <string name="import_failed">Failed Import from:</string>
+    <string name="import_failed">Failed Import from "<xliff:g example="aa_mrk_text_reg.tstudio" id="project">%1$s</xliff:g>"</string>
     <string name="backup_success">Success Backing up to:</string>
-    <string name="import_success">Success Importing from:</string>
+    <string name="import_success">Project "<xliff:g example="aa_mrk_text_reg.tstudio" id="project">%1$s</xliff:g>" was successfully imported</string>
     <string name="view_available_drafts">View available drafts</string>
     <string name="preview">Preview</string>
     <string name="importing_draft">Importing draft</string>

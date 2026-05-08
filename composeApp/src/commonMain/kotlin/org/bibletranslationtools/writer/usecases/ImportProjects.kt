@@ -90,7 +90,6 @@ class ImportProjects(
 
         return ImportPlatformFileResult(
             platformFile,
-            filename,
             importedSlug,
             success,
             hasMergeConflict,
@@ -395,8 +394,7 @@ class ImportProjects(
      * the success flag
      */
     data class ImportPlatformFileResult(
-        val filePath: PlatformFile,
-        val readablePath: String,
+        val file: PlatformFile,
         val importedSlug: String?,
         val success: Boolean,
         val hasMergeConflict: Boolean,

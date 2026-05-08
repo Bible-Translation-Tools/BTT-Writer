@@ -224,20 +224,22 @@ actual fun getSupportedTstudioExtensions(): FileKitType.File =
 
 actual val PlatformFile.displayName: String
     get() {
-        path.substringAfterLast("/").takeIf { it.isNotBlank() }?.let { return it }
-
-        val uri = toAndroidUri(authority = null)
-        if (uri.scheme == "content") {
-            val context = FileKit.context
-            context.contentResolver
-                .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-                ?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                        if (index >= 0) cursor.getString(index)?.let { return it }
+        return try {
+            val uri = toAndroidUri(authority = null)
+            if (uri.scheme == "content") {
+                val context = FileKit.context
+                context.contentResolver
+                    .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            if (index >= 0) cursor.getString(index)?.let { return it }
+                        }
                     }
-                }
+            }
+            uri.lastPathSegment ?: name
+        } catch (e: Exception) {
+            Logger.w(Platform.TAG, "Failed to resolve platform file name", e)
+            path.substringAfterLast("/")
         }
-
-        return uri.lastPathSegment ?: name
     }

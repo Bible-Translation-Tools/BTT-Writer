@@ -683,7 +683,6 @@ class DefaultHomeComponent(
                 openProject(result.translationId, true)
             }
             is ImportComponent.Result.ProjectsImported -> {
-                dismissDialog()
                 loadWithProgress(result.translationIds)
             }
             is ImportComponent.Result.OpenUsfmImport -> {

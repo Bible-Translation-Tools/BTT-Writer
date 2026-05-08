@@ -25,13 +25,13 @@ import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.AppInfo
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.ArchiveImporter
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.inputStream
-import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
@@ -531,8 +531,8 @@ class ImportProjectsTest {
         ).importProject(file, false, onProgress)
 
         assertTrue(result.success)
-        assertEquals(file, result.filePath)
-        assertEquals("aa_mrk_text_ulb.tstudio", result.readablePath)
+        assertEquals(file, result.file)
+        assertEquals("aa_mrk_text_ulb.tstudio", result.file.displayName)
         assertEquals("aa_mrk_text_ulb", result.importedSlug)
         assertFalse(result.alreadyExists)
         assertFalse(result.hasMergeConflict)
@@ -587,8 +587,8 @@ class ImportProjectsTest {
         ).importProject(platformFile, false, onProgress)
 
         assertTrue(result.success)
-        assertEquals(platformFile, result.filePath)
-        assertEquals("aa_mrk_text_ulb.tstudio", result.readablePath)
+        assertEquals(platformFile, result.file)
+        assertEquals("aa_mrk_text_ulb.tstudio", result.file.displayName)
         assertEquals("aa_mrk_text_ulb", result.importedSlug)
         assertTrue(result.alreadyExists)
         assertTrue(result.hasMergeConflict)
@@ -643,8 +643,8 @@ class ImportProjectsTest {
         ).importProject(platformFile, true, onProgress)
 
         assertTrue(result.success)
-        assertEquals(platformFile, result.filePath)
-        assertEquals("aa_mrk_text_ulb.tstudio", result.readablePath)
+        assertEquals(platformFile, result.file)
+        assertEquals("aa_mrk_text_ulb.tstudio", result.file.displayName)
         assertEquals("aa_mrk_text_ulb", result.importedSlug)
         assertTrue(result.alreadyExists)
         assertFalse(result.hasMergeConflict)
@@ -669,8 +669,8 @@ class ImportProjectsTest {
         ).importProject(file, true, onProgress)
 
         assertFalse(result.success)
-        assertEquals(file, result.filePath)
-        assertEquals("aa_mrk_text_ulb.pdf", result.readablePath)
+        assertEquals(file, result.file)
+        assertEquals("aa_mrk_text_ulb.pdf", result.file.displayName)
         assertNull(result.importedSlug)
         assertFalse(result.alreadyExists)
         assertFalse(result.hasMergeConflict)

@@ -13,6 +13,7 @@ import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.USFM_EXTENSION
+import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.utils.Zip
 import org.junit.After
@@ -131,9 +132,9 @@ class ImportProjectsTest : BaseIntegrationTest() {
         assertFalse("Project should not already exist", result.alreadyExists)
         assertTrue(
             "Path should have with tstudio extension",
-            result.readablePath.endsWith(TSTUDIO_EXTENSION)
+            result.file.displayName.endsWith(TSTUDIO_EXTENSION)
         )
-        assertEquals("Uri should match", projectUri, result.filePath)
+        assertEquals("Uri should match", projectUri, result.file)
         assertFalse("File name should not be invalid", result.invalidFileName)
     }
 
@@ -157,9 +158,9 @@ class ImportProjectsTest : BaseIntegrationTest() {
         assertFalse("Project should not already exist", result.alreadyExists)
         assertTrue(
             "Path should have with usfm extension",
-            result.readablePath.endsWith(USFM_EXTENSION)
+            result.file.displayName.endsWith(USFM_EXTENSION)
         )
-        assertEquals("Uri should match", projectUri, result.filePath)
+        assertEquals("Uri should match", projectUri, result.file)
         assertTrue("File name should be invalid", result.invalidFileName)
     }
 
