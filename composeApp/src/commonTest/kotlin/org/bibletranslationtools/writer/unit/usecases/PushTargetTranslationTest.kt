@@ -183,7 +183,7 @@ class PushTargetTranslationTest {
         verify { profile.gogsUser }
         verify(exactly = 0) { pushCommand.call() }
         verify(exactly = 0) { repository.sshUrl }
-        coVerify { getRepository.execute(targetTranslation, onProgress) }
+        coVerify(exactly = 0) { getRepository.execute(targetTranslation, onProgress) }
     }
 
     @Test
