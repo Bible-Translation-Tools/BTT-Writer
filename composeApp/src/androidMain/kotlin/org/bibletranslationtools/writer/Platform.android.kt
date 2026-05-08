@@ -239,7 +239,7 @@ actual val PlatformFile.displayName: String
             }
             uri.lastPathSegment ?: name
         } catch (e: Exception) {
-            Logger.w(Platform.TAG, "Failed to resolve platform file name", e)
+            Logger.w("AndroidPlatform", "Failed to resolve platform file name", e)
             path.substringAfterLast("/")
         }
     }
