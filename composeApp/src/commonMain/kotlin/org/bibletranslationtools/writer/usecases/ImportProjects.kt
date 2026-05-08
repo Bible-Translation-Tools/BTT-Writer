@@ -31,7 +31,7 @@ class ImportProjects(
     private val platform: Platform
 ) {
     companion object {
-        val TAG = ImportProjects::javaClass.name
+        private const val TAG = "ImportProjects"
     }
 
     suspend fun importProject(

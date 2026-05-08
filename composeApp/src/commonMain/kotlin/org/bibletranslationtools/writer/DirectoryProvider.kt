@@ -24,7 +24,7 @@ import java.io.OutputStream
 interface DirectoryProvider {
 
     companion object {
-        const val TAG = "DirectoryProvider"
+        private const val TAG = "DirectoryProvider"
     }
 
     /**

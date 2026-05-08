@@ -25,7 +25,7 @@ import java.io.OutputStream
  */
 object FileUtilities {
 
-    val TAG = FileUtilities::javaClass.name
+    private const val TAG = "FileUtilities"
 
     /**
      * Filter applied during recursive directory copy.

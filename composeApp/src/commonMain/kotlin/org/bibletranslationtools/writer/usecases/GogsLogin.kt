@@ -11,6 +11,7 @@ import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 
 class GogsLogin(
@@ -51,9 +52,11 @@ class GogsLogin(
             // validate access token
             if (user.token == null) {
                 val response = api.getLastResponse()
+                val code = response?.code ?: -1
+                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
                 Logger.w(
                     GogsLogin::class.java.name,
-                    "gogs api responded with " + response?.code + ": " + response?.message
+                    "gogs api responded with code $code $message"
                 )
                 return LoginResult(null)
             }
@@ -64,9 +67,11 @@ class GogsLogin(
                 val updatedUser = api.editUser(user, authUser)
                 if (updatedUser == null) {
                     val response = api.getLastResponse()
+                    val code = response?.code ?: -1
+                    val message = response?.message.ifNotNullOrEmpty { " message: $it" }
                     Logger.w(
                         GogsLogin::class.java.name,
-                        "The full_name could not be updated gogs api responded with " + response?.code + ": " + response?.message
+                        "The full_name could not be updated gogs api responded with $code $message"
                     )
                 }
             }
@@ -93,9 +98,11 @@ class GogsLogin(
         val deleted = api.deleteToken(tokenId, user)
         if (!deleted) {
             val response = api.getLastResponse()
+            val code = response?.code ?: -1
+            val message = response?.message.ifNotNullOrEmpty { " message: $it" }
             Logger.w(
                 GogsLogin::class.java.name,
-                "Delete access token - gogs api responded with code " + response?.code
+                "Delete access token - gogs api responded with code $code $message"
             )
         }
     }

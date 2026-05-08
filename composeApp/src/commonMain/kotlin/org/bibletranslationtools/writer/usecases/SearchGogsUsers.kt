@@ -7,11 +7,17 @@ import org.bibletranslationtools.gogsclient.GogsAPI
 import org.bibletranslationtools.gogsclient.User
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 
 class SearchGogsUsers(
     private val preference: Preference
 ) {
+    companion object {
+        const val TAG = "SearchGogsUsers"
+    }
+
+    @Throws(Exception::class)
     suspend fun execute(
         userQuery: String,
         limit: Int,
@@ -26,6 +32,16 @@ class SearchGogsUsers(
             ),
             userAgent = getString(Res.string.gogs_user_agent)
         )
-        return api.searchUsers(userQuery, limit, null)
+
+        val users = api.searchUsers(userQuery, limit, null)
+        val response = api.getLastResponse()
+
+        if (response?.success == false) {
+            val code = response.code
+            val message = response.message.ifNotNullOrEmpty { " message: $it" }
+            throw Exception("Failed to get the list of users. Gogs responded with code $code $message")
+        }
+
+        return users
     }
 }

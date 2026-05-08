@@ -27,7 +27,7 @@ class TargetTranslationMigrator(
     private val catalogClient: ResourceCatalogClient
 ) {
     companion object {
-        const val TAG = "TargetTranslationMigrator"
+        private const val TAG = "TargetTranslationMigrator"
         private const val EARLIEST_VERSION = 2
         private const val LATEST_VERSION = 8
 

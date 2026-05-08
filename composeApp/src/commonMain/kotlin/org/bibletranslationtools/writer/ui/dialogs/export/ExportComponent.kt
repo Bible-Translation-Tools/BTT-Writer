@@ -173,7 +173,7 @@ class DefaultExportComponent(
     override lateinit var projectTitle: String
 
     companion object {
-        val TAG = ExportComponent::javaClass.name
+        private const val TAG = "ExportComponent"
     }
 
     init {

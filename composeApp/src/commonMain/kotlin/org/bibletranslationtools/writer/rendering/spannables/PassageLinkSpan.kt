@@ -23,7 +23,7 @@ class PassageLinkSpan(
         private set
 
     companion object {
-        val TAG = PassageLinkSpan::javaClass.name
+        private const val TAG = "PassageLinkSpan"
         // e.g. [[:en:bible:notes:gen:01:03|1:5]]
         val PATTERN: Pattern = Pattern.compile("\\[\\[:(((?!]]).)*)\\|(((?!]]).)*)]]")
     }

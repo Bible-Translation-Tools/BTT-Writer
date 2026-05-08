@@ -32,7 +32,7 @@ class PushTargetTranslation(
     private val transportCallback: TransportCallback
 ) {
     companion object {
-        val TAG = PushTargetTranslation::javaClass.name
+        private const val TAG = "PushTargetTranslation"
     }
 
     data class Result(
@@ -45,11 +45,15 @@ class PushTargetTranslation(
         onProgress: (Float, String?) -> Unit = {_,_->}
     ): Result {
         if (profile.gogsUser != null) {
-            val repository = getRepository.execute(targetTranslation, onProgress)
             try {
                 targetTranslation.commitSync()
                 val repo: Repo = targetTranslation.repo
-                return push(repo, repository!!.sshUrl, onProgress)
+                val repository = getRepository.execute(targetTranslation, onProgress)
+
+                return repository?.let {
+                    push(repo, repository.sshUrl, onProgress)
+                } ?: Result(Status.UNKNOWN, "Failed to get repository ${targetTranslation.id}")
+
             } catch (e: Exception) {
                 Logger.e(TAG, "Failed to push target translation", e)
             }
@@ -132,7 +136,7 @@ class PushTargetTranslation(
             Logger.e(TAG, e.message ?: "Error", e)
             status = Status.OUT_OF_MEMORY
             return Result(status, null)
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             Logger.e(TAG, e.message ?: "Error", e)
             return Result(status, null)
         } catch (e: Throwable) {

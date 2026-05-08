@@ -11,7 +11,7 @@ class GetRepository(
     private val profile: Profile
 ) {
     companion object {
-        val TAG = GetRepository::javaClass.name
+        private const val TAG = "GetRepository"
     }
 
     suspend fun execute(
@@ -33,16 +33,20 @@ class GetRepository(
         // There could be more than one repo, which name can contain requested repo name.
         // For example: en_ulb_mat_txt, custom_en_ulb_mat_text, en_ulb_mat_text_l3, etc.
         // Setting limit to 100 should be enough to cover most of the cases.
-        val repositories = searchRepository.execute(
-            user.id,
-            translation.id,
-            100,
-            onProgress
-        )
+        val repositories = try {
+            searchRepository.execute(
+                user.id,
+                translation.id,
+                100,
+                onProgress
+            )
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to get the list of repositories", e)
+            emptyList()
+        }
 
         return repositories.find {
             it.owner?.username == user.username && it.name == translation.id
-
         }
     }
 }

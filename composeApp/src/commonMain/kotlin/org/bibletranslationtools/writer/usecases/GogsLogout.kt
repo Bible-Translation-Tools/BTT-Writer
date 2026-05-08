@@ -9,6 +9,7 @@ import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 
 class GogsLogout(
@@ -16,6 +17,10 @@ class GogsLogout(
     private val profile: Profile
 ) {
     private lateinit var api: GogsAPI
+
+    companion object {
+        private const val TAG = "GogsLogout"
+    }
 
     suspend fun execute() {
         val apiUrl = preference.getPref(
@@ -52,9 +57,11 @@ class GogsLogout(
         val deleted = api.deleteToken(tokenId, user)
         if (!deleted) {
             val response = api.getLastResponse()
+            val code = response?.code ?: -1
+            val message = response?.message.ifNotNullOrEmpty { " message: $it" }
             Logger.w(
-                GogsLogin::class.java.name,
-                "Delete access token - gogs api responded with code " + response?.code
+                TAG,
+                "Delete access token - gogs api responded with code $code $message"
             )
         }
     }

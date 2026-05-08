@@ -68,3 +68,7 @@ object StringUtilities {
         return pieces
     }
 }
+
+inline fun <T : CharSequence> T?.ifNotNullOrEmpty(block: (T) -> String): String {
+    return if (!this.isNullOrEmpty()) block(this) else ""
+}

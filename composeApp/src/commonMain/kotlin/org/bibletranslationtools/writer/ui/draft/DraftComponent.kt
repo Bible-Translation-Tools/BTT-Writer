@@ -79,7 +79,7 @@ class DefaultDraftComponent(
     KoinComponent, ComponentScope, ProgressOwner {
 
     companion object {
-        val TAG = DraftComponent::javaClass.name
+        private const val TAG = "DraftComponent"
     }
 
     private val translator: Translator by inject()

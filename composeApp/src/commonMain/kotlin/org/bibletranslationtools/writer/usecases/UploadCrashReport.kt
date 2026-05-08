@@ -12,7 +12,7 @@ class UploadCrashReport(
     private val preference: Preference
 ) {
     companion object {
-        val TAG = UploadCrashReport::javaClass.name
+        private const val TAG = "UploadCrashReport"
     }
 
     suspend fun execute(message: String): Boolean {

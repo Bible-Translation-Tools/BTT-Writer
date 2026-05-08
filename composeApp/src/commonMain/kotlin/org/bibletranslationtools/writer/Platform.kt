@@ -81,7 +81,7 @@ interface Platform {
     }
 
     companion object {
-        val TAG = Platform::javaClass.name
+        private const val TAG = "Platform"
 
         const val KB: Long = 1024
         const val MB: Long = KB * KB

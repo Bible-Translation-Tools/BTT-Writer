@@ -898,7 +898,7 @@ class ImportUsfmSession internal constructor(
     )
 
     companion object {
-        private val TAG: String = ImportUsfmSession::class.java.simpleName
+        private const val TAG = "ImportUsfmSession"
 
         private const val CHAPTER_TITLE_MARKER = "\\\\cl\\s([^\\n]*)"
         val PATTERN_CHAPTER_TITLE_MARKER: Pattern = Pattern.compile(CHAPTER_TITLE_MARKER)

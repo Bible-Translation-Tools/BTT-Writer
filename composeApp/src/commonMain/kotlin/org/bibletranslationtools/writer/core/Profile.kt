@@ -133,7 +133,7 @@ class Profile(
     }
 
     companion object {
-        val TAG = Profile::javaClass.name
+        private const val TAG = "Profile"
         private const val SERIAL_VERSION_UID = 0L
 
         /**

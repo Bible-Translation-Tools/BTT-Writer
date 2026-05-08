@@ -13,7 +13,7 @@ class TranslationProgress(
     private val preference: Preference
 ) {
     companion object {
-        val TAG = TranslationProgress::javaClass.name
+        private const val TAG = "TranslationProgress"
     }
 
     fun execute(targetTranslation: TargetTranslation): Float {

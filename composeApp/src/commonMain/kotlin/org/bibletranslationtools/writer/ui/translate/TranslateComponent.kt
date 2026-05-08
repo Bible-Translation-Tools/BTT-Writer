@@ -199,7 +199,7 @@ class DefaultTranslateComponent(
     ComponentScope, ProgressOwner, KoinComponent {
 
     companion object {
-        val TAG = TranslateComponent::javaClass.name
+        private const val TAG = "TranslateComponent"
     }
 
     private val translator: Translator by inject()

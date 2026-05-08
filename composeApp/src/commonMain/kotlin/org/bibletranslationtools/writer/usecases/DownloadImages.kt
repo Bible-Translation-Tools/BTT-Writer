@@ -106,7 +106,7 @@ class DownloadImages(private val directoryProvider: DirectoryProvider) {
     }
 
     companion object {
-        val TAG: String = DownloadImages::class.java.name
+        private const val TAG = "DownloadImages"
         private const val IMAGES_URL = "https://cdn.unfoldingword.org/obs/jpg/obs-images-360px.zip"
         const val TOTAL_FILE_COUNT: Int = 598
     }

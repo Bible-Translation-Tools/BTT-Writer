@@ -10,7 +10,7 @@ class ManifestAccessor(private val manifestFile: File) {
         private set
 
     companion object {
-        val TAG = ManifestAccessor::javaClass.name
+        private const val TAG = "ManifestAccessor"
     }
 
     /**

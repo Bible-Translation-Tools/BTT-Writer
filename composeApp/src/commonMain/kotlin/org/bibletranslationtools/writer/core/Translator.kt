@@ -301,7 +301,7 @@ class Translator (
     }
 
     companion object {
-        val TAG = Translator::javaClass.name
+        private const val TAG = "Translator"
         const val TSTUDIO_EXTENSION = "tstudio"
         const val ZIP_EXTENSION = "zip"
         const val USFM_EXTENSION = "usfm"

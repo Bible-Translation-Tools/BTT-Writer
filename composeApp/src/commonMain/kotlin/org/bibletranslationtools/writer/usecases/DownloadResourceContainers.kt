@@ -10,7 +10,7 @@ class DownloadResourceContainers(
     private val catalogClient: ResourceCatalogClient
 ) {
     companion object {
-        val TAG = DownloadResourceContainers::javaClass.name
+        private const val TAG = "DownloadResourceContainers"
     }
 
     data class Result(

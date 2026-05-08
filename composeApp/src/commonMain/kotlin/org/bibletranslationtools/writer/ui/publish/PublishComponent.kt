@@ -111,7 +111,7 @@ class DefaultPublishComponent(
     KoinComponent, ComponentScope {
 
     companion object {
-        val TAG = PublishComponent::javaClass.name
+        private const val TAG = "PublishComponent"
     }
 
     private val translator: Translator by inject()

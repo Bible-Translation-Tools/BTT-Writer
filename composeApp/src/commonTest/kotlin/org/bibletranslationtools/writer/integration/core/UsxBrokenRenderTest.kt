@@ -187,6 +187,6 @@ class UsxBrokenRenderTest : BaseIntegrationTest() {
     }
 
     companion object {
-        val TAG: String = UsxBrokenRenderTest::class.java.simpleName
+        private const val TAG = "UsxBrokenRenderTest"
     }
 }

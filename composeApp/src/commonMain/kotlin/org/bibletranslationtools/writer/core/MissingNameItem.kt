@@ -7,10 +7,6 @@ data class MissingNameItem(
     val description: String?,
     val invalidName: String?,
     val contents: String?
-) {
-    companion object {
-        val TAG: String = MissingNameItem::class.java.simpleName
-    }
-}
+)
 
 

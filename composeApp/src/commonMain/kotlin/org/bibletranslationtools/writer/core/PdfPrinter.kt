@@ -839,7 +839,7 @@ class PdfPrinter(
     )
 
     companion object {
-        val TAG = PdfPrinter::javaClass.name
+        private const val TAG = "PdfPrinter"
 
         private const val PAGE_NUMBER_FONT_SIZE = 10f
         private const val DEFAULT_INDENT_SPACING = 16f

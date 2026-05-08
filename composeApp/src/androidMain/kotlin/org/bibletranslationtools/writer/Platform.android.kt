@@ -41,7 +41,7 @@ class AndroidPlatform(
 ) : Platform {
 
     companion object {
-        val TAG = AndroidPlatform::javaClass.name
+        private const val TAG = "AndroidPlatform"
     }
 
     override val info: AppInfo

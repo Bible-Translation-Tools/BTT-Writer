@@ -106,7 +106,7 @@ class Repo(repositoryPath: String) {
     }
 
     companion object {
-        val TAG = Repo::javaClass.name
+        private const val TAG = "Repo"
         private var numRepos = 0
 
         /**

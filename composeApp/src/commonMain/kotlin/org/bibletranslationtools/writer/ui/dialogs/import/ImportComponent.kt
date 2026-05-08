@@ -4,6 +4,7 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.cloning_repository
 import btt_writer.composeapp.generated.resources.could_not_import
 import btt_writer.composeapp.generated.resources.error
+import btt_writer.composeapp.generated.resources.failed_search_repositories
 import btt_writer.composeapp.generated.resources.import_failed
 import btt_writer.composeapp.generated.resources.import_from_door43
 import btt_writer.composeapp.generated.resources.import_from_storage
@@ -119,7 +120,7 @@ class DefaultImportComponent(
     ComponentScope, ProgressOwner, KoinComponent {
 
     companion object {
-        val TAG = ImportComponent::javaClass.name
+        private const val TAG = "ImportComponent"
     }
 
     private val translator: Translator by inject()
@@ -219,10 +220,23 @@ class DefaultImportComponent(
 
     override fun searchRepositories(user: String, repo: String) {
         launchWithProgress(Res.string.searching_repositories) { handle ->
-            val result = withContext(Dispatchers.IO) {
-                advancedGogsRepoSearch.execute(user, repo, 50) { progress, message ->
-                    handle.update(progress, message)
-                }.map { mapRepository(it) }
+            val result = try {
+                withContext(Dispatchers.IO) {
+                    advancedGogsRepoSearch.execute(
+                        userQuery = user,
+                        repoQuery = repo,
+                        limit = 50
+                    ) { progress, message ->
+                        handle.update(progress, message)
+                    }.map { mapRepository(it) }
+                }
+            } catch (e: Exception) {
+                Logger.e(TAG, "Failed to fetch repositories", e)
+                updateResult(
+                    getString(Res.string.searching_repositories),
+                    getString(Res.string.failed_search_repositories)
+                )
+                emptyList()
             }
             _state.update { it.copy(repositories = result) }
         }

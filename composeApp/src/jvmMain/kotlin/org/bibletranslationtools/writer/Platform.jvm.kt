@@ -19,12 +19,10 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import kotlin.system.exitProcess
 
-class DesktopPlatform(
-    private val directoryProvider: DirectoryProvider
-) : Platform {
+class DesktopPlatform : Platform {
 
     companion object {
-        val TAG = this::javaClass.name
+        private const val TAG = "DesktopPlatform"
     }
 
     private val systemInfo = SystemInfo()

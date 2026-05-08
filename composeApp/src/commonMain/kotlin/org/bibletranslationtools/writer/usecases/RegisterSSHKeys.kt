@@ -13,6 +13,7 @@ import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.utils.FileUtilities
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 import java.io.IOException
 
@@ -23,7 +24,7 @@ class RegisterSSHKeys(
     private val platform: Platform
 ) {
     companion object {
-        val TAG = RegisterSSHKeys::javaClass.name
+        private const val TAG = "RegisterSSHKeys"
     }
 
     suspend fun execute(
@@ -73,9 +74,11 @@ class RegisterSSHKeys(
                 return true
             } else {
                 val response = api.getLastResponse()
+                val code = response?.code ?: -1
+                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
                 Logger.w(
                     TAG,
-                    "Failed to register the public key. Gogs responded with " + response?.code + ": " + response?.message
+                    "Failed to register the public key. Gogs responded with $code $message"
                 )
             }
         }

@@ -21,7 +21,7 @@ class ImportIndex(
     private val catalogClient: ResourceCatalogClient
 ) {
     companion object {
-        val TAG = ImportIndex::javaClass.name
+        private const val TAG = "ImportIndex"
     }
 
     @Suppress("DefaultLocale")
@@ -54,7 +54,8 @@ class ImportIndex(
                 }
             }
             true
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Logger.e(TAG, "Failed to download index.sqlite file", e)
             false
         } finally {
             catalogClient.openLibrary()
@@ -78,7 +79,7 @@ class ImportIndex(
                 }
             }
         } catch (e: Exception) {
-            Logger.e(TAG, "Failed to import index", e)
+            Logger.e(TAG, "Failed to import index.sqlite file", e)
             false
         } finally {
             catalogClient.openLibrary()

@@ -10,6 +10,7 @@ import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 
 class CreateRepository(
@@ -17,7 +18,7 @@ class CreateRepository(
     private val profile: Profile
 ) {
     companion object {
-        val TAG = CreateRepository::javaClass.name
+        private const val TAG = "CreateRepository"
     }
 
     suspend fun execute(
@@ -44,9 +45,12 @@ class CreateRepository(
             if (created || alreadyExists) {
                 return true
             } else {
+                val id = targetTranslation.id
+                val code = response?.code ?: -1
+                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
                 Logger.w(
                     TAG,
-                    "Failed to create repository " + targetTranslation.id + ". Gogs responded with " + response?.code + ": " + response?.message
+                    "Failed to create repository $id. Gogs responded with code $code $message"
                 )
             }
         }

@@ -241,7 +241,7 @@ class ArchiveDetails private constructor(
     }
 
     companion object {
-        val TAG = ArchiveDetails::javaClass.name
+        private const val TAG = "ArchiveDetails"
         const val MANIFEST_JSON: String = "manifest.json"
 
         val archiveJson = Json {

@@ -57,7 +57,7 @@ class CheckForLatestRelease(
     }
 
     companion object {
-        val TAG: String = CheckForLatestRelease::class.java.simpleName
+        private const val TAG = "CheckForLatestRelease"
     }
 
     data class Release(

@@ -18,7 +18,7 @@ class CloneRepository(
 ) {
 
     companion object {
-        val TAG = CloneRepository::javaClass.name
+        private const val TAG = "CloneRepository"
     }
 
     suspend fun execute(

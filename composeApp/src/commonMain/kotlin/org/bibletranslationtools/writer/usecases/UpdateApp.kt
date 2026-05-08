@@ -25,7 +25,7 @@ class UpdateApp(
     private var updateLibrary = true
 
     companion object {
-        val TAG = UpdateApp::javaClass.name
+        private const val TAG = "UpdateApp"
     }
 
     suspend fun execute(onProgress: (Float, String?) -> Unit = {_,_->}) {

@@ -378,7 +378,7 @@ class ExportProjects(
     }
 
     companion object {
-        val TAG = ExportProjects::javaClass.name
+        private const val TAG = "ExportProjects"
         private const val GENERATOR_NAME = "ts-android"
         private const val TSTUDIO_PACKAGE_VERSION = 2
 

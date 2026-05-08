@@ -11,7 +11,7 @@ class MergeTargetTranslation(
     private val preference: Preference
 ) {
     companion object {
-        val TAG = MergeTargetTranslation::javaClass.name
+        private const val TAG = "MergeTargetTranslation"
     }
 
     data class Result(

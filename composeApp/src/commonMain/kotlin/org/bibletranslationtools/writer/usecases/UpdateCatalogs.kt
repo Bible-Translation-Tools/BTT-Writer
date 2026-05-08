@@ -17,7 +17,7 @@ class UpdateCatalogs(
     data class Result(val success: Boolean, val addedCount: Int)
 
     companion object {
-        val TAG = UpdateCatalogs::javaClass.name
+        private const val TAG = "UpdateCatalogs"
     }
 
     suspend fun execute(

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  * This should usually only be used to load source containers since they will not change very often.
  */
 object ContainerCache {
-    val TAG = ContainerCache::javaClass.name
+    private const val TAG = "ContainerCache"
 
     /**
      * A map of cached containers

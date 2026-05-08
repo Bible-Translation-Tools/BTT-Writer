@@ -7,11 +7,13 @@ import org.bibletranslationtools.gogsclient.GogsAPI
 import org.bibletranslationtools.gogsclient.Repository
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.utils.ifNotNullOrEmpty
 import org.jetbrains.compose.resources.getString
 
 class SearchGogsRepositories(
     private val preference: Preference
 ) {
+    @Throws(Exception::class)
     suspend fun execute(
         uid: Int,
         query: String,
@@ -31,10 +33,25 @@ class SearchGogsRepositories(
             userAgent = getString(Res.string.gogs_user_agent)
         )
         val repos = api.searchRepos(repoQuery, uid, limit)
+        val response = api.getLastResponse()
+
+        if (response?.success == false) {
+            val code = response.code
+            val message = response.message.ifNotNullOrEmpty { " message: $it" }
+            throw Exception("Failed to get the list of repos. Gogs responded with code $code $message")
+        }
 
         // fetch additional information about the repos (clone urls)
         for (repo in repos) {
             val extraRepo = api.getRepo(repo, null)
+            val response = api.getLastResponse()
+
+            if (response?.success == false) {
+                val code = response.code
+                val message = response.message.ifNotNullOrEmpty { " message: $it" }
+                throw Exception("Failed to get the repo info. Gogs responded with code $code $message")
+            }
+
             if (extraRepo != null) {
                 repositories.add(extraRepo)
             }

@@ -98,7 +98,7 @@ class DefaultSelectSourcesComponent(
     KoinComponent, ComponentScope, ProgressOwner {
 
     companion object {
-        val TAG = SelectSourcesComponent::javaClass.name
+        private const val TAG = "SelectSourcesComponent"
     }
 
     private val catalogClient: ResourceCatalogClient by inject()

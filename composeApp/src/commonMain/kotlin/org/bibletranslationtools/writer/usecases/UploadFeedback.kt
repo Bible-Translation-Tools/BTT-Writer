@@ -13,7 +13,7 @@ class UploadFeedback(
     private val directoryProvider: DirectoryProvider
 ) {
     companion object {
-        val TAG = UploadFeedback::javaClass.name
+        private const val TAG = "UploadFeedback"
     }
 
     /**

@@ -5,7 +5,7 @@ import org.bibletranslationtools.writer.core.TargetTranslation
 import java.io.File
 
 object RepoUtils {
-    val TAG = RepoUtils::javaClass.name
+    private const val TAG = "RepoUtils"
 
     /**
      * Attempts to recover from a corrupt git history.

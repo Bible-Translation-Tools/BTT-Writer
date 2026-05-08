@@ -10,7 +10,7 @@ class ShortReferenceSpan(reference: String) : Span(reference, reference) {
     val verse: String
 
     companion object {
-        val TAG = ShortReferenceSpan::javaClass.name
+        private const val TAG = "ShortReferenceSpan"
         val PATTERN: Pattern = Pattern.compile("\\b(\\d+):(\\d+)\\b")
     }
 

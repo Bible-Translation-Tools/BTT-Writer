@@ -87,7 +87,7 @@ class DefaultReviewModeComponent(
     ProgressOwner, ModeComponent<ReviewItem> {
 
     companion object {
-        val TAG = ReviewModeComponent::javaClass.name
+        private const val TAG = "ReviewModeComponent"
     }
 
     private val preference: Preference by inject()

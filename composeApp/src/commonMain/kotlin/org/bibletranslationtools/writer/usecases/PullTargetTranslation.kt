@@ -14,7 +14,6 @@ import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.errors.NoRemoteRepositoryException
 import org.eclipse.jgit.merge.MergeStrategy
 import org.jetbrains.compose.resources.getString
-import java.io.IOException
 
 class PullTargetTranslation(
     private val getRepository: GetRepository,
@@ -22,7 +21,7 @@ class PullTargetTranslation(
     private val transportCallback: TransportCallback
 ) {
     companion object {
-        val TAG = PullTargetTranslation::javaClass.name
+        const val TAG = "PullTargetTranslation"
     }
 
     data class Result(

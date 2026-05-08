@@ -97,7 +97,7 @@ class DefaultDevToolsComponent(
     KoinComponent, ProgressOwner, ComponentScope {
 
     companion object {
-        val TAG = DevToolsComponent::javaClass.name
+        private const val TAG = "DevToolsComponent"
     }
 
     private val directoryProvider: DirectoryProvider by inject()

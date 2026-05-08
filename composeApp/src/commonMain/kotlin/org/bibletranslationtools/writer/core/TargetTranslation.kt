@@ -693,26 +693,10 @@ class TargetTranslation private constructor(
     }
 
     companion object {
-        val TAG: String = TargetTranslation::class.java.simpleName
+        private const val TAG = "TargetTranslation"
         const val PACKAGE_VERSION = 8
         const val LICENSE_FILE = "LICENSE.md"
 
-        private const val FIELD_PARENT_DRAFT = "parent_draft"
-        private const val FIELD_FINISHED_CHUNKS = "finished_chunks"
-        private const val FIELD_TRANSLATORS = "translators"
-
-        const val FIELD_MANIFEST_TARGET_LANGUAGE = "target_language"
-        const val FIELD_MANIFEST_FORMAT = "format"
-        const val FIELD_MANIFEST_RESOURCE = "resource"
-        const val FIELD_SOURCE_TRANSLATIONS = "source_translations"
-        const val FIELD_MANIFEST_PACKAGE_VERSION = "package_version"
-        const val FIELD_MANIFEST_PROJECT = "project"
-        const val FIELD_MANIFEST_GENERATOR = "generator"
-        const val FIELD_MANIFEST_TRANSLATION_TYPE = "type"
-        const val FIELD_TRANSLATION_FORMAT = "format"
-        const val FIELD_MANIFEST_ID = "id"
-        const val FIELD_MANIFEST_NAME = "name"
-        const val FIELD_MANIFEST_BUILD = "build"
         const val APPLICATION_NAME = "ts-android"
         const val OBS_PROJECT_TYPE = "obs"
 
