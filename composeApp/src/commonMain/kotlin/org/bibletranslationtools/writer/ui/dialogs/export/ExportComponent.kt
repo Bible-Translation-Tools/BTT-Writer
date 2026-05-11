@@ -483,7 +483,7 @@ class DefaultExportComponent(
             result.status == PushTargetTranslation.Status.OK -> {
                 Logger.i(
                     TAG,
-                    "The target translation " + targetTranslation.id + " was pushed to the server"
+                    "The target translation ${targetTranslation.id} was pushed to the server"
                 )
                 reportUploadSuccess(result.message)
             }
@@ -538,7 +538,7 @@ class DefaultExportComponent(
         if (created) {
             Logger.i(
                 TAG,
-                "A new repository " + targetTranslation.id + " was created on the server"
+                "A new repository ${targetTranslation.id} was created on the server"
             )
             pullTargetTranslation(MergeStrategy.RECURSIVE, handle)
         } else {

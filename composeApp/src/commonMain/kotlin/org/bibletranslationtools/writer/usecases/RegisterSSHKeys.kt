@@ -75,10 +75,10 @@ class RegisterSSHKeys(
             } else {
                 val response = api.getLastResponse()
                 val code = response?.code ?: -1
-                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+                val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
                 Logger.w(
                     TAG,
-                    "Failed to register the public key. Gogs responded with $code $message"
+                    "Failed to register the public key. Gogs responded with $code$message"
                 )
             }
         }

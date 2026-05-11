@@ -58,10 +58,10 @@ class GogsLogout(
         if (!deleted) {
             val response = api.getLastResponse()
             val code = response?.code ?: -1
-            val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+            val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
             Logger.w(
                 TAG,
-                "Delete access token - gogs api responded with code $code $message"
+                "Delete access token - gogs api responded with code $code$message"
             )
         }
     }

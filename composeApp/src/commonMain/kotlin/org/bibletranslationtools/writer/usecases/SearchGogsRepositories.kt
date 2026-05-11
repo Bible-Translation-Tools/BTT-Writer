@@ -37,8 +37,8 @@ class SearchGogsRepositories(
 
         if (response?.success == false) {
             val code = response.code
-            val message = response.message.ifNotNullOrEmpty { " message: $it" }
-            throw Exception("Failed to get the list of repos. Gogs responded with code $code $message")
+            val message = response.message.ifNotNullOrEmpty { ", message: $it" }
+            throw Exception("Failed to get the list of repos. Gogs responded with code $code$message")
         }
 
         // fetch additional information about the repos (clone urls)
@@ -48,8 +48,8 @@ class SearchGogsRepositories(
 
             if (response?.success == false) {
                 val code = response.code
-                val message = response.message.ifNotNullOrEmpty { " message: $it" }
-                throw Exception("Failed to get the repo info. Gogs responded with code $code $message")
+                val message = response.message.ifNotNullOrEmpty { ", message: $it" }
+                throw Exception("Failed to get the repo info. Gogs responded with code $code$message")
             }
 
             if (extraRepo != null) {

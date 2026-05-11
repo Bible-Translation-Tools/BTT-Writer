@@ -38,8 +38,8 @@ class SearchGogsUsers(
 
         if (response?.success == false) {
             val code = response.code
-            val message = response.message.ifNotNullOrEmpty { " message: $it" }
-            throw Exception("Failed to get the list of users. Gogs responded with code $code $message")
+            val message = response.message.ifNotNullOrEmpty { ", message: $it" }
+            throw Exception("Failed to get the list of users. Gogs responded with code $code$message")
         }
 
         return users

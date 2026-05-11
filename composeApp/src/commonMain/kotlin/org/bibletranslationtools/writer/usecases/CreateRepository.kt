@@ -47,10 +47,10 @@ class CreateRepository(
             } else {
                 val id = targetTranslation.id
                 val code = response?.code ?: -1
-                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+                val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
                 Logger.w(
                     TAG,
-                    "Failed to create repository $id. Gogs responded with code $code $message"
+                    "Failed to create repository $id. Gogs responded with code $code$message"
                 )
             }
         }

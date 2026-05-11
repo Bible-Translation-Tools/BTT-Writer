@@ -53,10 +53,10 @@ class GogsLogin(
             if (user.token == null) {
                 val response = api.getLastResponse()
                 val code = response?.code ?: -1
-                val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+                val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
                 Logger.w(
                     GogsLogin::class.java.name,
-                    "gogs api responded with code $code $message"
+                    "gogs api responded with code $code$message"
                 )
                 return LoginResult(null)
             }
@@ -68,10 +68,10 @@ class GogsLogin(
                 if (updatedUser == null) {
                     val response = api.getLastResponse()
                     val code = response?.code ?: -1
-                    val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+                    val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
                     Logger.w(
                         GogsLogin::class.java.name,
-                        "The full_name could not be updated gogs api responded with $code $message"
+                        "The full_name could not be updated gogs api responded with $code$message"
                     )
                 }
             }
@@ -99,10 +99,10 @@ class GogsLogin(
         if (!deleted) {
             val response = api.getLastResponse()
             val code = response?.code ?: -1
-            val message = response?.message.ifNotNullOrEmpty { " message: $it" }
+            val message = response?.message.ifNotNullOrEmpty { ", message: $it" }
             Logger.w(
                 GogsLogin::class.java.name,
-                "Delete access token - gogs api responded with code $code $message"
+                "Delete access token - gogs api responded with code $code$message"
             )
         }
     }

@@ -22,7 +22,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +45,7 @@ import btt_writer.composeapp.generated.resources.sort_progress_then_project
 import btt_writer.composeapp.generated.resources.sort_project_then_language
 import btt_writer.composeapp.generated.resources.sort_projects
 import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.components.PlatformPullToRefresh
 import org.bibletranslationtools.writer.ui.dialogs.project.ProjectDetailsDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -129,7 +129,7 @@ fun TranslationListScreen(
             }
         }
 
-        PullToRefreshBox(
+        PlatformPullToRefresh(
             isRefreshing = progress != null,
             onRefresh = component::loadProjects
         ) {
