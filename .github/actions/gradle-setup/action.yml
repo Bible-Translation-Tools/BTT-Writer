@@ -1,5 +1,5 @@
 name: gradle-setup
-description: Setup Java and Gradle
+description: Setup Java and Gradle, refresh bundled resources
 runs:
   using: "composite"
   steps:
@@ -10,3 +10,10 @@ runs:
         distribution: "temurin"
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v5.0.0
+    - name: Refresh bundled resources
+      shell: bash
+      run: |
+        DIR=composeApp/src/commonMain/composeResources/files
+        BASE=https://writer-resources.bibletranslationtools.org
+        curl -fsSL -o "$DIR/containers.zip" "$BASE/containers.zip"
+        curl -fsSL -o "$DIR/index.sqlite" "$BASE/index.sqlite"
