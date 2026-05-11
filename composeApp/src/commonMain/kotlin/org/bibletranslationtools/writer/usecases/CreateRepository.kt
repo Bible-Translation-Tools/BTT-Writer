@@ -40,7 +40,7 @@ class CreateRepository(
             val response = api.getLastResponse()
 
             val alreadyExists = response?.code == 409
-            val created = repo != null && response?.success == true
+            val created = repo != null
 
             if (created || alreadyExists) {
                 return true
