@@ -67,6 +67,7 @@ class UpdateApp(
             try {
                 catalogClient.closeLibrary()
                 directoryProvider.deleteLibrary()
+                directoryProvider.clearCache()
             } catch (e: Exception) {
                 Logger.w(TAG, "Failed to delete library: ${e.message}")
             }
