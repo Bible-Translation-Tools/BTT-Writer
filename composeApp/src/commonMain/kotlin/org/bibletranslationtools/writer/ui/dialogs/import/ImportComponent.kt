@@ -182,7 +182,7 @@ class DefaultImportComponent(
                     val dirName = file.displayName
                     updateResult(
                         getString(Res.string.success),
-                        getString(Res.string.import_success) + " $dirName"
+                        getString(Res.string.import_success, dirName)
                     )
                 }
                 result.hasConflict -> {
@@ -551,8 +551,7 @@ class DefaultImportComponent(
             } else getString(Res.string.import_from_storage)
             updateResult(
                 title,
-                getString(Res.string.import_success) +
-                        "\n${result.translation.id}"
+                getString(Res.string.import_success, result.translation.id)
             )
         }
     }
