@@ -126,3 +126,56 @@ jobs:
           source-dir: composeApp/build/compose/binaries/main/deb
           extension: deb
           platform-suffix: linux
+
+  publish:
+    name: Publish artifacts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs:
+      - build-android
+      - build-desktop-macos
+      - build-desktop-windows
+      - build-desktop-linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: btt-writer-*
+          merge-multiple: true
+
+      - name: Read app version
+        id: app-version
+        run: |
+          versionName=$(grep -E '^app-version-name' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          versionCode=$(grep -E '^app-version-code' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version-name=$versionName" >> "$GITHUB_OUTPUT"
+          echo "version-code=$versionCode" >> "$GITHUB_OUTPUT"
+
+      - name: Set S3 destination
+        run: echo "CURRENT_S3_DESTINATION=${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.ref_name }}/${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Set release tag
+        if: github.ref == 'refs/heads/default'
+        run: echo "GIT_RELEASE_TAG=v${{ steps.app-version.outputs.version-name }}+${{ steps.app-version.outputs.version-code }}" >> $GITHUB_ENV
+
+      - name: Upload artifacts to S3
+        uses: shallwefootball/s3-upload-action@v1.1.3
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: ./release
+          destination_dir: ${{ env.CURRENT_S3_DESTINATION }}
+
+      - name: Publish GitHub release
+        if: github.ref == 'refs/heads/default'
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          automatic_release_tag: ${{ env.GIT_RELEASE_TAG }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          files: release/*.*
