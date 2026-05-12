@@ -498,7 +498,9 @@ class TargetTranslation private constructor(
         // perform merge
         val merge = repo.git.merge()
         merge.setFastForward(MergeCommand.FastForwardMode.NO_FF)
-        merge.include(repo.git.repository.findRef("new"))
+        repo.git.repository.findRef("new")?.let {
+            merge.include(it)
+        }
         val result = merge.call()
 
         // merge manifests

@@ -54,7 +54,6 @@ class Preference(private val settings: ObservableSettings) {
         const val KEY_PREF_CREATE_ACCOUNT_URL = "create_account_url"
         const val KEY_PREF_COLOR_THEME = "color_theme"
         const val KEY_PREF_CONTENT_SERVER = "content_server"
-        const val KEY_PREF_GIT_SERVER_PORT = "git_server_port"
         const val KEY_PREF_TM_URL = "tm_url"
         const val KEY_PREF_CHECK_HARDWARE = "check_hardware_requirements"
         const val KEY_PREF_ENABLE_TM_LINKS = "enable_tm_links"

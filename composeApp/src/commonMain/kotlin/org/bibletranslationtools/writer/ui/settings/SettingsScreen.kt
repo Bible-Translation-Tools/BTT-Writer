@@ -50,7 +50,6 @@ import btt_writer.composeapp.generated.resources.statement_of_faith
 import btt_writer.composeapp.generated.resources.title_color_theme
 import btt_writer.composeapp.generated.resources.title_create_account_url
 import btt_writer.composeapp.generated.resources.title_developer_tools
-import btt_writer.composeapp.generated.resources.title_git_server_port
 import btt_writer.composeapp.generated.resources.title_gogs_api
 import btt_writer.composeapp.generated.resources.title_index_sqlite_url
 import btt_writer.composeapp.generated.resources.title_language_url
@@ -94,7 +93,6 @@ fun SettingsScreen(
     var showSourceFontSizeDialog by rememberSaveable { mutableStateOf(false) }
 
     var showContentServerDialog by rememberSaveable { mutableStateOf(false) }
-    var showGitPortDialog by rememberSaveable { mutableStateOf(false) }
     var showMediaServerUrlDialog by rememberSaveable { mutableStateOf(false) }
     var showReaderServerUrlDialog by rememberSaveable { mutableStateOf(false) }
     var showAccountCreationUrlDialog by rememberSaveable { mutableStateOf(false) }
@@ -227,16 +225,6 @@ fun SettingsScreen(
                     title = stringResource(Res.string.content_server),
                     summary = state.currentContentServerName,
                     onClick = { showContentServerDialog = true }
-                )
-            }
-
-            item { HorizontalDivider() }
-
-            item {
-                ClickablePreference(
-                    title = stringResource(Res.string.title_git_server_port),
-                    summary = state.gitServerPort,
-                    onClick = { showGitPortDialog = true }
                 )
             }
 
@@ -531,18 +519,6 @@ fun SettingsScreen(
                 showContentServerDialog = false
             },
             onDismissRequest = { showContentServerDialog = false }
-        )
-    }
-
-    if (showGitPortDialog) {
-        EditTextPreferenceDialog(
-            title = stringResource(Res.string.title_git_server_port),
-            initialValue = state.gitServerPort,
-            onValueSaved = { newValue ->
-                component.updateGitServerPort(newValue)
-                showGitPortDialog = false
-            },
-            onDismissRequest = { showGitPortDialog = false }
         )
     }
 

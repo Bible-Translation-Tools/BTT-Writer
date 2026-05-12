@@ -5,7 +5,6 @@ import btt_writer.composeapp.generated.resources.backup_intervals_values_array
 import btt_writer.composeapp.generated.resources.checking_for_updates
 import btt_writer.composeapp.generated.resources.content_server_account_create_urls_array
 import btt_writer.composeapp.generated.resources.content_server_git_server_api_values_array
-import btt_writer.composeapp.generated.resources.content_server_git_server_port_values_array
 import btt_writer.composeapp.generated.resources.content_server_index_sqlite_url_array
 import btt_writer.composeapp.generated.resources.content_server_lang_names_url_array
 import btt_writer.composeapp.generated.resources.content_server_media_server_values_array
@@ -20,7 +19,6 @@ import btt_writer.composeapp.generated.resources.pref_color_theme_titles
 import btt_writer.composeapp.generated.resources.pref_default_backup_interval
 import btt_writer.composeapp.generated.resources.pref_default_color_theme
 import btt_writer.composeapp.generated.resources.pref_default_create_account_url
-import btt_writer.composeapp.generated.resources.pref_default_git_server_port
 import btt_writer.composeapp.generated.resources.pref_default_gogs_api
 import btt_writer.composeapp.generated.resources.pref_default_index_sqlite_url
 import btt_writer.composeapp.generated.resources.pref_default_language_url
@@ -92,7 +90,6 @@ interface SettingsComponent {
     fun updateSourceTypeface(newValue: String)
     fun updateSourceFontSize(newValue: String)
     fun onContentServerChanged(newValue: String)
-    fun updateGitServerPort(newValue: String)
     fun updateGogsApiUrl(newValue: String)
     fun updateMediaServerUrl(newValue: String)
     fun updateReaderServerUrl(newValue: String)
@@ -135,7 +132,6 @@ interface SettingsComponent {
         val currentGogsApiUrl: String = "",
         val currentContentServerValue: String = "",
         val currentContentServerName: String = "",
-        val gitServerPort: String = "",
         val mediaServerUrl: String = "",
         val readerServerUrl: String = "",
         val accountCreationUrl: String = "",
@@ -266,10 +262,6 @@ class DefaultSettingsComponent(
             )
             val savedIndex = serverValues.indexOf(savedServerValue).takeIf { it >= 0 } ?: 0
             val savedServerName = serverNames.getOrNull(savedIndex) ?: ""
-            val gitPort = preference.getPref(
-                Preference.KEY_PREF_GIT_SERVER_PORT,
-                getString(Res.string.pref_default_git_server_port)
-            )
             val gogsApiUrl = preference.getPref(
                 Preference.KEY_PREF_GOGS_API,
                 getString(Res.string.pref_default_gogs_api)
@@ -346,7 +338,6 @@ class DefaultSettingsComponent(
                     contentServerValues = serverValues,
                     currentContentServerValue = savedServerValue,
                     currentContentServerName = savedServerName,
-                    gitServerPort = gitPort,
                     currentGogsApiUrl = gogsApiUrl,
                     mediaServerUrl = mediaServerUrl,
                     readerServerUrl = readerServerUrl,
@@ -491,11 +482,6 @@ class DefaultSettingsComponent(
         }
     }
 
-    override fun updateGitServerPort(newValue: String) {
-        preference.setPref(Preference.KEY_PREF_GIT_SERVER_PORT, newValue)
-        _state.update { it.copy(gitServerPort = newValue) }
-    }
-
     override fun updateGogsApiUrl(newValue: String) {
         preference.setPref(Preference.KEY_PREF_GOGS_API, newValue)
         _state.update { it.copy(currentGogsApiUrl = newValue) }
@@ -580,7 +566,6 @@ class DefaultSettingsComponent(
         coroutineScope.launch {
             val serverValues = getStringArray(Res.array.content_server_values_array)
             val serverNames = getStringArray(Res.array.content_server_names_array)
-            val gitPorts = getStringArray(Res.array.content_server_git_server_port_values_array)
             val gitApiUrls = getStringArray(Res.array.content_server_git_server_api_values_array)
             val mediaUrls = getStringArray(Res.array.content_server_media_server_values_array)
             val readerUrls = getStringArray(Res.array.content_server_reader_server_values_array)
@@ -592,7 +577,6 @@ class DefaultSettingsComponent(
             if (index == -1) return@launch
 
             preference.setPref(Preference.KEY_PREF_CONTENT_SERVER, newValue)
-            preference.setPref(Preference.KEY_PREF_GIT_SERVER_PORT, gitPorts[index])
             preference.setPref(Preference.KEY_PREF_GOGS_API, gitApiUrls[index])
             preference.setPref(Preference.KEY_PREF_MEDIA_SERVER, mediaUrls[index])
             preference.setPref(Preference.KEY_PREF_READER_SERVER, readerUrls[index])
@@ -604,7 +588,6 @@ class DefaultSettingsComponent(
                 state.copy(
                     currentContentServerValue = newValue,
                     currentContentServerName = serverNames[index],
-                    gitServerPort = gitPorts[index],
                     mediaServerUrl = mediaUrls[index],
                     currentGogsApiUrl = gitApiUrls[index],
                     readerServerUrl = readerUrls[index],

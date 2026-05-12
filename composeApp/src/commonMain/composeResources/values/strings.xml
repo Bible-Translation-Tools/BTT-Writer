@@ -972,7 +972,6 @@ Do you want to enable SD card access?  If so then:
     <string name="title_auth_server">Authentication Server</string>
     <string name="title_auth_server_port">Authentication Server Port</string>
     <string name="title_git_server">Git Server</string>
-    <string name="title_git_server_port">Git Server Port</string>
     <string name="title_data_server">Data Server</string>
     <string name="title_gogs_api">Git Server API</string>
     <string name="title_media_server">Media Server</string>
