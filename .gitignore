@@ -35,3 +35,7 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 .tmp
+
+# Android signing
+*.jks
+*.keystore

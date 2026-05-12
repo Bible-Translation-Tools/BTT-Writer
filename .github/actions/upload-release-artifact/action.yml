@@ -1,0 +1,41 @@
+name: upload-release-artifact
+description: >
+  Rename a build output to btt-writer-<versionName>+<runNumber>-v<versionCode>[-<suffix>].<ext>
+  and upload it as a workflow artifact.
+inputs:
+  source-dir:
+    description: Directory containing the build output to rename and upload.
+    required: true
+  extension:
+    description: File extension to match and to use in the renamed file (apk, dmg, msi, deb).
+    required: true
+  platform-suffix:
+    description: Platform suffix appended before the extension (e.g. macos, windows, linux, android).
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Rename artifact
+      id: rename
+      shell: bash
+      run: |
+        versionName=$(grep -E '^app-version-name' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+        versionCode=$(grep -E '^app-version-code' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+        buildNumber="${{ github.run_number }}"
+        suffix="${{ inputs.platform-suffix }}"
+        if [ -n "$suffix" ]; then suffix="-$suffix"; fi
+        newName="btt-writer-${versionName}+${buildNumber}-v${versionCode}${suffix}.${{ inputs.extension }}"
+        src=$(find "${{ inputs.source-dir }}" -maxdepth 1 -name "*.${{ inputs.extension }}" | head -n1)
+        if [ -z "$src" ]; then
+          echo "No .${{ inputs.extension }} found in ${{ inputs.source-dir }}" >&2
+          exit 1
+        fi
+        mv "$src" "${{ inputs.source-dir }}/${newName}"
+        echo "name=${newName}" >> "$GITHUB_OUTPUT"
+        echo "path=${{ inputs.source-dir }}/${newName}" >> "$GITHUB_OUTPUT"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.rename.outputs.name }}
+        path: ${{ steps.rename.outputs.path }}
