@@ -13,7 +13,6 @@ plugins {
 
 val versionName = libs.versions.app.version.name.get()
 val versionCode = libs.versions.app.version.code.get()
-val desktopVersion = "$versionName.${versionCode}"
 
 val generateBuildInfo = tasks.register("generateBuildInfo") {
     val outputDir = layout.buildDirectory.dir("generated/buildinfo/kotlin")
@@ -163,11 +162,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "BTT Writer 2.0"
-            packageVersion = desktopVersion
+            packageName = "BTT-Writer-2.0"
+            packageVersion = versionName
             description = "Bible Translation Tools Writer 2.0"
             copyright = "© 2026 Wycliffe Associates"
-            vendor = "unfoldingWord"
+            vendor = "WycliffeAssociates"
 
             modules(
                 "java.instrument",
