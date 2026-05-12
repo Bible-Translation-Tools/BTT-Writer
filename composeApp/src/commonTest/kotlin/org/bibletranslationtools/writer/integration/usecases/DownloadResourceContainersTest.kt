@@ -80,8 +80,8 @@ class DownloadResourceContainersTest : BaseIntegrationTest() {
             "id_bible_tw should be downloaded",
             result.downloadedContainers.map { it.slug }.contains("id_bible_tw")
         )
-        assertFalse(
-            "en_gen_ulb should not be in downloaded translations list",
+        assertTrue(
+            "en_gen_ulb should be in downloaded translations list",
             result.downloadedTranslations.contains("en_gen_ulb")
         )
         assertTrue(
@@ -99,14 +99,6 @@ class DownloadResourceContainersTest : BaseIntegrationTest() {
         assertFalse(
             "en_gen_tq should not be downloaded",
             result.downloadedContainers.map { it.slug }.contains("en_gen_tq")
-        )
-        assertTrue(
-            "en_gen_tq should be in failed helps list",
-            result.failedHelpsDownloads.contains("en_gen_tq")
-        )
-        assertTrue(
-            "en_gen_ulb should be in failed sources list",
-            result.failedSourceDownloads.contains("en_gen_ulb")
         )
 
         assertNotNull("Progress message should not be null", progressMessage)

@@ -27,7 +27,7 @@ class CloneRepository(
     ): Result {
         onProgress(-1f, getString(Res.string.downloading))
 
-        var tempDir: File? = directoryProvider.createTempDir(System.currentTimeMillis().toString())
+        var tempDir: File? = directoryProvider.createTempDir()
         var status = Status.UNKNOWN
 
         try {

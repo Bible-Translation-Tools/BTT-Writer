@@ -37,7 +37,8 @@ class DesktopPlatform : Platform {
             device = "${System.getProperty("os.name")} (${System.getProperty("os.arch")})",
             manufacturer = hardware.manufacturer.takeIf {
                 it.isNotBlank()
-            } ?: "Unknown Manufacturer"
+            } ?: "Unknown Manufacturer",
+            generator = "btt-writer-desktop"
         )
 
     override val isStoreVersion = false

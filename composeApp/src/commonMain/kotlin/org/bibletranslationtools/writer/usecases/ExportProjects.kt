@@ -9,9 +9,9 @@ import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
-import org.bibletranslationtools.writer.core.ArchiveDetails.Companion.archiveJson
 import org.bibletranslationtools.writer.core.ArchiveGenerator
 import org.bibletranslationtools.writer.core.ArchiveManifest
+import org.bibletranslationtools.writer.core.ArchiveMigrator
 import org.bibletranslationtools.writer.core.ArchiveTranslation
 import org.bibletranslationtools.writer.core.FrameTranslation
 import org.bibletranslationtools.writer.core.PdfPrinter
@@ -70,7 +70,7 @@ class ExportProjects(
             manifestFile.createNewFile()
             directoryProvider.writeStringToFile(
                 manifestFile,
-                archiveJson.encodeToString(manifest)
+                ArchiveMigrator.json.encodeToString(manifest)
             )
 
             platformFile.outputStream().use { out ->
@@ -122,7 +122,6 @@ class ExportProjects(
         val tempDir = directoryProvider.createTempDir()
 
         val success = try {
-            tempDir.mkdirs()
             val chapters = targetTranslation.chapterTranslations
 
             val bookData = BookData.generate(targetTranslation, catalogClient)
@@ -280,18 +279,17 @@ class ExportProjects(
         // build manifest
         return ArchiveManifest(
             packageVersion = TSTUDIO_PACKAGE_VERSION,
-            timestamp = Util.unixTime.toInt(),
+            timestamp = Util.unixTime,
             generator = ArchiveGenerator(
-                name = GENERATOR_NAME,
+                name = platform.info.generator,
                 build = platform.info.versionCode.toString()
             ),
             targetTranslations = listOf(
                 ArchiveTranslation(
                     id = targetTranslation.id,
                     path = targetTranslation.id,
-                    commitHash = targetTranslation.commitHash ?: "invalid",
-                    direction = targetTranslation.targetLanguageDirection,
-                    targetLanguageName = targetTranslation.targetLanguageName
+                    commitHash = targetTranslation.commitHash,
+                    direction = targetTranslation.targetLanguageDirection
                 )
             )
         )
@@ -379,8 +377,7 @@ class ExportProjects(
 
     companion object {
         private const val TAG = "ExportProjects"
-        private const val GENERATOR_NAME = "ts-android"
-        private const val TSTUDIO_PACKAGE_VERSION = 2
+        private const val TSTUDIO_PACKAGE_VERSION = 3
 
         /**
          * sort the frames

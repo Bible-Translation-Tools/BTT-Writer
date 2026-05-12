@@ -6,7 +6,6 @@ import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.TestUtils
-import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.ZIP_EXTENSION
 import org.bibletranslationtools.writer.usecases.BackupRC
@@ -29,7 +28,6 @@ class BackupRCTest : BaseIntegrationTest() {
     private val backupRC: BackupRC by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val importProjects: ImportProjects by inject()
-    private val translator: Translator by inject()
     private val platform: Platform by inject()
     private val profile: org.bibletranslationtools.writer.core.Profile by inject()
 
@@ -75,7 +73,6 @@ class BackupRCTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             "aae",
             source
         )
@@ -106,7 +103,6 @@ class BackupRCTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             "aae",
             source
         )
@@ -137,7 +133,6 @@ class BackupRCTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             "aae",
             source
         )

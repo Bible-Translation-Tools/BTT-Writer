@@ -116,7 +116,6 @@ class MergeTargetTranslationTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             "aa",
             "usfm/mrk.usfm"
         )
@@ -129,7 +128,6 @@ class MergeTargetTranslationTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             "aae",
             "usfm/mrk.usfm"
         )

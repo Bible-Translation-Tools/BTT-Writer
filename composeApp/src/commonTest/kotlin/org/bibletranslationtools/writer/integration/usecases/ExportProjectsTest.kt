@@ -16,7 +16,6 @@ import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.ProcessUSFM
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Translator.Companion.PDF_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.USFM_EXTENSION
@@ -36,7 +35,6 @@ class ExportProjectsTest : BaseIntegrationTest() {
     private val catalogClient: ResourceCatalogClient by inject()
     private val profile: Profile by inject()
     private val importProjects: ImportProjects by inject()
-    private val translator: Translator by inject()
     private val platform: Platform by inject()
     private val processUSFM: ProcessUSFM by inject()
 
@@ -55,7 +53,6 @@ class ExportProjectsTest : BaseIntegrationTest() {
                 directoryProvider,
                 profile,
                 importProjects,
-                translator,
                 "aa",
                 "usfm/mrk.usfm"
             )

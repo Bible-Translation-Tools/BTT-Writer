@@ -56,6 +56,7 @@ import org.jetbrains.compose.resources.getString
 import java.io.File
 import java.io.InputStream
 import java.util.Locale
+import java.util.UUID
 import java.util.regex.Pattern
 
 /**
@@ -73,7 +74,7 @@ class ImportUsfmSession internal constructor(
     // Workspace folders
     private val tempDir: File = File(
         directoryProvider.cacheDir,
-        System.currentTimeMillis().toString()
+        UUID.randomUUID().toString()
     ).also { it.mkdirs() }
     private val tempSrc: File = File(tempDir, "source").also { it.mkdirs() }
     private val projectsFolder: File = File(tempDir, "output").also { it.mkdirs() }

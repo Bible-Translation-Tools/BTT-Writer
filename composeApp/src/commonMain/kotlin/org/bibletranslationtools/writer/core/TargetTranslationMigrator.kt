@@ -40,7 +40,7 @@ class TargetTranslationMigrator(
     }
 
     suspend fun migrateManifest(manifest: String): String? {
-        val tempDir = directoryProvider.createTempDir(System.currentTimeMillis().toString())
+        val tempDir = directoryProvider.createTempDir()
         val fakeTranslationDir = File(tempDir, "translation")
         fakeTranslationDir.mkdirs()
         return try {

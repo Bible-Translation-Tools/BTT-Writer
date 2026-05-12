@@ -1,9 +1,6 @@
 package org.bibletranslationtools.writer.core
 
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import org.bibletranslationtools.writer.core.ArchiveDetails.Companion.archiveJson
+import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.utils.FileUtilities
 import java.io.File
 
@@ -13,8 +10,13 @@ import java.io.File
  * The importing is placed here to keep the Translator clean and organized.
  */
 class ArchiveImporter(
-    private val migrator: TargetTranslationMigrator
+    private val migrator: TargetTranslationMigrator,
+    private val archiveMigrator: ArchiveMigrator
 ) {
+    companion object {
+        const val TAG = "ArchiveImporter"
+    }
+
     /**
      * Prepares an archive for import with backwards compatible support.
      * @param expandedArchiveDir
@@ -29,22 +31,17 @@ class ArchiveImporter(
         val manifestFile = File(expandedArchiveDir, "manifest.json")
         val targetTranslationDirs = if (manifestFile.exists()) {
             val rawManifest = FileUtilities.readFileToString(manifestFile)
-            val raw = archiveJson.parseToJsonElement(FileUtilities.readFileToString(manifestFile)).jsonObject
-            val manifestVersion = raw["package_version"]?.jsonPrimitive?.intOrNull
-
-            when (manifestVersion) {
-                1 -> v1(
-                    archiveJson.decodeFromString(rawManifest),
-                    expandedArchiveDir
-                )
-                2 -> v2(
-                    archiveJson.decodeFromString(rawManifest),
-                    expandedArchiveDir
-                )
-                else -> listOf(expandedArchiveDir)
+            archiveMigrator.migrateManifest(rawManifest)?.let { archiveManifest ->
+                val manifest = ArchiveMigrator.json.decodeFromString<ArchiveManifest>(archiveManifest)
+                manifest.targetTranslations.map {
+                    File(expandedArchiveDir, it.path)
+                }
+            } ?: run {
+                Logger.e(TAG, "Invalid manifest file $manifestFile")
+                emptyList()
             }
         } else {
-            legacy(expandedArchiveDir)
+            throw IllegalArgumentException("Invalid or legacy projects are not supported")
         }
 
         // migrate target translations
@@ -55,54 +52,5 @@ class ArchiveImporter(
             }
         }
         return validTargetTranslations
-    }
-
-    /**
-     * translation dirs in the archive are named after their id
-     * so we only need to return the path.
-     * @param manifest
-     * @param dir
-     * @return
-     */
-    private fun v2(manifest: ArchiveManifest, dir: File): List<File> {
-        val files = arrayListOf<File>()
-        manifest.targetTranslations.forEach { translation ->
-            files.add(File(dir, translation.path))
-        }
-        return files
-    }
-
-    /**
-     * targetTranslations are in directories labeled by id
-     * @param manifest
-     * @param dir
-     * @return
-     */
-    private fun v1(manifest: ArchiveManifestV1, dir: File): List<File> {
-        val files = arrayListOf<File>()
-        manifest.targetTranslations.forEach { translation ->
-            files.add(File(dir, translation.path))
-        }
-        return files
-    }
-
-    /**
-     * todo: provide support for legacy archives.. if needed
-     * @return
-     */
-    private fun legacy(dir: File): List<File> {
-//        val translationDirs = dir.list() ?: return listOf()
-//        for (targetTranslationId in translationDirs) {
-//            val id = StringUtilities.ltrim(targetTranslationId, '\\')
-//            try {
-//                val projectSlug = TargetTranslation.getProjectSlugFromId(targetTranslationId)
-//                val targetLanguageSlug = TargetTranslation.getTargetLanguageSlugFromId(
-//                    targetTranslationId
-//                )
-//            } catch (e: java.lang.Exception) {
-//                continue
-//            }
-//        }
-        return listOf()
     }
 }

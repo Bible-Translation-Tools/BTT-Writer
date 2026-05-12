@@ -10,7 +10,6 @@ import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.usecases.TranslationProgress
 import org.junit.After
@@ -22,7 +21,6 @@ class TranslationProgressTest : BaseIntegrationTest() {
 
     private val importProjects: ImportProjects by inject()
     private val catalogClient: ResourceCatalogClient by inject()
-    private val translator: Translator by inject()
     private val profile: Profile by inject()
     private val translationProgress: TranslationProgress by inject()
     private val platform: Platform by inject()
@@ -94,7 +92,6 @@ class TranslationProgressTest : BaseIntegrationTest() {
             directoryProvider,
             profile,
             importProjects,
-            translator,
             lang,
             "usfm/mrk.usfm"
         )

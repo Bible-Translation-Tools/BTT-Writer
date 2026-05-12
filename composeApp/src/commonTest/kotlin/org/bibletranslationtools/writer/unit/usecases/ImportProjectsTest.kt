@@ -94,7 +94,7 @@ class ImportProjectsTest {
         mockkStatic(PlatformFile::displayName)
         mockkStatic(PlatformFile::isDirectory)
 
-        every { directoryProvider.cacheDir }.returns(tempDir.newFolder("cache"))
+        coEvery { directoryProvider.createTempDir(null) }.returns(tempDir.newFolder("cache"))
         every { translator.path }.returns(tempDir.newFolder("translations"))
 
         mockkObject(FileUtilities)
@@ -870,7 +870,7 @@ class ImportProjectsTest {
 
     private fun verifyImportSuccess(targetTranslation: TargetTranslation) {
         verify { Zip.unzipFromStream(any(), any()) }
-        verify { directoryProvider.cacheDir }
+        coVerify { directoryProvider.createTempDir(null) }
         verify { translator.path }
         verify { FileUtilities.deleteQuietly(any()) }
         verify { targetTranslation.id }
@@ -881,7 +881,7 @@ class ImportProjectsTest {
 
     private fun verifyImportFail() {
         verify { Zip.unzipFromStream(any(), any()) }
-        verify { directoryProvider.cacheDir }
+        coVerify { directoryProvider.createTempDir(null) }
         verify(exactly = 0) { translator.path }
         coVerify(exactly = 0) { TargetTranslation.open(any(), any()) }
     }

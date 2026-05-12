@@ -39,7 +39,10 @@ class DownloadIndexTest : BaseIntegrationTest() {
             progressMessage = message
         }
 
-        val languagesBefore = catalogClient.library.getTargetLanguages()
+        // We need to filter out at least one language to see the change after download
+        val languagesBefore = catalogClient.library.getTargetLanguages().filter {
+            it.slug == "aaa"
+        }
         assertTrue("Languages before should not be empty", languagesBefore.isNotEmpty())
 
         val downloaded = downloadIndex.download(onProgress)

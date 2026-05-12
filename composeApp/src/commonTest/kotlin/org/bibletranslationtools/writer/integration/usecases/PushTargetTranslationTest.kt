@@ -18,7 +18,6 @@ import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.GogsLogin
 import org.bibletranslationtools.writer.usecases.ImportProjects
@@ -39,7 +38,6 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
 
     private val importProjects: ImportProjects by inject()
     private val catalogClient: ResourceCatalogClient by inject()
-    private val translator: Translator by inject()
     private val profile: Profile by inject()
     private val gogsLogin: GogsLogin by inject()
     private val pushTargetTranslation: PushTargetTranslation by inject()
@@ -68,7 +66,6 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
                 directoryProvider,
                 profile,
                 importProjects,
-                translator,
                 "aae",
                 "usfm/mrk.usfm"
             )!!

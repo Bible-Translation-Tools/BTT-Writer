@@ -50,7 +50,8 @@ class AndroidPlatform(
             versionCode = BuildInfo.VERSION_CODE.toInt(),
             model = Build.MODEL,
             device = Build.DEVICE,
-            manufacturer = Build.MANUFACTURER
+            manufacturer = Build.MANUFACTURER,
+            generator = "btt-writer-android"
         )
 
     override val isNetworkAvailable: Boolean

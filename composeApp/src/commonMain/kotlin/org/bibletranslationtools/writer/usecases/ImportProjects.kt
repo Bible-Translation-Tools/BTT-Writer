@@ -353,12 +353,8 @@ class ImportProjects(
     }
 
     @Throws(Exception::class)
-    private fun unzipFromStream(input: InputStream): File {
-        val dir = File(
-            directoryProvider.cacheDir,
-            System.currentTimeMillis().toString()
-        )
-        dir.mkdirs()
+    private suspend fun unzipFromStream(input: InputStream): File {
+        val dir = directoryProvider.createTempDir()
         Zip.unzipFromStream(input, dir)
         return dir
     }

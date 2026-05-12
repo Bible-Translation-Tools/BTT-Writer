@@ -20,6 +20,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.UUID
 
 interface DirectoryProvider {
 
@@ -204,7 +205,7 @@ interface DirectoryProvider {
      */
     suspend fun createTempDir(name: String? = null): File {
         return withContext(Dispatchers.IO) {
-            val tempName = name ?: System.currentTimeMillis().toString()
+            val tempName = name ?: UUID.randomUUID().toString()
             val tempDir = File(cacheDir, tempName)
             tempDir.mkdirs()
             tempDir

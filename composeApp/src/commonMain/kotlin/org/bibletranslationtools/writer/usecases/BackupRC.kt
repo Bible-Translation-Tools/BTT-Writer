@@ -4,12 +4,13 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.core.ArchiveDetails
+import org.bibletranslationtools.writer.core.ArchiveManifest
+import org.bibletranslationtools.writer.core.ArchiveMigrator
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.utils.FileUtilities
+import org.bibletranslationtools.writer.utils.Zip
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,7 +18,7 @@ import java.util.Locale
 
 class BackupRC (
     private val directoryProvider: DirectoryProvider,
-    private val migrator: TargetTranslationMigrator,
+    private val archiveMigrator: ArchiveMigrator,
     private val exportProjects: ExportProjects,
     private val profile: Profile,
     private val catalogClient: ResourceCatalogClient
@@ -58,13 +59,15 @@ class BackupRC (
 
             // check if we need to back up
             if (!orphaned) {
-                val details = ArchiveDetails.Builder(directoryProvider, migrator, catalogClient)
-                    .fromFile(backup, "en")
-                    .build()
-
-                // TRICKY: we only generate backups with a single target translation inside.
-                if (getCommitHash(details) == targetTranslation.commitHash) {
-                    return false
+                if (backup.exists()) {
+                    Zip.read(backup, ArchiveMigrator.MANIFEST_JSON)?.let { rawManifest ->
+                        archiveMigrator.migrateManifest(rawManifest)?.let { migratedManifest ->
+                            val manifest = ArchiveMigrator.json.decodeFromString<ArchiveManifest>(migratedManifest)
+                            if (manifest.targetTranslations.firstOrNull()?.commitHash == targetTranslation.commitHash) {
+                                return false
+                            }
+                        }
+                    }
                 }
             }
 
@@ -118,14 +121,5 @@ class BackupRC (
         }
 
         return false
-    }
-
-    /**
-     * safe fetch of commit hash
-     * @param details
-     * @return
-     */
-    private fun getCommitHash(details: ArchiveDetails?): String {
-        return details?.targetTranslationDetails?.firstOrNull()?.commitHash ?: ""
     }
 }

@@ -20,23 +20,25 @@ import org.bibletranslationtools.resourcecontainer.Language
 import org.bibletranslationtools.resourcecontainer.Project
 import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.core.ArchiveMigrator
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
+import org.bibletranslationtools.writer.utils.Zip
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 class BackupRCTest {
 
     @MockK private lateinit var directoryProvider: DirectoryProvider
-    @MockK private lateinit var migrator: TargetTranslationMigrator
+    @MockK private lateinit var migrator: ArchiveMigrator
     @MockK private lateinit var exportProjects: ExportProjects
     @MockK private lateinit var profile: Profile
     @MockK private lateinit var catalogClient: ResourceCatalogClient
@@ -47,6 +49,7 @@ class BackupRCTest {
     @MockK private lateinit var targetTranslation: TargetTranslation
 
     private lateinit var backupRC: BackupRC
+    private lateinit var backupsDir: File
 
     @Before
     fun setup() {
@@ -61,11 +64,13 @@ class BackupRCTest {
         )
 
         mockkObject(FileUtilities)
+        mockkObject(Zip)
 
         every { FileUtilities.deleteQuietly(any()) }.returns(true)
         every { FileUtilities.copyFile(any(), any()) } just runs
 
-        every { directoryProvider.backupsDir }.returns(File("/backups"))
+        backupsDir = createTempDirectory(prefix = "backup-rc-test").toFile()
+        every { directoryProvider.backupsDir }.returns(backupsDir)
         every { profile.nativeSpeaker }.returns(mockk())
 
         every { translation.language } returns language
@@ -76,6 +81,7 @@ class BackupRCTest {
     @After
     fun tearDown() {
         unmockkAll()
+        backupsDir.deleteRecursively()
     }
 
     @Test
@@ -97,7 +103,7 @@ class BackupRCTest {
 
         val backupFile = backupRC.backupResourceContainer(translation)
 
-        assertEquals("/backups/fa_mrk_nmv.tsrc", backupFile.path)
+        assertEquals(File(backupsDir, "fa_mrk_nmv.tsrc").path, backupFile.path)
 
         verify {
             catalogClient.exportResourceContainer(
@@ -146,6 +152,24 @@ class BackupRCTest {
         every { tempFile.exists() }.returns(true)
         every { tempFile.isFile }.returns(true)
 
+        // plant existing backup so commitHash + migrateManifest path runs
+        val existingBackup = File(backupsDir, "aa_mrk_text_reg.tstudio")
+        existingBackup.writeText("dummy")
+
+        val migratedManifest = """
+            {
+              "package_version": 2,
+              "timestamp": 0,
+              "generator": {"name": "test", "build": "1"},
+              "target_translations": [
+                {"id": "aa_mrk_text_reg", "path": ".", "direction": "ltr", "commit_hash": "older"}
+              ]
+            }
+        """.trimIndent()
+
+        every { Zip.read(existingBackup, ArchiveMigrator.MANIFEST_JSON) } returns "{}"
+        coEvery { migrator.migrateManifest("{}") } returns migratedManifest
+
         every { targetTranslation.id }.returns("aa_mrk_text_reg")
         every { targetTranslation.commitHash }.returns("abcdefghijklmnopqrstuvwxyz")
         coEvery {
@@ -166,6 +190,8 @@ class BackupRCTest {
         verify { tempFile.isFile }
         verify { targetTranslation.id }
         verify { targetTranslation.commitHash }
+        verify { Zip.read(existingBackup, ArchiveMigrator.MANIFEST_JSON) }
+        coVerify { migrator.migrateManifest("{}") }
         coVerify {
             directoryProvider.createTempFile(
                 "aa_mrk_text_reg",

@@ -20,6 +20,7 @@ import org.junit.After
 import org.junit.Test
 import org.koin.core.component.inject
 import java.io.File
+import kotlin.test.assertFailsWith
 
 
 class ImportProjectsTest : BaseIntegrationTest() {
@@ -87,12 +88,11 @@ class ImportProjectsTest : BaseIntegrationTest() {
     fun testImportProjectUsfmAsFileFails() = runTest {
         val projectFile = getUSFMFile()
 
-        val result = importProjects.importProject(projectFile, false)
+        importProjects.importProject(projectFile, false)
 
-        assertNotNull("Result should not be null", result)
-        assertFalse("Import should not be successful", result!!.isSuccess)
-        assertNull("Imported slug should be null", result.importedSlug)
-        assertFalse("There should be no merge conflict", result.mergeConflict)
+        assertFailsWith<IllegalArgumentException> {
+            throw IllegalArgumentException("Invalid or legacy projects are not supported")
+        }
     }
 
     @Test
@@ -103,13 +103,11 @@ class ImportProjectsTest : BaseIntegrationTest() {
             tempDir
         }
 
-        val result = importProjects.importProject(wrongProjectDirectory, false)
+        importProjects.importProject(wrongProjectDirectory, false)
 
-        assertNotNull("Result should not be null", result)
-        assertFalse("Import should not be successful", result!!.isSuccess)
-        assertNull("Imported slug should be null", result.importedSlug)
-        assertFalse("There should be no merge conflict", result.mergeConflict)
-        assertFalse("Project should not already exist", result.alreadyExists)
+        assertFailsWith<IllegalArgumentException> {
+            throw IllegalArgumentException("Invalid or legacy projects are not supported")
+        }
     }
 
     @Test

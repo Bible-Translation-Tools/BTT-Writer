@@ -80,7 +80,6 @@ object TestUtils {
      * @param directoryProvider
      * @param profile
      * @param importProjects
-     * @param translator
      * @param langCode
      * @param path resource path (e.g. "usfm/mrk.usfm")
      * @return created TargetTranslation
@@ -91,7 +90,6 @@ object TestUtils {
         directoryProvider: DirectoryProvider,
         profile: Profile,
         importProjects: ImportProjects,
-        translator: Translator,
         langCode: String,
         path: String
     ): TargetTranslation? {
@@ -112,12 +110,12 @@ object TestUtils {
 
         val projectFolder = imports[0]
 
-        val result = importProjects.importProject(projectFolder, true)
+        val result = importProjects.importProjects(listOf(projectFolder), true)
 
         assertNotNull(result, "Import result should not be null")
-        assertNotNull(result.importedSlug, "importedSlug should not be null")
+        assertEquals("targetTranslations should not be empty", 1, result.targetTranslations.size)
 
-        return translator.getTargetTranslation(result.importedSlug)
+        return result.targetTranslations.firstOrNull()
     }
 
     suspend fun importTargetTranslation(

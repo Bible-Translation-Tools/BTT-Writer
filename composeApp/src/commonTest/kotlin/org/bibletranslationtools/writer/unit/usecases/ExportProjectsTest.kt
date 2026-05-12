@@ -87,6 +87,7 @@ class ExportProjectsTest {
         }
 
         every { info.versionCode }.returns(11)
+        every { info.generator }.returns("writer")
         every { platform.info }.returns(info)
 
         every { index.getProject(any(), any(), any()) }.returns(project)

@@ -11,7 +11,6 @@ import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.TestUtils
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
-import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.CreateRepository
 import org.bibletranslationtools.writer.usecases.GogsLogin
@@ -33,7 +32,6 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     private val gogsLogin: GogsLogin by inject()
     private val preference: Preference by inject()
     private val importProjects: ImportProjects by inject()
-    private val translator: Translator by inject()
     private val platform: Platform by inject()
 
     private lateinit var targetTranslation: TargetTranslation
@@ -55,7 +53,6 @@ class CreateRepositoryTest : BaseIntegrationTest() {
                 directoryProvider,
                 profile,
                 importProjects,
-                translator,
                 "aae",
                 "usfm/mrk.usfm"
             )!!

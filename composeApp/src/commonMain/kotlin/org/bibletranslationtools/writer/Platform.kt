@@ -22,7 +22,8 @@ data class AppInfo(
     val versionCode: Int,
     val model: String,
     val device: String,
-    val manufacturer: String
+    val manufacturer: String,
+    val generator: String
 )
 
 interface Platform {
