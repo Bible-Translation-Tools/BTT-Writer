@@ -76,8 +76,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5.0.0
+      - name: Gradle setup
+        uses: ./.github/actions/gradle-setup
 
       - name: Build Windows MSI
         run: ./gradlew :composeApp:packageMsi
