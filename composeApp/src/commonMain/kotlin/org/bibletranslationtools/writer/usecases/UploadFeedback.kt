@@ -1,15 +1,17 @@
 package org.bibletranslationtools.writer.usecases
 
+import btt_writer.composeapp.generated.resources.Res
+import btt_writer.composeapp.generated.resources.gogs_user_agent
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.BuildInfo
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.getGithubReporter
+import org.bibletranslationtools.writer.getHttpReporter
 import org.bibletranslationtools.writer.utils.FileUtilities
+import org.jetbrains.compose.resources.getString
 import java.io.IOException
 
 class UploadFeedback(
-    private val preference: Preference,
     private val directoryProvider: DirectoryProvider
 ) {
     companion object {
@@ -19,35 +21,28 @@ class UploadFeedback(
     /**
      * Returns true if the upload was successful
      */
-    suspend fun execute(notes: String): Boolean {
+    suspend fun execute(notes: String, userEmail: String): Boolean {
         var uploaded = false
         val logFile = directoryProvider.logFile
 
-        // TRICKY: make sure the github_oauth2 token has been set
-        val githubTokenIdentifier = BuildInfo.OAUTH_TOKEN
-        val githubUrl = preference.getGithubBugReportRepo()
+        val reporter = getHttpReporter(
+            url = Preference.HELPDESK_WEBHOOK_URL + BuildInfo.HELPDESK_TOKEN,
+            userEmail = userEmail.ifEmpty { Preference.DEFAULT_HELPDESK_EMAIL },
+            userAgent = getString(Res.string.gogs_user_agent)
+        )
+        try {
+            uploaded = reporter.reportBug(notes, logFile)
+        } catch (e: IOException) {
+            Logger.w(TAG, "Failed to upload bug report", e)
+        }
 
-        if (githubTokenIdentifier.isNotEmpty()) {
-            val reporter = getGithubReporter(
-                repoUrl = githubUrl,
-                oAuthToken = githubTokenIdentifier
-            )
+        if (uploaded) {
             try {
-                uploaded = reporter.reportBug(notes, logFile)
-            } catch (e: IOException) {
-                Logger.w(TAG, "Failed to upload bug report", e)
+                FileUtilities.writeStringToFile(logFile, "")
+            } catch (_: IOException) {
+                Logger.i(TAG, "Failed to reset log file")
             }
-
-            if (uploaded) {
-                try {
-                    FileUtilities.writeStringToFile(logFile, "")
-                } catch (_: IOException) {
-                    Logger.i(TAG, "Failed to reset log file")
-                }
-                Logger.i(TAG, "Submitted bug report")
-            }
-        } else {
-            Logger.w(TAG, "the github oauth2 token is missing")
+            Logger.i(TAG, "Submitted bug report")
         }
 
         return uploaded

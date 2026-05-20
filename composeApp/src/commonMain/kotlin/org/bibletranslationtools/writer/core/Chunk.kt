@@ -32,6 +32,7 @@ data class Chunk(
     val isChapterReference: Boolean
         get() = chapterSlug != "front" && chapterSlug != "back" && chunkSlug == "reference"
 
+    @Suppress("UNCHECKED_CAST")
     val config: ChunkConfig
         get() = ((source.config["content"] as? Map<*, *>)
             ?.get(chapterSlug) as? Map<*, *>)

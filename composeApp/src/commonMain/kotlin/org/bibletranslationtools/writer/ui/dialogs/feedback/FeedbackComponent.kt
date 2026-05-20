@@ -34,26 +34,26 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 interface FeedbackComponent {
-    val state: StateFlow<FeedbackState>
+    val state: StateFlow<State>
     val progress: StateFlow<Progress?>
-    val event: Flow<FeedbackEvent>
+    val event: Flow<Event>
 
     val initialMessage: String
 
-    fun reportBug(message: String)
-    fun uploadFeedback(message: String)
+    fun reportBug(notes: String, email: String)
     fun clearError()
     fun clearRelease()
 
-    data class FeedbackState(
-        val message: String = "",
+    data class State(
+        val notes: String = "",
+        val email: String = "",
         val release: CheckForLatestRelease.Release? = null,
         val uploadError: String? = null,
         val success: Boolean = false
     )
 
-    sealed interface FeedbackEvent {
-        data class SnackbarMessage(val message: String) : FeedbackEvent
+    sealed interface Event {
+        data class SnackbarMessage(val message: String) : Event
     }
 }
 
@@ -73,10 +73,10 @@ class DefaultFeedbackComponent(
     private val progressManager = ProgressManager(coroutineScope)
     override val progress get() = progressManager.progress
 
-    private val _state = MutableStateFlow(FeedbackComponent.FeedbackState())
+    private val _state = MutableStateFlow(FeedbackComponent.State())
     override val state = _state.asStateFlow()
 
-    private val _event = Channel<FeedbackComponent.FeedbackEvent>(Channel.BUFFERED)
+    private val _event = Channel<FeedbackComponent.Event>(Channel.BUFFERED)
     override val event = _event.receiveAsFlow()
 
     init {
@@ -89,29 +89,17 @@ class DefaultFeedbackComponent(
         progressManager.runTask(message, block)
     }
 
-    override fun reportBug(message: String) {
+    override fun reportBug(notes: String, email: String) {
         launchWithProgress { handle ->
-            if (message.isEmpty()) {
+            if (notes.isBlank()) {
                 val msg = getString(Res.string.input_required)
-                _event.trySend(FeedbackComponent.FeedbackEvent.SnackbarMessage(msg))
+                _event.trySend(FeedbackComponent.Event.SnackbarMessage(msg))
                 return@launchWithProgress
             }
 
-            _state.update { it.copy(message = message) }
+            _state.update { it.copy(notes = notes, email = email) }
 
             checkForLatestRelease(handle)
-        }
-    }
-
-    override fun uploadFeedback(message: String) {
-        launchWithProgress { handle ->
-            if (message.isEmpty()) {
-                val msg = getString(Res.string.input_required)
-                _event.trySend(FeedbackComponent.FeedbackEvent.SnackbarMessage(msg))
-                return@launchWithProgress
-            }
-
-            doUploadFeedback(message, handle)
         }
     }
 
@@ -131,14 +119,18 @@ class DefaultFeedbackComponent(
         if (result.release != null) {
             _state.update { it.copy(release = result.release) }
         } else {
-            doUploadFeedback(_state.value.message, handle)
+            doUploadFeedback(handle)
         }
     }
 
-    private suspend fun doUploadFeedback(message: String, handle: TaskHandle) {
+    private suspend fun doUploadFeedback(handle: TaskHandle) {
+        val notes = _state.value.notes
+        val email = _state.value.email
+
         handle.update(-1f, getString(Res.string.uploading_feedback))
+
         val success = withContext(Dispatchers.IO) {
-            uploadFeedback.execute(message)
+            uploadFeedback.execute(notes, email)
         }
         if (success) {
             _state.update { it.copy(success = true) }

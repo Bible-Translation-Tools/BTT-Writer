@@ -58,7 +58,7 @@ object Util {
     fun mapVerseToChunk(rc: ResourceContainer, chapter: String, verse: String): String {
         return try {
             val chunks = rc.chunks(chapter)
-            if (chunks != null) {
+            if (chunks.isNotEmpty()) {
                 val sorted = chunks.sortedWith { o1, o2 ->
                     val i1 = o1.toIntOrNull()
                     val i2 = o2.toIntOrNull()
@@ -74,7 +74,7 @@ object Util {
             } else {
                 verse
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             verse
         }
     }

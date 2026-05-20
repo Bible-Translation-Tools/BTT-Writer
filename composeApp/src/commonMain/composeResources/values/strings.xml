@@ -221,13 +221,9 @@
     <string name="label_back">Back</string>
     <string name="bug_report">Describe the problem you are experiencing</string>
     <string name="action_report_bug">Report Bug</string>
-    <string name="project_library">Library</string>
+    <string name="email_optional">Email (Optional)</string>
     <string name="title_verse">Verse</string>
     <string name="title_note">Note</string>
-    <string name="dialog_contact_form">Contact Form</string>
-    <string name="label_name">Name</string>
-    <string name="label_email">Email</string>
-    <string name="label_phone">Phone</string>
     <string name="verse_out_of_bounds">Choose a verse between <xliff:g example="1" id="number">%1$s</xliff:g> and <xliff:g example="100" id="number">%2$s</xliff:g></string>
     <string name="no_key_terms">There are no Words</string>
     <string name="title_activity_developer">Developer Tools</string>
@@ -249,7 +245,6 @@
     <string name="get_more_projects">Get more projects</string>
     <string name="title_activity_get_more_projects" translatable="false">@string/get_more_projects</string>
     <string name="source_language_library">Source Library</string>
-    <string name="title_activity_project_library" translatable="false">@string/project_library</string>
     <string name="title_project_detail">Project Library Languages</string>
     <string name="languages">Languages</string>
     <string name="drafts">Drafts</string>

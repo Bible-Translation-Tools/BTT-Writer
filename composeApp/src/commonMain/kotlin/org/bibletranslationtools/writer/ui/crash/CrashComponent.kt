@@ -2,7 +2,9 @@ package org.bibletranslationtools.writer.ui.crash
 
 import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.checking_for_updates
+import btt_writer.composeapp.generated.resources.input_required
 import btt_writer.composeapp.generated.resources.uploading
+import btt_writer.composeapp.generated.resources.uploading_feedback
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +29,7 @@ import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
 import org.bibletranslationtools.writer.usecases.UploadCrashReport
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -38,20 +41,20 @@ interface CrashComponent {
 
     val isNetworkAvailable: Boolean
 
-    fun checkForLatestRelease()
     fun clearLatestRelease()
-    fun uploadCrashReport()
-    fun updateNotes(notes: String)
+    fun sendCrashReport(notes: String, email: String)
     fun flushAndRestart()
 
     data class CrashState(
         val notes: String = "",
+        val email: String = "",
         val success: Boolean = false,
-        val latestRelease: CheckForLatestRelease.Release? = null
+        val release: CheckForLatestRelease.Release? = null
     )
 
     sealed interface Event {
         data object UploadError : Event
+        data class SnackbarMessage(val message: String) : Event
     }
 
     sealed interface Result {
@@ -94,44 +97,54 @@ class DefaultCrashComponent(
         progressManager.runTask(message, block)
     }
 
-    override fun checkForLatestRelease() {
-        launchWithProgress(Res.string.checking_for_updates) {
-            val result = withContext(Dispatchers.IO) {
-                checkForLatestRelease.execute()
-            }
-            if (result.release != null) {
-                _state.update { it.copy(latestRelease = result.release) }
-            } else {
-                uploadCrashReport()
-            }
-        }
-    }
-
     override fun clearLatestRelease() {
-        _state.update { it.copy(latestRelease = null) }
+        _state.update { it.copy(release = null) }
     }
 
-    override fun uploadCrashReport() {
-        val notes = state.value.notes.ifBlank { return }
+    override fun sendCrashReport(notes: String, email: String) {
+        launchWithProgress(Res.string.uploading) { handle ->
+            if (notes.isBlank()) {
+                val msg = getString(Res.string.input_required)
+                _event.trySend(CrashComponent.Event.SnackbarMessage(msg))
+                return@launchWithProgress
+            }
 
-        launchWithProgress(Res.string.uploading) {
-            val uploaded = withContext(Dispatchers.IO) {
-                uploadCrashReport.execute(notes)
-            }
-            if (uploaded) {
-                _state.update { it.copy(success = true) }
-            } else {
-                _event.trySend(CrashComponent.Event.UploadError)
-            }
+            _state.update { it.copy(notes = notes, email = email) }
+
+            checkForLatestRelease(handle)
         }
-    }
-
-    override fun updateNotes(notes: String) {
-        _state.update { it.copy(notes = notes) }
     }
 
     override fun flushAndRestart() {
         Logger.flush()
         onResult(CrashComponent.Result.Restart)
+    }
+
+    private suspend fun checkForLatestRelease(handle: TaskHandle) {
+        handle.update(-1f, getString(Res.string.checking_for_updates))
+        val result = withContext(Dispatchers.IO) {
+            checkForLatestRelease.execute()
+        }
+        if (result.release != null) {
+            _state.update { it.copy(release = result.release) }
+        } else {
+            doSendCrashReport(handle)
+        }
+    }
+
+    private suspend fun doSendCrashReport(handle: TaskHandle) {
+        val notes = _state.value.notes
+        val email = _state.value.email
+
+        handle.update(-1f, getString(Res.string.uploading_feedback))
+
+        val uploaded = withContext(Dispatchers.IO) {
+            uploadCrashReport.execute(notes, email)
+        }
+        if (uploaded) {
+            _state.update { it.copy(success = true) }
+        } else {
+            _event.trySend(CrashComponent.Event.UploadError)
+        }
     }
 }

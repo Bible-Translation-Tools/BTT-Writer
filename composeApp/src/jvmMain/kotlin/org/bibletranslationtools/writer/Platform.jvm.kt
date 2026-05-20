@@ -5,9 +5,18 @@ import androidx.compose.ui.platform.ClipEntry
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.name
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.header
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import org.bibletranslationtools.logger.Context
-import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.HttpReporter
 import org.bibletranslationtools.logger.Logger
+import org.koin.compose.getKoin
+import org.koin.java.KoinJavaComponent.get
+import org.koin.mp.KoinPlatform
 import oshi.SystemInfo
 import java.awt.GraphicsEnvironment
 import java.awt.Toolkit
@@ -118,16 +127,22 @@ class DesktopPlatform : Platform {
     }
 }
 
-actual fun getGithubReporter(
-    repoUrl: String,
-    oAuthToken: String
-): GithubReporter {
-    val context = Context(versionName = "", udid = "")
-    return GithubReporter(
-        repositoryUrl = repoUrl,
-        githubOauth2Token = oAuthToken,
-        context = context
-    )
+actual fun getHttpReporter(
+    url: String,
+    userEmail: String,
+    userAgent: String
+): HttpReporter {
+    val platform: Platform = KoinPlatform.getKoin().get()
+    val context = Context(versionName = platform.info.versionName, udid = platform.udid)
+    return HttpReporter(url, context) { title, body ->
+        header("User-Agent", userAgent)
+        contentType(ContentType.MultiPart.FormData)
+        setBody(MultiPartFormDataContent(formData {
+            append("title", title)
+            append("content", body)
+            append("sender[email]", userEmail)
+        }))
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

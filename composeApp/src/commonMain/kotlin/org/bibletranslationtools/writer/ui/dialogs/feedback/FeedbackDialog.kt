@@ -30,6 +30,7 @@ import btt_writer.composeapp.generated.resources.apk_update_available
 import btt_writer.composeapp.generated.resources.bug_report
 import btt_writer.composeapp.generated.resources.confirm
 import btt_writer.composeapp.generated.resources.download_latest_apk
+import btt_writer.composeapp.generated.resources.email_optional
 import btt_writer.composeapp.generated.resources.feedback
 import btt_writer.composeapp.generated.resources.label_close
 import btt_writer.composeapp.generated.resources.requires_internet
@@ -49,9 +50,10 @@ fun FeedbackDialog(
     component: FeedbackComponent,
     onDismiss: () -> Unit
 ) {
-    var text by remember { mutableStateOf(component.initialMessage) }
-    val progress by component.progress.collectAsStateWithLifecycle()
+    var email by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf(component.initialMessage) }
 
+    val progress by component.progress.collectAsStateWithLifecycle()
     val state by component.state.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -60,7 +62,7 @@ fun FeedbackDialog(
     LaunchedEffect(component) {
         component.event.collect { event ->
             when (event) {
-                is FeedbackComponent.FeedbackEvent.SnackbarMessage -> {
+                is FeedbackComponent.Event.SnackbarMessage -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
             }
@@ -99,8 +101,20 @@ fun FeedbackDialog(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
+            value = email,
+            onValueChange = { email = it },
+            placeholder = {
+                Text(stringResource(Res.string.email_optional))
+            },
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = notes,
+            onValueChange = { notes = it },
             placeholder = {
                 Text(stringResource(Res.string.bug_report))
             },
@@ -121,7 +135,7 @@ fun FeedbackDialog(
                 )
             }
             TextButton(
-                onClick = { component.reportBug(text) }
+                onClick = { component.reportBug(notes, email) }
             ) {
                 Text(
                     text = stringResource(Res.string.confirm),
@@ -147,7 +161,7 @@ fun FeedbackDialog(
                 TextButton(
                     onClick = {
                         onDismiss()
-                        component.reportBug(text)
+                        component.reportBug(notes, email)
                     }
                 ) {
                     Text(stringResource(Res.string.retry_label))

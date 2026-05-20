@@ -5,7 +5,7 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.pref_default_logging_level
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
-import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.HttpReporter
 import org.bibletranslationtools.logger.LogLevel
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.data.Preference
@@ -97,7 +97,7 @@ interface Platform {
     }
 }
 
-expect fun getGithubReporter(repoUrl: String, oAuthToken: String): GithubReporter
+expect fun getHttpReporter(url: String, userEmail: String, userAgent: String): HttpReporter
 expect fun textClipEntry(text: String, label: String? = null): ClipEntry
 expect fun ClipEntry.textOrNull(): String?
 expect val ClipEntry.label: String?

@@ -22,8 +22,14 @@ import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.toAndroidUri
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.path
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.header
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
-import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.HttpReporter
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.Platform.Companion.GB
 import org.bibletranslationtools.writer.Platform.Companion.KB
@@ -196,14 +202,19 @@ class AndroidPlatform(
     }
 }
 
-actual fun getGithubReporter(
-    repoUrl: String,
-    oAuthToken: String
-) = GithubReporter(
-    repositoryUrl = repoUrl,
-    githubOauth2Token = oAuthToken,
-    context = FileKit.context
-)
+actual fun getHttpReporter(
+    url: String,
+    userEmail: String,
+    userAgent: String
+) = HttpReporter(url, FileKit.context) { title, body ->
+    header("User-Agent", userAgent)
+    contentType(ContentType.MultiPart.FormData)
+    setBody(MultiPartFormDataContent(formData {
+        append("title", title)
+        append("content", body)
+        append("sender[email]", userEmail)
+    }))
+}
 
 actual fun textClipEntry(text: String, label: String?): ClipEntry =
     ClipEntry(ClipData.newPlainText(label ?: "text", text))

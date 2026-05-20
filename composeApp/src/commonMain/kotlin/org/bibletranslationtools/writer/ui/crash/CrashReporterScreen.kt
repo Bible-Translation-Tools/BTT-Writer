@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,10 +14,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +38,7 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.apk_update_available
 import btt_writer.composeapp.generated.resources.crash_details
 import btt_writer.composeapp.generated.resources.download_update
+import btt_writer.composeapp.generated.resources.email_optional
 import btt_writer.composeapp.generated.resources.internet_not_available
 import btt_writer.composeapp.generated.resources.label_close
 import btt_writer.composeapp.generated.resources.label_continue
@@ -60,6 +63,9 @@ fun CrashReporterScreen(
     var showConfirmDialog by rememberSaveable { mutableStateOf(false) }
     var showUploadErrorDialog by rememberSaveable { mutableStateOf(false) }
 
+    var email by remember { mutableStateOf("") }
+    var notes by remember { mutableStateOf("") }
+
     val state by component.state.collectAsStateWithLifecycle()
     val progress by component.progress.collectAsStateWithLifecycle()
 
@@ -67,11 +73,16 @@ fun CrashReporterScreen(
     val focusManager = LocalFocusManager.current
     val uriHandler = LocalUriHandler.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(component) {
         component.event.collect { event ->
             when (event) {
                 is CrashComponent.Event.UploadError -> {
                     showUploadErrorDialog = true
+                }
+                is CrashComponent.Event.SnackbarMessage -> {
+                    snackbarHostState.showSnackbar(event.message)
                 }
             }
         }
@@ -79,6 +90,7 @@ fun CrashReporterScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Surface(
             modifier = Modifier.fillMaxSize()
@@ -91,12 +103,20 @@ fun CrashReporterScreen(
                     .imePadding()
             ) {
                 OutlinedTextField(
-                    value = state.notes,
-                    onValueChange = component::updateNotes,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface
-                    ),
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = {
+                        Text(stringResource(Res.string.email_optional))
+                    },
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { notes = it },
                     placeholder = {
                         Text(stringResource(Res.string.crash_details))
                     },
@@ -146,7 +166,7 @@ fun CrashReporterScreen(
             message = stringResource(Res.string.use_internet_confirmation),
             onConfirm = {
                 showConfirmDialog = false
-                component.checkForLatestRelease()
+                component.sendCrashReport(notes, email)
             },
             onDismiss = {
                 showConfirmDialog = false
@@ -157,7 +177,7 @@ fun CrashReporterScreen(
         )
     }
 
-    state.latestRelease?.let { release ->
+    state.release?.let { release ->
         BaseDialog(
             title = stringResource(Res.string.apk_update_available),
             message = stringResource(Res.string.upload_report_or_download_latest_apk),
@@ -184,7 +204,7 @@ fun CrashReporterScreen(
 
                 Button(onClick = {
                     component.clearLatestRelease()
-                    component.uploadCrashReport()
+                    component.sendCrashReport(notes, email)
                 }) {
                     Text(stringResource(Res.string.label_continue))
                 }

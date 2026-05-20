@@ -31,7 +31,6 @@ class Preference(private val settings: ObservableSettings) {
     companion object {
         // Pref keys
         const val ROOT_CATALOG_API = "root_catalog_api"
-        const val GITHUB_BUG_REPORT_REPO = "github_bug_report_repo"
         const val GITHUB_REPO_API = "github_repo_api"
         const val LAST_VIEW_MODE = "last_view_mode_"
         const val LAST_FOCUS_CHAPTER = "last_focus_chapter_"
@@ -62,9 +61,11 @@ class Preference(private val settings: ObservableSettings) {
         const val KEY_PREF_MIGRATE_OLD_APP = "migrate_old_app"
 
         // Default values
-        const val GITHUB_BUG_REPORT_REPO_URL = "https://api.github.com/repos/Bible-Translation-Tools/BTT-Writer-Android/issues"
         const val GITHUB_REPO_API_URL = "https://api.github.com/repos/Bible-Translation-Tools/BTT-Writer-Android"
         const val ROOT_CATALOG_API_URL = "/ts/txt/2/catalog.json"
+
+        const val HELPDESK_WEBHOOK_URL = "https://helpdesk.techadvancement.com/wp-json/fluent-support/v2/public/incoming_webhook/"
+        const val DEFAULT_HELPDESK_EMAIL = "bttwriter-desktop-feedback@techadvancement.com"
     }
 
     /**
@@ -369,10 +370,6 @@ class Preference(private val settings: ObservableSettings) {
         setPrefOrNull<String>(LAST_FOCUS_FRAME + targetTranslationId, null)
         setPrefOrNull<String>(LAST_FOCUS_CHAPTER + targetTranslationId, null)
         setPrefOrNull<String>(LAST_VIEW_MODE + targetTranslationId, null)
-    }
-
-    fun getGithubBugReportRepo(): String {
-        return getPref(GITHUB_BUG_REPORT_REPO, GITHUB_BUG_REPORT_REPO_URL)
     }
 
     fun getGithubRepoApi(): String {

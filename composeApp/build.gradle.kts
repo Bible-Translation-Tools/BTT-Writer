@@ -18,9 +18,12 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
     val outputDir = layout.buildDirectory.dir("generated/buildinfo/kotlin")
     val versionNameValue = versionName
     val versionCodeValue = versionCode
+    val helpdeskTokenValue = providers.environmentVariable("HELPDESK_TOKEN")
+        .getOrElse("default_fallback_token")
 
     inputs.property("versionName", versionNameValue)
     inputs.property("versionCode", versionCodeValue)
+    inputs.property("helpdeskToken", helpdeskTokenValue)
     outputs.dir(outputDir)
 
     doLast {
@@ -33,7 +36,7 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
             internal object BuildInfo {
                 const val VERSION_NAME = "$versionNameValue"
                 const val VERSION_CODE = "$versionCodeValue"
-                const val OAUTH_TOKEN = "bad_token"
+                const val HELPDESK_TOKEN = "$helpdeskTokenValue"
             }
             """.trimIndent()
         )

@@ -716,16 +716,15 @@ class ImportUsfmSession internal constructor(
     private fun removeKnownUSFMTags(text: CharSequence): String {
         if (text.isEmpty()) return ""
         val knownTags = setOf("c", "id", "ide", "h", "toc1", "toc2", "toc3", "mt", "p")
-        val regex = Pattern.compile("\\\\(\\w+)(?:\\s([^\\n\\\\]*))?")
-        val matcher = regex.matcher(text)
+        val regex = Regex("""\\(\w+)(?:\s([^\n\\]*))?""")
 
         val builder = StringBuilder()
         var lastPos = 0
-        while (matcher.find()) {
-            val tag = matcher.group(1)
+        for (match in regex.findAll(text)) {
+            val tag = match.groupValues[1]
             if (tag in knownTags) {
-                builder.append(text.subSequence(lastPos, matcher.start()))
-                lastPos = matcher.end()
+                builder.append(text.subSequence(lastPos, match.range.first))
+                lastPos = match.range.last + 1
                 if (lastPos < text.length && text[lastPos] == '\n') lastPos++
             }
         }
