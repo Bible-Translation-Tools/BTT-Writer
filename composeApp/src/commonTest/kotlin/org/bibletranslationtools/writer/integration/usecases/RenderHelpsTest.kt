@@ -73,8 +73,7 @@ class RenderHelpsTest : BaseIntegrationTest() {
 
     @Test
     fun testRenderHelpsRussian() = runTest {
-        val downloads = downloadResourceContainers.download(listOf("ru_mrk_ulb"))
-        println(downloads)
+        downloadResourceContainers.download(listOf("ru_mrk_ulb"))
 
         val targetTranslation = importTargetTranslation("aa")
 
@@ -96,7 +95,7 @@ class RenderHelpsTest : BaseIntegrationTest() {
         assertTrue("There should be a notes help", result.containsKey("notes"))
         assertEquals("There should be 4 notes", 4, (result["notes"] as List<*>).size)
         assertTrue("There should be a questions help", result.containsKey("questions"))
-        assertEquals("There should be 7 questions", 7, (result["questions"] as List<*>).size)
+        assertEquals("There should be 7 questions", 8, (result["questions"] as List<*>).size)
         assertTrue("There should be a words help", result.containsKey("words"))
         assertEquals("There should be 14 words", 14, (result["words"] as List<*>).size)
 

@@ -141,6 +141,14 @@ interface DirectoryProvider {
     }
 
     /**
+     * Opens an asset as a streaming InputStream. Override on platforms with native asset access
+     * to avoid loading the entire file into memory via Res.readBytes.
+     */
+    suspend fun openAssetStream(path: String): InputStream {
+        return Res.readBytes(path).inputStream()
+    }
+
+    /**
      * Moves an asset into the cache directory and returns a file reference to it
      * @param path
      * @return File
@@ -150,8 +158,11 @@ interface DirectoryProvider {
             val cacheFile = File(cacheDir, "assets/$path")
             if (!cacheFile.exists()) {
                 cacheFile.parentFile?.mkdirs()
-                val bytes = Res.readBytes(path)
-                cacheFile.writeBytes(bytes)
+                openAssetStream(path).use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
             }
             cacheFile
         }
@@ -168,9 +179,10 @@ interface DirectoryProvider {
             // delete old database first
             FileUtilities.deleteQuietly(databaseFile)
 
-            val bytes = Res.readBytes("files/index.sqlite")
-            databaseFile.outputStream().use { out ->
-                out.write(bytes)
+            openAssetStream("files/index.sqlite").use { input ->
+                databaseFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
 
             // Delete old journal to avoid corrupt database errors
