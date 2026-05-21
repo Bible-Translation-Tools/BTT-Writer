@@ -100,6 +100,9 @@ class CreateRepositoryTest : BaseIntegrationTest() {
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
+
+        createRepoResponse(403)
+
         val created = createRepository.execute(targetTranslation, onProgress)
 
         assertFalse("Repository should not be created when not authenticated", created)
