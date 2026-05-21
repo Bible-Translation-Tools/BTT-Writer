@@ -13,7 +13,6 @@ import org.bibletranslationtools.writer.core.Chunk
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TranslationHelp
-import org.bibletranslationtools.writer.usecases.DownloadResourceContainers
 import org.bibletranslationtools.writer.usecases.ImportProjects
 import org.bibletranslationtools.writer.usecases.RenderHelps
 import org.junit.Test
@@ -26,7 +25,6 @@ class RenderHelpsTest : BaseIntegrationTest() {
     private val profile: Profile by inject()
     private val renderHelps: RenderHelps by inject()
     private val platform: Platform by inject()
-    private val downloadResourceContainers: DownloadResourceContainers by inject()
 
     override val needsLibrary = true
 
@@ -73,8 +71,6 @@ class RenderHelpsTest : BaseIntegrationTest() {
 
     @Test
     fun testRenderHelpsRussian() = runTest {
-        downloadResourceContainers.download(listOf("ru_mrk_ulb"))
-
         val targetTranslation = importTargetTranslation("aa")
 
         assertNotNull("Target translation should not be null", targetTranslation)
@@ -95,7 +91,7 @@ class RenderHelpsTest : BaseIntegrationTest() {
         assertTrue("There should be a notes help", result.containsKey("notes"))
         assertEquals("There should be 4 notes", 4, (result["notes"] as List<*>).size)
         assertTrue("There should be a questions help", result.containsKey("questions"))
-        assertEquals("There should be 7 questions", 7, (result["questions"] as List<*>).size)
+        assertEquals("There should be 8 questions", 8, (result["questions"] as List<*>).size)
         assertTrue("There should be a words help", result.containsKey("words"))
         assertEquals("There should be 14 words", 14, (result["words"] as List<*>).size)
 
