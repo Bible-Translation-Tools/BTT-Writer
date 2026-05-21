@@ -43,7 +43,9 @@ abstract class BaseIntegrationTest : KoinTest {
         every { preference.getPref(any(), any(), any()) } answers { args[1]!! }
         runBlocking {
             typography.init()
-            if (needsLibrary) directoryProvider.deployDefaultLibrary()
+            if (needsLibrary) {
+                directoryProvider.deployDefaultLibrary()
+            }
         }
         server.start()
     }
