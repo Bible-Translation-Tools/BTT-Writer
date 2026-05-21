@@ -5,11 +5,9 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Catalog
 import org.bibletranslationtools.resourcecatalog.library.models.CatalogType
@@ -28,23 +26,27 @@ class UpdateCatalogsTest : BaseIntegrationTest() {
     private val updateCatalogs: UpdateCatalogs by inject()
     private val catalogClient: ResourceCatalogClient by inject()
 
-    private val server = MockWebServer()
-
     override val needsLibrary = true
 
     @Before
     fun setUp() {
         val dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
-                val successResponse = MockResponse().setResponseCode(200)
-                val notFoundResponse = MockResponse().setResponseCode(404)
+                val successResponse = MockResponse.Builder().code(200)
+                val notFoundResponse = MockResponse.Builder().code(404)
 
-                return when (request.path) {
-                    "/langnames.json" -> successResponse.setBody(runBlocking { createResponse("langnames") })
-                    "/temp-langs.json" -> successResponse.setBody(runBlocking { createResponse("temp_langs") })
-                    "/approved-langs.json" -> successResponse.setBody(runBlocking { createResponse("approved_temp_langs") })
+                return when (request.target) {
+                    "/langnames.json" -> successResponse.body(runBlocking {
+                        createResponse("langnames")
+                    })
+                    "/temp-langs.json" -> successResponse.body(runBlocking {
+                        createResponse("temp_langs")
+                    })
+                    "/approved-langs.json" -> successResponse.body(runBlocking {
+                        createResponse("approved_temp_langs")
+                    })
                     else -> notFoundResponse
-                }
+                }.build()
             }
         }
         server.dispatcher = dispatcher
@@ -55,7 +57,7 @@ class UpdateCatalogsTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUpdateCatalogs() = runTest {
+    fun testUpdateCatalogs() = runBlocking {
         prepareCatalogs()
 
         val result = updateCatalogs.execute(false)

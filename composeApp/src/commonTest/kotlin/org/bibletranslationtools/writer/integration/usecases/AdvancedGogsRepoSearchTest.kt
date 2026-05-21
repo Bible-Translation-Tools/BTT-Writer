@@ -1,13 +1,11 @@
 package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.AdvancedGogsRepoSearch
-import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -20,23 +18,15 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     private val advancedGogsRepoSearch: AdvancedGogsRepoSearch by inject()
     private val preference: Preference by inject()
 
-    private val server = MockWebServer()
-
     @Before
     fun setUp() {
-        server.start()
         every {
             preference.getPref(Preference.KEY_PREF_GOGS_API, any(), String::class)
         } returns server.url("/search").toString()
     }
 
-    @After
-    fun tearDown() {
-        server.shutdown()
-    }
-
     @Test
-    fun searchReposByUser() = runTest {
+    fun searchReposByUser() = runBlocking {
         val user = "test"
 
         server.enqueue(createUsersResponse())
@@ -54,7 +44,7 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByRepoName() = runTest {
+    fun searchReposByRepoName() = runBlocking {
         val repo = "_gen_"
 
         server.enqueue(createReposResponse())
@@ -65,7 +55,7 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByUserAndRepoName() = runTest {
+    fun searchReposByUserAndRepoName() = runBlocking {
         val user = "mxaln"
         val repo = "_gen_"
 
@@ -78,7 +68,7 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentUser() = runTest {
+    fun searchNonExistentUser() = runBlocking {
         val user = "non-existent-user"
 
         server.enqueue(createEmptyDataResponse())
@@ -88,7 +78,7 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentRepo() = runTest {
+    fun searchNonExistentRepo() = runBlocking {
         val repo = "non-existent-repo"
 
         server.enqueue(createEmptyDataResponse())
@@ -109,10 +99,11 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private fun createReposResponse(): MockResponse {
@@ -129,10 +120,11 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private fun createUsersResponse(): MockResponse {
@@ -150,10 +142,11 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private fun createEmptyDataResponse(): MockResponse {
@@ -164,9 +157,10 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 }

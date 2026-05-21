@@ -1,9 +1,8 @@
 package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.SearchGogsRepositories
@@ -24,8 +23,6 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     private val searchGogsRepositories: SearchGogsRepositories by inject()
     private val searchGogsUsers: SearchGogsUsers by inject()
 
-    private val server = MockWebServer()
-
     @Before
     fun setUp() {
         every {
@@ -34,7 +31,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByUser() = runTest {
+    fun searchReposByUser() = runBlocking {
         val userResponse = """
             {
                 "data": [
@@ -48,10 +45,11 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
                 "ok": true
             }
         """.trimIndent()
-        server.enqueue(MockResponse()
-            .setBody(userResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(userResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val user = "test"
         val gogsUser = searchGogsUsers.execute(user, 1).singleOrNull()
@@ -80,14 +78,16 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
-        server.enqueue(MockResponse()
-            .setBody(repoResponse)
+            .code(200)
+            .build())
+        server.enqueue(MockResponse.Builder()
+            .body(repoResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
@@ -108,7 +108,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByRepoName() = runTest {
+    fun searchReposByRepoName() = runBlocking {
         val repo1Response = """
             {
                 "id": 111,
@@ -144,18 +144,21 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
         // There should be 3 request done
         // First request is to fetch repos by query
         // Second and third requests are to fetch additional data for found repos in the first request
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
-        server.enqueue(MockResponse()
-            .setBody(repo1Response)
+            .code(200)
+            .build())
+        server.enqueue(MockResponse.Builder()
+            .body(repo1Response)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
-        server.enqueue(MockResponse()
-            .setBody(repo2Response)
+            .code(200)
+            .build())
+        server.enqueue(MockResponse.Builder()
+            .body(repo2Response)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val query = "_gen_"
         val repos = searchGogsRepositories.execute(0, query, 3)
@@ -167,17 +170,18 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentRepo() = runTest {
+    fun searchNonExistentRepo() = runBlocking {
         val reposResponse = """
             {
                 "data": [],
                 "ok": true
             }
         """.trimIndent()
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val query = "non-existent-repo"
         val repos = searchGogsRepositories.execute(0, query, 3)

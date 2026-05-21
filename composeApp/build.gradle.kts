@@ -134,6 +134,7 @@ kotlin {
                 implementation(libs.mockk)
                 implementation(libs.mockk.agent)
                 implementation(libs.mock.webserver)
+                implementation(libs.ktor.client.mock)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }

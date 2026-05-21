@@ -5,11 +5,9 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.TestUtils
@@ -29,8 +27,6 @@ class UpdateSourceTest : BaseIntegrationTest() {
     private val updateSource: UpdateSource by inject()
     private val preference: Preference by inject()
 
-    private val server = MockWebServer()
-
     override val needsLibrary = true
 
     @Before
@@ -39,21 +35,37 @@ class UpdateSourceTest : BaseIntegrationTest() {
 
         val dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
-                val successResponse = MockResponse().setResponseCode(200)
-                val notFoundResponse = MockResponse().setResponseCode(404)
-                val isCatalog = request.path?.endsWith("/catalog.json") ?: false
+                val successResponse = MockResponse.Builder().code(200)
+                val notFoundResponse = MockResponse.Builder().code(404)
+                val isCatalog = request.target.endsWith("/catalog.json")
 
                 return when {
-                    request.path == "/mat" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("mat"))
-                    request.path == "/mat_es" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("mat_es"))
-                    request.path == "/mat_tpi" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("mat_tpi"))
-                    request.path == "/mat_test" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("mat_test"))
-                    request.path == "/luk" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("luk"))
-                    request.path == "/luk_es" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("luk_es"))
-                    request.path == "/luk_tpi" -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("luk_tpi"))
-                    isCatalog -> successResponse.addHeader("Content-Type", "application/json").setBody(createResponse("catalog"))
+                    request.target == "/mat" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("mat"))
+                    request.target == "/mat_es" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("mat_es"))
+                    request.target == "/mat_tpi" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("mat_tpi"))
+                    request.target == "/mat_test" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("mat_test"))
+                    request.target == "/luk" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("luk"))
+                    request.target == "/luk_es" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("luk_es"))
+                    request.target == "/luk_tpi" -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("luk_tpi"))
+                    isCatalog -> successResponse
+                        .addHeader("Content-Type", "application/json")
+                        .body(createResponse("catalog"))
                     else -> notFoundResponse
-                }
+                }.build()
             }
         }
         server.dispatcher = dispatcher
@@ -61,12 +73,11 @@ class UpdateSourceTest : BaseIntegrationTest() {
 
     @After
     fun tearDown() {
-        server.shutdown()
         runBlocking { directoryProvider.clearCache() }
     }
 
     @Test
-    fun testUpdateSource() = runTest {
+    fun testUpdateSource() = runBlocking {
         val url = server.url("/test")
         every {
             preference.getPref(Preference.KEY_PREF_MEDIA_SERVER, any(), String::class)

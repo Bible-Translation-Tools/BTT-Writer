@@ -2,9 +2,7 @@ package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
@@ -36,8 +34,6 @@ class CreateRepositoryTest : BaseIntegrationTest() {
 
     private lateinit var targetTranslation: TargetTranslation
 
-    private val server = MockWebServer()
-
     override val needsLibrary = true
 
     @Before
@@ -66,7 +62,7 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun createRepositoryWithAuthenticationSucceeds() = runTest {
+    fun createRepositoryWithAuthenticationSucceeds() = runBlocking {
         loginGogsUser()
 
         createRepoResponse(201)
@@ -77,7 +73,7 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun createRepositoryThatAlreadyExistsSucceeds() = runTest {
+    fun createRepositoryThatAlreadyExistsSucceeds() = runBlocking {
         loginGogsUser()
 
         createRepoResponse(409)
@@ -88,7 +84,7 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun createRepositoryServerError() = runTest {
+    fun createRepositoryServerError() = runBlocking {
         loginGogsUser()
 
         createRepoResponse(500)
@@ -99,7 +95,7 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun createRepositoryWithoutAuthenticationFails() = runTest {
+    fun createRepositoryWithoutAuthenticationFails() = runBlocking {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -110,7 +106,7 @@ class CreateRepositoryTest : BaseIntegrationTest() {
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
-    private fun loginGogsUser()  = runTest{
+    private fun loginGogsUser()  = runBlocking{
         profile.gogsUser = TestUtils.simulateLoginGogsUser(
             platform,
             server,
@@ -130,10 +126,11 @@ class CreateRepositoryTest : BaseIntegrationTest() {
             }
         """.trimIndent()
 
-        server.enqueue(MockResponse()
-            .setBody(body)
+        server.enqueue(MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(responseCode)
+            .code(responseCode)
+            .build()
         )
     }
 }

@@ -1,13 +1,11 @@
 package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.SearchGogsUsers
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -21,24 +19,15 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     private val preference: Preference by inject()
     private val searchGogsUsers: SearchGogsUsers by inject()
 
-    private val server = MockWebServer()
-
     @Before
     fun setUp() {
-        server.start()
-
         every {
             preference.getPref(Preference.KEY_PREF_GOGS_API, any(), String::class)
         } returns server.url("/search").toString()
     }
 
-    @After
-    fun tearDown() {
-        server.shutdown()
-    }
-
     @Test
-    fun searchParticularUser() = runTest {
+    fun searchParticularUser() = runBlocking {
         val user = "test"
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
@@ -58,10 +47,11 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
                 "ok": true
             }
         """.trimIndent()
-        server.enqueue(MockResponse()
-            .setBody(successResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(successResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val gogsUser = searchGogsUsers.execute(user, 1, onProgress).singleOrNull()
 
@@ -72,7 +62,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchMultipleUsersByQuery() = runTest {
+    fun searchMultipleUsersByQuery() = runBlocking {
         val successResponse = """
             {
                 "data": [
@@ -92,10 +82,11 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
                 "ok": true
             }
         """.trimIndent()
-        server.enqueue(MockResponse()
-            .setBody(successResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(successResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val userQuery = "test"
         val gogsUsers = searchGogsUsers.execute(userQuery, 3)
@@ -107,17 +98,18 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentUsers() = runTest {
+    fun searchNonExistentUsers() = runBlocking {
         val successResponse = """
             {
                 "data": [],
                 "ok": true
             }
         """.trimIndent()
-        server.enqueue(MockResponse()
-            .setBody(successResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(successResponse)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200))
+            .code(200)
+            .build())
 
         val userQuery = "non-existent-user"
         val gogsUsers = searchGogsUsers.execute(userQuery, 3)

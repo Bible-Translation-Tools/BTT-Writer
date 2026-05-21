@@ -36,7 +36,7 @@ class SearchGogsUsers(
         val users = api.searchUsers(userQuery, limit, null)
         val response = api.getLastResponse()
 
-        if (response?.success == false) {
+        if (response != null) {
             val code = response.code
             val message = response.message.ifNotNullOrEmpty { ", message: $it" }
             throw Exception("Failed to get the list of users. Gogs responded with code $code$message")

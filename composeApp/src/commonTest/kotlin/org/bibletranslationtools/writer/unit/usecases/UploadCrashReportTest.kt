@@ -6,16 +6,18 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
-import io.mockk.mockkConstructor
+import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.bibletranslationtools.logger.GithubReporter
+import org.bibletranslationtools.logger.HttpReporter
 import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.logger.ReporterError
 import org.bibletranslationtools.writer.DirectoryProvider
-import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.getHttpReporter
 import org.bibletranslationtools.writer.usecases.UploadCrashReport
 import org.junit.After
 import org.junit.Assert.assertFalse
@@ -25,12 +27,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
-import java.io.IOException
 
 class UploadCrashReportTest {
 
     @MockK private lateinit var directoryProvider: DirectoryProvider
-    @MockK private lateinit var preference: Preference
+
+    private lateinit var mockReporter: HttpReporter
 
     @JvmField
     @Rule
@@ -40,15 +42,16 @@ class UploadCrashReportTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { preference.getGithubBugReportRepo() }.returns("/github")
-
         every { directoryProvider.logFile }.returns(tempDir.newFile("test.log"))
 
         mockkObject(Logger)
         every { Logger.listStacktraces() }.returns(emptyList())
         every { Logger.flush() }.just(runs)
+        every { Logger.e(any(), any()) }.just(runs)
 
-        mockkConstructor(GithubReporter::class)
+        mockReporter = mockk()
+        mockkStatic(::getHttpReporter)
+        every { getHttpReporter(any(), any(), any()) } returns mockReporter
     }
 
     @After
@@ -62,18 +65,13 @@ class UploadCrashReportTest {
         val stacktrace = tempDir.newFile("stacktrace.txt")
         every { Logger.listStacktraces() }.returns(listOf(stacktrace))
 
-        coEvery { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
-            .returns(true)
+        coEvery { mockReporter.reportCrash(any(), any<File>(), any()) }.returns(true)
 
-        val success = UploadCrashReport(
-            directoryProvider,
-            preference
-        ).execute("test message")
+        val success = UploadCrashReport(directoryProvider).execute("test message", "")
 
         assertTrue(success)
 
-        verify { preference.getGithubBugReportRepo() }
-        coVerify { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
+        coVerify { mockReporter.reportCrash(any(), any<File>(), any()) }
         verify { Logger.flush() }
     }
 
@@ -82,66 +80,40 @@ class UploadCrashReportTest {
         val stacktrace = tempDir.newFile("stacktrace.txt")
         every { Logger.listStacktraces() }.returns(listOf(stacktrace))
 
-        coEvery { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
-            .returns(false)
+        coEvery { mockReporter.reportCrash(any(), any<File>(), any()) }.returns(false)
+        every { mockReporter.getLastResponse() }.returns(ReporterError(500, "Internal Server Error"))
 
-        val success = UploadCrashReport(
-            directoryProvider,
-            preference
-        ).execute("test message")
+        val success = UploadCrashReport(directoryProvider).execute("test message", "")
 
         assertFalse(success)
 
-        verify { preference.getGithubBugReportRepo() }
-        coVerify { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
+        coVerify { mockReporter.reportCrash(any(), any<File>(), any()) }
         verify(inverse = true) { Logger.flush() }
     }
 
     @Test
     fun `test upload crash report, no stack traces`() = runTest {
-        val success = UploadCrashReport(
-            directoryProvider,
-            preference
-        ).execute("test message")
+        val success = UploadCrashReport(directoryProvider).execute("test message", "")
 
         assertFalse(success)
 
-        verify { preference.getGithubBugReportRepo() }
-        coVerify(inverse = true) { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
+        coVerify(inverse = true) { mockReporter.reportCrash(any(), any<File>(), any()) }
         verify(inverse = true) { Logger.flush() }
     }
 
     @Test
-    fun `test upload crash report throws exception`() = runTest {
+    fun `test upload crash report network error`() = runTest {
         val stacktrace = tempDir.newFile("stacktrace.txt")
         every { Logger.listStacktraces() }.returns(listOf(stacktrace))
 
-        coEvery { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
-            .throws(IOException("An error occurred."))
+        coEvery { mockReporter.reportCrash(any(), any<File>(), any()) }.returns(false)
+        every { mockReporter.getLastResponse() }.returns(ReporterError(-1, "Connection refused"))
 
-        val success = UploadCrashReport(
-            directoryProvider,
-            preference
-        ).execute("test message")
+        val success = UploadCrashReport(directoryProvider).execute("test message", "")
 
         assertFalse(success)
 
-        verify { preference.getGithubBugReportRepo() }
-        coVerify { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
-        verify(inverse = true) { Logger.flush() }
-    }
-
-    @Test
-    fun `test upload crash report, no github token`() = runTest {
-        val success = UploadCrashReport(
-            directoryProvider,
-            preference
-        ).execute("test message")
-
-        assertFalse(success)
-
-        verify { preference.getGithubBugReportRepo() }
-        coVerify(inverse = true) { anyConstructed<GithubReporter>().reportCrash(any(), any<File>(), any()) }
+        coVerify { mockReporter.reportCrash(any(), any<File>(), any()) }
         verify(inverse = true) { Logger.flush() }
     }
 }

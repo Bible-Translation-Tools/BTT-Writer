@@ -1,27 +1,24 @@
 package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import org.bibletranslationtools.logger.Context
+import org.bibletranslationtools.logger.HttpReporter
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.BaseIntegrationTest
-import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.getHttpReporter
 import org.bibletranslationtools.writer.usecases.UploadCrashReport
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.component.inject
 import java.io.File
 
 class UploadCrashReportTest : BaseIntegrationTest() {
-
-    private val preference: Preference by inject()
-
-    private val server = MockWebServer()
 
     private lateinit var crashDir: File
 
@@ -30,44 +27,34 @@ class UploadCrashReportTest : BaseIntegrationTest() {
         crashDir = runBlocking { directoryProvider.createTempDir("crashes") }
         Logger.registerGlobalExceptionHandler(crashDir)
 
-        every {
-            preference.getGithubBugReportRepo()
-        } answers {
-            server.url("/issues").toString()
-        }
+        mockkStatic(::getHttpReporter)
+        every { getHttpReporter(any(), any(), any()) } returns
+            HttpReporter.noAuth(server.url("/issues").toString(), Context("test", "test"))
     }
 
     @After
     fun tearDown() {
+        unmockkAll()
         runBlocking { directoryProvider.clearCache() }
     }
 
     @Test
-    fun testUploadCrashReport() = runTest {
+    fun testUploadCrashReport() = runBlocking {
         createStackTraces()
 
-        server.enqueue(MockResponse().setBody("{success: true}").setResponseCode(200))
+        server.enqueue(MockResponse.Builder().body("{success: true}").code(200).build())
 
         val message = "Test crash report"
-        val uploadCrashReport = UploadCrashReport(directoryProvider, preference)
-        val reported = uploadCrashReport.execute(message)
+        val uploadCrashReport = UploadCrashReport(directoryProvider)
+        val reported = uploadCrashReport.execute(message, "")
 
         assertTrue("Upload success when response code 200", reported)
 
-        val request = server.takeRequest().body.readString(Charsets.UTF_8)
+        val request = server.takeRequest().body!!.string(Charsets.UTF_8)
 
-        assertTrue(
-            "Upload request body contains message",
-            request.contains(message)
-        )
-        assertTrue(
-            "Upload request body contains stacktrace",
-            request.contains("This is a crash")
-        )
-        assertTrue(
-            "Upload request body contains environment",
-            request.contains("Environment")
-        )
+        assertTrue("Upload request body contains message", request.contains(message))
+        assertTrue("Upload request body contains stacktrace", request.contains("This is a crash"))
+        assertTrue("Upload request body contains environment", request.contains("Environment"))
 
         assertTrue(
             "Crash dir is empty after successful upload",
@@ -76,27 +63,27 @@ class UploadCrashReportTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun crashReportFailsWhenNoCrashes() = runTest {
+    fun crashReportFailsWhenNoCrashes() = runBlocking {
         deleteStackTraces()
 
-        server.enqueue(MockResponse().setBody("{success: true}").setResponseCode(200))
+        server.enqueue(MockResponse.Builder().body("{success: true}").code(200).build())
 
         val message = "Test crash report"
-        val uploadCrashReport = UploadCrashReport(directoryProvider, preference)
-        val reported = uploadCrashReport.execute(message)
+        val uploadCrashReport = UploadCrashReport(directoryProvider)
+        val reported = uploadCrashReport.execute(message, "")
 
         assertFalse("Upload failed when no crash files", reported)
     }
 
     @Test
-    fun testUploadCrashServerDown() = runTest {
+    fun testUploadCrashServerDown() = runBlocking {
         createStackTraces()
 
-        server.enqueue(MockResponse().setResponseCode(500))
+        server.enqueue(MockResponse.Builder().code(500).build())
 
         val message = "Test crash report"
-        val uploadCrashReport = UploadCrashReport(directoryProvider, preference)
-        val reported = uploadCrashReport.execute(message)
+        val uploadCrashReport = UploadCrashReport(directoryProvider)
+        val reported = uploadCrashReport.execute(message, "")
 
         assertFalse("Upload fails when response code 500", reported)
     }

@@ -4,11 +4,10 @@ import io.mockk.every
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
+import kotlinx.coroutines.runBlocking
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.RecordedRequest
 import org.bibletranslationtools.gogsclient.User
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.core.Profile
@@ -26,8 +25,6 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
     private val profile: Profile by inject()
     private val preference: Preference by inject()
 
-    private val server = MockWebServer()
-
     @Before
     fun setUp() {
         every { profile.gogsUser } returns null  // default: no user logged in
@@ -40,7 +37,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
 
         val dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
-                return when (request.path) {
+                return when (request.target) {
                     "/api/users/test/keys" -> createResponse("get_keys")
                     "/api/user/keys/test_key" -> createResponse("delete_key")
                     "/api/user/keys" -> createResponse("create_key")
@@ -52,7 +49,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testRegisterSSHKeys() = runTest {
+    fun testRegisterSSHKeys() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -90,7 +87,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testRegisterSSHKeys_noUser() = runTest {
+    fun testRegisterSSHKeys_noUser() = runBlocking {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -132,12 +129,13 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
                     }
                 ]
                 """.trimIndent()
-                MockResponse()
-                    .setBody(body)
+                MockResponse.Builder()
+                    .body(body)
                     .addHeader("Content-Type", "application/json")
-                    .setResponseCode(200)
+                    .code(200)
+                    .build()
             }
-            "delete_key" -> MockResponse().setResponseCode(204)
+            "delete_key" -> MockResponse.Builder().code(204).build()
             "create_key" -> {
                 val body = """
                 {
@@ -145,12 +143,13 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
                     "key": "test_key_1"
                 }
                 """.trimIndent()
-                MockResponse()
-                    .setBody(body)
+                MockResponse.Builder()
+                    .body(body)
                     .addHeader("Content-Type", "application/json")
-                    .setResponseCode(201)
+                    .code(201)
+                    .build()
             }
-            else -> MockResponse().setResponseCode(404)
+            else -> MockResponse.Builder().code(404).build()
         }
     }
 }

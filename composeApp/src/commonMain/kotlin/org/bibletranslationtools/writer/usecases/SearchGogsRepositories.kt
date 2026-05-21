@@ -35,7 +35,7 @@ class SearchGogsRepositories(
         val repos = api.searchRepos(repoQuery, uid, limit)
         val response = api.getLastResponse()
 
-        if (response?.success == false) {
+        if (response != null) {
             val code = response.code
             val message = response.message.ifNotNullOrEmpty { ", message: $it" }
             throw Exception("Failed to get the list of repos. Gogs responded with code $code$message")
@@ -46,7 +46,7 @@ class SearchGogsRepositories(
             val extraRepo = api.getRepo(repo, null)
             val response = api.getLastResponse()
 
-            if (response?.success == false) {
+            if (response != null) {
                 val code = response.code
                 val message = response.message.ifNotNullOrEmpty { ", message: $it" }
                 throw Exception("Failed to get the repo info. Gogs responded with code $code$message")

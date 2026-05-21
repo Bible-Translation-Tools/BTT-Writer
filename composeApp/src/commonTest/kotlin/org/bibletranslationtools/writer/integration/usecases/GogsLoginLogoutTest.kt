@@ -6,9 +6,8 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.gogsclient.User
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
@@ -31,30 +30,27 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
     private val platform: Platform by inject()
 
     private val username = "test"
-    private val server = MockWebServer()
-
     @Before
     fun setUp() {
-        server.start()
         every {
             preference.getPref(Preference.KEY_PREF_GOGS_API, any(), String::class)
         } returns server.url("/api/").toString()
     }
 
     @Test
-    fun testGogsLogin() = runTest {
+    fun testGogsLogin() = runBlocking {
         val user = loginUserWithPassword("Test User")
         assertEquals("Test User", user.fullName)
     }
 
     @Test
-    fun testGogsLoginWithoutFullName() = runTest {
+    fun testGogsLoginWithoutFullName() = runBlocking {
         val user = loginUserWithPassword()
         assertEquals("", user.fullName)
     }
 
     @Test
-    fun testGogsLoginWithWrongCredentials() = runTest {
+    fun testGogsLoginWithWrongCredentials() = runBlocking {
         val result = gogsLogin.execute(
             "btt-test",
             "incorrect_password"
@@ -64,11 +60,11 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testGogsLogout() = runTest {
+    fun testGogsLogout() = runBlocking {
         val userBefore = loginUserWithPassword()
         profile.gogsUser = userBefore
 
-        server.enqueue(MockResponse().setResponseCode(204)) // delete token response
+        server.enqueue(MockResponse.Builder().code(204).build()) // delete token response
 
         gogsLogout.execute()
 
@@ -87,7 +83,7 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
     private suspend fun loginUserWithPassword(fullName: String? = null): User {
         server.enqueue(createLoginResponse(fullName))
         server.enqueue(createGetTokenResponse())
-        server.enqueue(MockResponse().setResponseCode(204)) // Delete token response
+        server.enqueue(MockResponse.Builder().code(204).build()) // Delete token response
         server.enqueue(createTokenResponse())
 
         val result = gogsLogin.execute("username", "password", fullName)
@@ -108,10 +104,11 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
             {"id": 1, "username": "$username", "full_name": "${fullName ?: ""}"}
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private suspend fun createGetTokenResponse(): MockResponse {
@@ -119,10 +116,11 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
             [{"id": 1, "name": "${TestUtils.getTokenStub(platform)}", "sha1": "${TestUtils.generateHash()}"}]
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private suspend fun createTokenResponse(): MockResponse {
@@ -130,9 +128,10 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
             {"id": 1, "name": "${TestUtils.getTokenStub(platform)}", "sha1": "${TestUtils.generateHash()}"}
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(201)
+            .code(201)
+            .build()
     }
 }

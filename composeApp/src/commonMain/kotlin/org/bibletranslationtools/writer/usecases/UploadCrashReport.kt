@@ -8,7 +8,6 @@ import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.getHttpReporter
 import org.jetbrains.compose.resources.getString
-import java.io.IOException
 
 class UploadCrashReport(
     private val directoryProvider: DirectoryProvider
@@ -29,20 +28,12 @@ class UploadCrashReport(
         )
         val stackTraces = Logger.listStacktraces()
         if (stackTraces.isNotEmpty()) {
-            try {
-                // upload most recent stacktrace
-                uploaded = reporter.reportCrash(notes, stackTraces[0], logFile)
-            } catch (e: IOException) {
-                Logger.w(TAG, "Failed to report crash", e)
-            }
+            uploaded = reporter.reportCrash(notes, stackTraces[0], logFile)
 
             if (!uploaded) {
-                Logger.e(
-                    this::class.java.simpleName,
-                    "Failed to upload crash report."
-                )
-            } else { // success
-                // empty the log
+                val error = reporter.getLastResponse()
+                Logger.e(TAG, "Failed to upload crash report. Code: ${error?.code}, message: ${error?.message}")
+            } else {
                 Logger.flush()
             }
         }

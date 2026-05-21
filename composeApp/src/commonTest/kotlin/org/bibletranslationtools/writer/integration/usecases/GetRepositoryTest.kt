@@ -2,9 +2,7 @@ package org.bibletranslationtools.writer.integration.usecases
 
 import io.mockk.every
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
@@ -36,8 +34,6 @@ class GetRepositoryTest : BaseIntegrationTest() {
 
     private lateinit var targetTranslation: TargetTranslation
 
-    private val server = MockWebServer()
-
     override val needsLibrary = true
 
     @Before
@@ -65,7 +61,7 @@ class GetRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getRepositorySucceeds() = runTest {
+    fun getRepositorySucceeds() = runBlocking {
         loginGogsUser()
         processRepoResponse(targetTranslation.id)
 
@@ -77,7 +73,7 @@ class GetRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getRepositoryThatIsNotExactNameFails() = runTest {
+    fun getRepositoryThatIsNotExactNameFails() = runBlocking {
         loginGogsUser()
         processRepoResponse("${targetTranslation.id}_L3")
 
@@ -87,13 +83,13 @@ class GetRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getRepositoryNotAuthorizedFails() = runTest {
+    fun getRepositoryNotAuthorizedFails() = runBlocking {
         val repo = getRepository.execute(targetTranslation)
 
         assertNull("Repository should be null", repo)
     }
 
-    private fun loginGogsUser() = runTest {
+    private fun loginGogsUser() = runBlocking {
         profile.gogsUser = TestUtils.simulateLoginGogsUser(
             platform,
             server,
@@ -117,13 +113,15 @@ class GetRepositoryTest : BaseIntegrationTest() {
         """.trimIndent()
 
         server.enqueue(MockResponse()) // create repo response
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
             .addHeader("Content-Type", "application/json")
+            .build()
         ) // fetch repos response
-        server.enqueue(MockResponse()
-            .setBody(repoResponse)
+        server.enqueue(MockResponse.Builder()
+            .body(repoResponse)
             .addHeader("Content-Type", "application/json")
+            .build()
         ) // fetch extra repo
     }
 }

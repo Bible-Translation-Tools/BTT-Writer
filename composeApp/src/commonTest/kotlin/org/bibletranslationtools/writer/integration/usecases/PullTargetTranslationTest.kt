@@ -7,9 +7,8 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
@@ -43,7 +42,6 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     private val preference: Preference by inject()
     private val platform: Platform by inject()
 
-    private val server = MockWebServer()
     private lateinit var targetTranslation: TargetTranslation
 
     override val needsLibrary = true
@@ -78,7 +76,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedNewRepo() = runTest {
+    fun testPullTargetTranslationAuthorizedNewRepo() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -108,7 +106,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedExistingRepo() = runTest {
+    fun testPullTargetTranslationAuthorizedExistingRepo() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -145,7 +143,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedExistingRepoNoMergeConflicts() = runTest {
+    fun testPullTargetTranslationAuthorizedExistingRepoNoMergeConflicts() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -179,7 +177,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedConflicts() = runTest {
+    fun testPullTargetTranslationAuthorizedConflicts() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -217,7 +215,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationUnAuthorizedFails() = runTest {
+    fun testPullTargetTranslationUnAuthorizedFails() = runBlocking {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -240,7 +238,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizationFailed() = runTest {
+    fun testPullTargetTranslationAuthorizationFailed() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -276,7 +274,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationRemoteNotFound() = runTest {
+    fun testPullTargetTranslationRemoteNotFound() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -310,7 +308,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationUnknownTransportException() = runTest {
+    fun testPullTargetTranslationUnknownTransportException() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -340,7 +338,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationOutOfMemoryError() = runTest {
+    fun testPullTargetTranslationOutOfMemoryError() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -390,11 +388,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         """.trimIndent()
 
         server.enqueue(MockResponse()) // create repo response
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
-            .addHeader("Content-Type", "application/json")) // fetch repos response
-        server.enqueue(MockResponse()
-            .setBody(repoResponse)
-            .addHeader("Content-Type", "application/json")) // fetch extra repo
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
+            .addHeader("Content-Type", "application/json")
+            .build()) // fetch repos response
+        server.enqueue(
+            MockResponse.Builder()
+            .body(repoResponse)
+            .addHeader("Content-Type", "application/json")
+                .build()) // fetch extra repo
     }
 }

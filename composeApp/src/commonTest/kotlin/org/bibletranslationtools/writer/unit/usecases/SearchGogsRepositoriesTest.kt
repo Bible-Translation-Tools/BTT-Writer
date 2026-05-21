@@ -1,17 +1,19 @@
 package org.bibletranslationtools.writer.unit.usecases
 
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import org.bibletranslationtools.gogsclient.GogsAPI
 import org.bibletranslationtools.gogsclient.Repository
+import org.bibletranslationtools.gogsclient.Response
 import org.bibletranslationtools.gogsclient.User
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.SearchGogsRepositories
@@ -26,16 +28,12 @@ class SearchGogsRepositoriesTest {
 
     private val onProgress = mockk<(Float, String?) -> Unit>(relaxed = true)
 
-    private val server = MockWebServer()
-    private val apiUrl = server.url("/api").toString()
-
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-
+        mockkConstructor(GogsAPI::class)
         every { onProgress(any(), any()) } just runs
-        every { preference.getPref(any(), any(), String::class) }
-            .returns(apiUrl)
+        every { preference.getPref(any(), any(), String::class) }.returns("http://localhost/api")
     }
 
     @After
@@ -45,101 +43,44 @@ class SearchGogsRepositoriesTest {
 
     @Test
     fun `test search with default user`() = runTest {
-        val repoQuery = "_gen_"
-        val limit = 1
+        val repo = Repository(name = "fr_gen_text_reg", fullName = "user/fr_gen_text_reg")
+        coEvery { anyConstructed<GogsAPI>().searchRepos(any(), any(), any()) } returns listOf(repo)
+        coEvery { anyConstructed<GogsAPI>().getRepo(any(), any()) } returns repo
+        every { anyConstructed<GogsAPI>().getLastResponse() } returns null
 
-        val repository: Repository = mockk()
-        every { repository.name }.returns("aa_gen_text_reg")
-
-        server.enqueue(createReposResponse())
-        server.enqueue(createRepoResponse())
-
-        val repositories = SearchGogsRepositories(
-            preference
-        ).execute(0, repoQuery, limit, onProgress)
+        val repositories = SearchGogsRepositories(preference).execute(0, "_gen_", 1, onProgress)
 
         assertEquals(1, repositories.size)
-
         verify { onProgress(any(), "Searching for repositories") }
     }
 
     @Test
     fun `test search with auth user`() = runTest {
-        val repoQuery = "_gen_"
-        val limit = 1
-
-        val user: User = mockk()
+        val user = mockk<User>()
         every { user.id }.returns(1)
 
-        val repository: Repository = mockk()
-        every { repository.name }.returns("aa_gen_text_reg")
+        val repo = Repository(name = "fr_gen_text_reg", fullName = "user/fr_gen_text_reg")
+        coEvery { anyConstructed<GogsAPI>().searchRepos(any(), any(), any()) } returns listOf(repo)
+        coEvery { anyConstructed<GogsAPI>().getRepo(any(), any()) } returns repo
+        every { anyConstructed<GogsAPI>().getLastResponse() } returns null
 
-        server.enqueue(createReposResponse())
-        server.enqueue(createRepoResponse())
-
-        val repositories = SearchGogsRepositories(
-            preference
-        ).execute(user.id, repoQuery, limit, onProgress)
+        val repositories = SearchGogsRepositories(preference).execute(user.id, "_gen_", 1, onProgress)
 
         assertEquals(1, repositories.size)
-
         verify { user.id }
         verify { onProgress(any(), "Searching for repositories") }
     }
 
     @Test
     fun `test search with empty query`() = runTest {
-        val repoQuery = ""
-        val limit = 1
+        val repo = Repository(name = "fr_gen_text_reg", fullName = "user/fr_gen_text_reg")
+        coEvery { anyConstructed<GogsAPI>().searchRepos(any(), any(), any()) } returns listOf(repo)
+        coEvery { anyConstructed<GogsAPI>().getRepo(any(), any()) } returns repo
+        every { anyConstructed<GogsAPI>().getLastResponse() } returns null
 
-        val repository: Repository = mockk()
-        every { repository.name }.returns("aa_gen_text_reg")
-
-        server.enqueue(createReposResponse())
-        server.enqueue(createRepoResponse())
-
-        val repositories = SearchGogsRepositories(
-            preference
-        ).execute(0, repoQuery, limit, onProgress)
+        val repositories = SearchGogsRepositories(preference).execute(0, "", 1, onProgress)
 
         assertEquals(1, repositories.size)
-
         verify { onProgress(any(), "Searching for repositories") }
-    }
-
-    private fun createRepoResponse(): MockResponse {
-        val body = """
-            {
-                "id": 222,
-                "name": "fr_gen_text_reg",
-                "html_url": "http://example.com/fr_gen_text_reg",
-                "clone_url": "http://example.com/fr_gen_text_reg.git",
-                "ssh_url": "ssh://example.com/fr_gen_text_reg.git",
-                "isPrivate": false
-            }
-        """.trimIndent()
-        return MockResponse()
-            .setBody(body)
-            .setResponseCode(200)
-            .addHeader("Content-Type", "application/json")
-    }
-
-    private fun createReposResponse(): MockResponse {
-        val body = """
-            {
-                "data": [
-                    {
-                        "id": 222,
-                        "name": "fr_gen_text_reg",
-                        "isPrivate": false
-                    }
-                ],
-                "ok": true
-            }
-        """.trimIndent()
-        return MockResponse()
-            .setBody(body)
-            .setResponseCode(200)
-            .addHeader("Content-Type", "application/json")
     }
 }

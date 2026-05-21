@@ -5,7 +5,6 @@ import io.mockk.every
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.data.Preference
@@ -33,7 +32,7 @@ class DownloadIndexTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun downloadIndexSucceeds() = runTest {
+    fun downloadIndexSucceeds() = runBlocking {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -64,7 +63,7 @@ class DownloadIndexTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun importIndexSucceeds() = runTest {
+    fun importIndexSucceeds() = runBlocking {
         val languagesBefore = catalogClient.library.getTargetLanguages()
         assertTrue("Languages before should not be empty", languagesBefore.isNotEmpty())
 

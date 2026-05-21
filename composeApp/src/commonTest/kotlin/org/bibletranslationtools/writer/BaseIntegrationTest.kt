@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockWebServer
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.data.Preference
@@ -24,6 +25,8 @@ abstract class BaseIntegrationTest : KoinTest {
 
     open val needsLibrary: Boolean = false
 
+    val server = MockWebServer()
+
     @Before
     fun baseSetUp() {
         startKoin {
@@ -42,6 +45,7 @@ abstract class BaseIntegrationTest : KoinTest {
             typography.init()
             if (needsLibrary) directoryProvider.deployDefaultLibrary()
         }
+        server.start()
     }
 
     @After
@@ -49,5 +53,6 @@ abstract class BaseIntegrationTest : KoinTest {
         runBlocking { directoryProvider.clearCache() }
         (directoryProvider as? TestDirectoryProvider)?.cleanup()
         stopKoin()
+        server.close()
     }
 }

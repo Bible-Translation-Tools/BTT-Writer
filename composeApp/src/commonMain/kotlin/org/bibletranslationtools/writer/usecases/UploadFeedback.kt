@@ -30,11 +30,7 @@ class UploadFeedback(
             userEmail = userEmail.ifEmpty { Preference.DEFAULT_HELPDESK_EMAIL },
             userAgent = getString(Res.string.gogs_user_agent)
         )
-        try {
-            uploaded = reporter.reportBug(notes, logFile)
-        } catch (e: IOException) {
-            Logger.w(TAG, "Failed to upload bug report", e)
-        }
+        uploaded = reporter.reportBug(notes, logFile)
 
         if (uploaded) {
             try {
@@ -43,6 +39,9 @@ class UploadFeedback(
                 Logger.i(TAG, "Failed to reset log file")
             }
             Logger.i(TAG, "Submitted bug report")
+        } else {
+            val error = reporter.getLastResponse()
+            Logger.w(TAG, "Failed to upload bug report. Code: ${error?.code}, message: ${error?.message}")
         }
 
         return uploaded

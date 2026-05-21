@@ -9,9 +9,7 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
@@ -44,7 +42,6 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     private val preference: Preference by inject()
     private val platform: Platform by inject()
 
-    private val server = MockWebServer()
     private lateinit var targetTranslation: TargetTranslation
 
     override val needsLibrary = true
@@ -79,7 +76,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationAuthorized() = runTest {
+    fun testPushTargetTranslationAuthorized() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -110,7 +107,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNotSynced() = runTest {
+    fun testPushTargetTranslationNotSynced() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -141,7 +138,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRefDeleteNotAllowed() = runTest {
+    fun testPushTargetTranslationRefDeleteNotAllowed() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -172,7 +169,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRemoteChanged() = runTest {
+    fun testPushTargetTranslationRemoteChanged() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -203,7 +200,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRejectedByOtherReason() = runTest {
+    fun testPushTargetTranslationRejectedByOtherReason() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -235,7 +232,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNotRejected() = runTest {
+    fun testPushTargetTranslationNotRejected() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -267,7 +264,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationUnAuthorized() = runTest {
+    fun testPushTargetTranslationUnAuthorized() = runBlocking {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -285,7 +282,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationAuthorizationFails() = runTest {
+    fun testPushTargetTranslationAuthorizationFails() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -316,7 +313,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationToPrivateRepoFails() = runTest {
+    fun testPushTargetTranslationToPrivateRepoFails() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -345,7 +342,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNoRemoteException() = runTest {
+    fun testPushTargetTranslationNoRemoteException() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -374,7 +371,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationUnknownTransportException() = runTest {
+    fun testPushTargetTranslationUnknownTransportException() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -403,7 +400,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationOutOfMemoryError() = runTest {
+    fun testPushTargetTranslationOutOfMemoryError() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -428,7 +425,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationGenericError() = runTest {
+    fun testPushTargetTranslationGenericError() = runBlocking {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -473,11 +470,13 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         """.trimIndent()
 
         server.enqueue(MockResponse()) // create repo response
-        server.enqueue(MockResponse()
-            .setBody(reposResponse)
-            .addHeader("Content-Type", "application/json")) // fetch repos response
-        server.enqueue(MockResponse()
-            .setBody(repoResponse)
-            .addHeader("Content-Type", "application/json")) // fetch extra repo
+        server.enqueue(MockResponse.Builder()
+            .body(reposResponse)
+            .addHeader("Content-Type", "application/json")
+            .build()) // fetch repos response
+        server.enqueue(MockResponse.Builder()
+            .body(repoResponse)
+            .addHeader("Content-Type", "application/json")
+            .build()) // fetch extra repo
     }
 }

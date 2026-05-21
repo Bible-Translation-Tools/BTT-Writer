@@ -4,8 +4,8 @@ import btt_writer.composeapp.generated.resources.Res
 import btt_writer.composeapp.generated.resources.gogs_token_name
 import io.github.vinceglb.filekit.PlatformFile
 import junit.framework.TestCase
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.bibletranslationtools.gogsclient.User
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.core.ProcessUSFM
@@ -144,7 +144,7 @@ object TestUtils {
     ): User {
         server.enqueue(createLoginResponse(username, fullName))
         server.enqueue(createGetTokenResponse(platform))
-        server.enqueue(MockResponse().setResponseCode(204)) // Delete token response
+        server.enqueue(MockResponse.Builder().code(204).build()) // Delete token response
         server.enqueue(createTokenResponse(platform))
 
         val result = gogsLogin.execute("username", "password", fullName)
@@ -168,10 +168,11 @@ object TestUtils {
             {"id": 1, "username": "$username", "full_name": "${fullName ?: ""}"}
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private suspend fun createGetTokenResponse(platform: Platform): MockResponse {
@@ -179,10 +180,11 @@ object TestUtils {
             [{"id": 1, "name": "${getTokenStub(platform)}", "sha1": "${generateHash()}"}]
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(200)
+            .code(200)
+            .build()
     }
 
     private suspend fun createTokenResponse(platform: Platform): MockResponse {
@@ -190,10 +192,11 @@ object TestUtils {
             {"id": 1, "name": "${getTokenStub(platform)}", "sha1": "${generateHash()}"}
         """.trimIndent()
 
-        return MockResponse()
-            .setBody(body)
+        return MockResponse.Builder()
+            .body(body)
             .addHeader("Content-Type", "application/json")
-            .setResponseCode(201)
+            .code(201)
+            .build()
     }
 
     suspend fun getTokenStub(platform: Platform): String {
