@@ -79,7 +79,7 @@ class RenderHelpsTest : BaseIntegrationTest() {
 
         val chunk = Chunk(
             "01",
-            "01",
+            "04",
             rc,
             targetTranslation!!,
         )
@@ -89,29 +89,29 @@ class RenderHelpsTest : BaseIntegrationTest() {
         assertTrue("Helps should not be empty", result.isNotEmpty())
         assertEquals("There should be 3 helps", 3, result.size)
         assertTrue("There should be a notes help", result.containsKey("notes"))
-        assertEquals("There should be 4 notes", 4, (result["notes"] as List<*>).size)
+        assertEquals("There should be 3 notes", 3, (result["notes"] as List<*>).size)
         assertTrue("There should be a questions help", result.containsKey("questions"))
-        assertEquals("There should be 8 questions", 8, (result["questions"] as List<*>).size)
+        assertEquals("There should be 3 questions", 3, (result["questions"] as List<*>).size)
         assertTrue("There should be a words help", result.containsKey("words"))
-        assertEquals("There should be 14 words", 14, (result["words"] as List<*>).size)
+        assertEquals("There should be 15 words", 15, (result["words"] as List<*>).size)
 
         val note = (result["notes"] as List<*>).firstOrNull {
             (it as TranslationHelp).title == "Общая информация:"
         }
         assertNotNull(note)
-        assertTrue((note!! as TranslationHelp).body.contains("Книга Марка начинается"))
+        assertTrue((note!! as TranslationHelp).body.contains("В этих стихах"))
 
         val question = (result["questions"] as List<*>).firstOrNull {
-            (it as TranslationHelp).title.contains("Кем были по профессии", ignoreCase = true)
+            (it as TranslationHelp).title.contains("Что пришёл проповедовать", ignoreCase = true)
         }
         assertNotNull(question)
-        assertTrue((question!! as TranslationHelp).body.contains("были рыбаками.", ignoreCase = true))
+        assertTrue((question!! as TranslationHelp).body.contains("Иоанн пришёл проповедовать крещение", ignoreCase = true))
 
         val word = (result["words"] as List<*>).firstOrNull {
-            (it as Link).chapter == "goodnews"
+            (it as Link).chapter == "johnthebaptist"
         }
         assertNotNull(word)
-        assertTrue((word as? Link)?.title?.contains("благая весть", ignoreCase = true) == true)
+        assertTrue((word as? Link)?.title?.contains("Иоанн (Креститель)", ignoreCase = true) == true)
     }
 
     private suspend fun importTargetTranslation(lang: String): TargetTranslation? {

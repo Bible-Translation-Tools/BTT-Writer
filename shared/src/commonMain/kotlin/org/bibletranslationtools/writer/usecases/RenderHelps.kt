@@ -110,7 +110,7 @@ class RenderHelps(
                             chunk.chapterSlug,
                             verse
                         )
-                        if (verse == vChunk) {
+                        if (vChunk == chunk.chunkSlug) {
                             rawQuestions += "\n\n${rc.readChunk(chunk.chapterSlug, verse)}"
                         }
                     }

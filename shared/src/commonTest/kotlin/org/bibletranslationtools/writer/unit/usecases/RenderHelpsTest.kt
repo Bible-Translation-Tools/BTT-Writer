@@ -82,7 +82,7 @@ class RenderHelpsTest {
         val result = RenderHelps(catalogClient).execute(listItem)
 
         assertEquals(3, result.size)
-        assertEquals(3, (result["questions"]!! as List<*>).size)
+        assertEquals(1, (result["questions"]!! as List<*>).size)
         assertEquals(3, (result["notes"]!! as List<*>).size)
         assertEquals(2, (result["words"]!! as List<*>).size)
 
@@ -109,7 +109,7 @@ class RenderHelpsTest {
         val result = RenderHelps(catalogClient).execute(listItem)
 
         assertEquals(3, result.size)
-        assertEquals(3, (result["questions"]!! as List<*>).size)
+        assertEquals(1, (result["questions"]!! as List<*>).size)
         assertEquals(3, (result["notes"]!! as List<*>).size)
         assertEquals(0, (result["words"]!! as List<*>).size)
 
@@ -198,7 +198,7 @@ class RenderHelpsTest {
         val result = RenderHelps(catalogClient).execute(listItem)
 
         assertEquals(3, result.size)
-        assertEquals(3, (result["questions"]!! as List<*>).size)
+        assertEquals(1, (result["questions"]!! as List<*>).size)
         assertEquals(0, (result["notes"]!! as List<*>).size)
         assertEquals(2, (result["words"]!! as List<*>).size)
 
@@ -228,7 +228,7 @@ class RenderHelpsTest {
         val result = RenderHelps(catalogClient).execute(listItem)
 
         assertEquals(3, result.size)
-        assertEquals(3, (result["questions"]!! as List<*>).size)
+        assertEquals(1, (result["questions"]!! as List<*>).size)
         assertEquals(0, (result["notes"]!! as List<*>).size)
         assertEquals(2, (result["words"]!! as List<*>).size)
 
