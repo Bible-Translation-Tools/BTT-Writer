@@ -65,7 +65,8 @@ object Util {
 
                     // TRICKY: push strings to top
                     when {
-                        i1 == null -> 1
+                        i1 == null && i2 == null -> o1.compareTo(o2)
+                        i1 == null -> -1
                         i2 == null -> 1
                         else -> i1.compareTo(i2)
                     }
