@@ -1,0 +1,134 @@
+package org.bibletranslationtools.writer.ui.translate.chunk
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import btt_writer.shared.generated.resources.Res
+import btt_writer.shared.generated.resources.conflict_exists
+import org.bibletranslationtools.writer.ui.translate.components.UsfmEditText
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TextStyleType
+import org.bibletranslationtools.writer.core.TranslationType
+import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.ui.translate.ChunkItem
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.jetbrains.compose.resources.stringResource
+
+
+@Composable
+fun ChunkTargetCard(
+    item: ChunkItem,
+    targetTranslation: TargetTranslation,
+    typography: Typography,
+    onTextChange: (String) -> Unit,
+    onCompleteItemClick: () -> Unit,
+    onConflictClick: (String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val titleStyle = typography.getComposeTextStyle(
+        translationType = TranslationType.TARGET,
+        style = TextStyleType.SUB,
+        languageCode = targetTranslation.targetLanguage.slug,
+        direction = targetTranslation.targetLanguage.direction
+    )
+
+    val bodyStyle = typography.getComposeTextStyle(
+        translationType = TranslationType.TARGET,
+        style = TextStyleType.NORMAL,
+        languageCode = targetTranslation.targetLanguage.slug,
+        direction = targetTranslation.targetLanguage.direction
+    )
+
+    var waitingForFocus by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = modifier.fillMaxSize(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = item.targetTitle,
+                style = titleStyle,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(bottom = 16.dp, end = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (!item.hasMergeConflict) {
+                    UsfmEditText(
+                        text = item.targetText,
+                        onTextChange = {
+                            onTextChange(it)
+                        },
+                        textStyle = bodyStyle,
+                        shouldFocus = waitingForFocus && !item.isComplete,
+                        onFocusConsumed = { waitingForFocus = false },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    TextButton(
+                        onClick = {
+                            onConflictClick(item.chunk.chapterSlug, item.chunk.chunkSlug)
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        ),
+                        shape = RoundedCornerShape(0),
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.conflict_exists)
+                        )
+                    }
+                }
+
+                if (item.isComplete) {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                            .clickable {
+                                if (!item.sourceOnTop) {
+                                    waitingForFocus = true
+                                    onCompleteItemClick()
+                                }
+                            }
+                    )
+                }
+            }
+        }
+    }
+}

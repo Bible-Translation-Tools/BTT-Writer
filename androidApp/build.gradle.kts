@@ -61,7 +61,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.foundation)
-    implementation(projects.composeApp)
+    implementation(projects.shared)
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.uiTooling)
 

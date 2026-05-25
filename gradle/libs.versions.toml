@@ -5,7 +5,7 @@ android-compileSdk = "37"
 android-minSdk = "26"
 android-targetSdk = "37"
 app-version-name = "2.0.0"
-app-version-code = "56"
+app-version-code = "57"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.10.0"
 composeHotReload = "1.1.1"
@@ -111,7 +111,6 @@ foreground = { group = "org.unfoldingword.tools", name = "foreground", version.r
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "mockk" }
-koin-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
 mock-webserver = { group = "com.squareup.okhttp3", name = "mockwebserver3", version.ref = "mockwebserver" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
@@ -123,5 +122,6 @@ composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "com
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
