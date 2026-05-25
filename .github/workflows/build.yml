@@ -77,12 +77,12 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build macOS DMG
-        run: ./gradlew :composeApp:packageDmg
+        run: ./gradlew :desktopApp:packageDmg
 
       - name: Upload macOS DMG
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/dmg
+          source-dir: desktopApp/build/compose/binaries/main/dmg
           extension: dmg
           platform-suffix: macos
 
@@ -98,12 +98,12 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build Windows MSI
-        run: ./gradlew :composeApp:packageMsi
+        run: ./gradlew :desktopApp:packageMsi
 
       - name: Upload Windows MSI
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/msi
+          source-dir: desktopApp/build/compose/binaries/main/msi
           extension: msi
           platform-suffix: windows
 
@@ -119,12 +119,12 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build Linux DEB
-        run: ./gradlew :composeApp:packageDeb
+        run: ./gradlew :desktopApp:packageDeb
 
       - name: Upload Linux DEB
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/deb
+          source-dir: desktopApp/build/compose/binaries/main/deb
           extension: deb
           platform-suffix: linux
 
