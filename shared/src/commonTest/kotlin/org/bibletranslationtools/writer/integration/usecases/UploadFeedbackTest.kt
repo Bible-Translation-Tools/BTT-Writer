@@ -36,7 +36,7 @@ class UploadFeedbackTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUploadFeedback() = runBlocking {
+    fun testUploadFeedback() {
         server.enqueue(MockResponse.Builder().body("{success: true}").code(200).build())
 
         Logger.i("UploadFeedbackTest", "This is an info log.")
@@ -50,7 +50,7 @@ class UploadFeedbackTest : BaseIntegrationTest() {
 
         val uploadFeedback = UploadFeedback(directoryProvider)
         val notes = "This is a test note"
-        val uploaded = uploadFeedback.execute(notes, "")
+        val uploaded = runBlocking { uploadFeedback.execute(notes, "") }
 
         assertTrue("Feedback should be uploaded", uploaded)
 
@@ -71,7 +71,7 @@ class UploadFeedbackTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUploadFailsOnServerDown() = runBlocking {
+    fun testUploadFailsOnServerDown() {
         server.enqueue(MockResponse.Builder().body("{success: true}").code(500).build())
 
         Logger.i("UploadFeedbackTest", "This is an info log.")
@@ -85,7 +85,7 @@ class UploadFeedbackTest : BaseIntegrationTest() {
 
         val uploadFeedback = UploadFeedback(directoryProvider)
         val notes = "This is a test note"
-        val uploaded = uploadFeedback.execute(notes, "")
+        val uploaded = runBlocking { uploadFeedback.execute(notes, "") }
 
         assertFalse("Upload should be failed", uploaded)
         assertTrue(

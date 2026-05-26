@@ -52,7 +52,7 @@ class PushTargetTranslation(
 
                 return repository?.let {
                     push(repo, repository.sshUrl, onProgress)
-                } ?: Result(Status.UNKNOWN, "Failed to get repository ${targetTranslation.id}")
+                } ?: Result(Status.UNKNOWN, null)
 
             } catch (e: Exception) {
                 Logger.e(TAG, "Failed to push target translation", e)

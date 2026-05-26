@@ -61,11 +61,11 @@ class GetRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getRepositorySucceeds() = runBlocking {
+    fun getRepositorySucceeds() {
         loginGogsUser()
         processRepoResponse(targetTranslation.id)
 
-        val repo = getRepository.execute(targetTranslation)
+        val repo = runBlocking { getRepository.execute(targetTranslation) }
 
         assertNotNull("Repository should not be null", repo)
 
@@ -73,29 +73,26 @@ class GetRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun getRepositoryThatIsNotExactNameFails() = runBlocking {
+    fun getRepositoryThatIsNotExactNameFails() {
         loginGogsUser()
         processRepoResponse("${targetTranslation.id}_L3")
 
-        val repo = getRepository.execute(targetTranslation)
+        val repo = runBlocking { getRepository.execute(targetTranslation) }
 
         assertNull("Repository should be null", repo)
     }
 
     @Test
-    fun getRepositoryNotAuthorizedFails() = runBlocking {
-        val repo = getRepository.execute(targetTranslation)
+    fun getRepositoryNotAuthorizedFails() {
+        val repo = runBlocking { getRepository.execute(targetTranslation) }
 
         assertNull("Repository should be null", repo)
     }
 
-    private fun loginGogsUser() = runBlocking {
-        profile.gogsUser = TestUtils.simulateLoginGogsUser(
-            platform,
-            server,
-            gogsLogin,
-            "test"
-        )
+    private fun loginGogsUser() {
+        profile.gogsUser = runBlocking {
+            TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+        }
     }
 
     private fun processRepoResponse(id: String) {

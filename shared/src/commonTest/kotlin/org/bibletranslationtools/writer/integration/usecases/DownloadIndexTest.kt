@@ -32,7 +32,7 @@ class DownloadIndexTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun downloadIndexSucceeds() = runBlocking {
+    fun downloadIndexSucceeds() {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -44,7 +44,7 @@ class DownloadIndexTest : BaseIntegrationTest() {
         }
         assertTrue("Languages before should not be empty", languagesBefore.isNotEmpty())
 
-        val downloaded = downloadIndex.download(onProgress)
+        val downloaded = runBlocking { downloadIndex.download(onProgress) }
 
         assertTrue("Download result should be true", downloaded)
         assertNotNull("Progress message should not be null", progressMessage)
@@ -63,18 +63,18 @@ class DownloadIndexTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun importIndexSucceeds() = runBlocking {
+    fun importIndexSucceeds() {
         val languagesBefore = catalogClient.library.getTargetLanguages()
         assertTrue("Languages before should not be empty", languagesBefore.isNotEmpty())
 
-        val indexFile = directoryProvider.createTempFile("index", ".sqlite")
+        val indexFile = runBlocking { directoryProvider.createTempFile("index", ".sqlite") }
         directoryProvider.databaseFile.inputStream().use { input ->
             indexFile.outputStream().use { output ->
                 input.copyTo(output)
             }
         }
 
-        val imported = downloadIndex.import(PlatformFile(indexFile))
+        val imported = runBlocking { downloadIndex.import(PlatformFile(indexFile)) }
 
         assertTrue("Import result should be true", imported)
 

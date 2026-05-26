@@ -49,7 +49,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testRegisterSSHKeys() = runBlocking {
+    fun testRegisterSSHKeys() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -60,7 +60,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
         val hasSSHKeys = directoryProvider.hasSSHKeys()
         assertFalse("SSH keys should not exist", hasSSHKeys)
 
-        val registered = registerSSHKeys.execute(false, onProgress)
+        val registered = runBlocking { registerSSHKeys.execute(false, onProgress) }
 
         assertTrue("SSH keys registered ", registered)
         assertNotNull("Progress message should not be null", progressMessage)
@@ -70,7 +70,7 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
         }
 
         progressMessage = null
-        val registered2 = registerSSHKeys.execute(true, onProgress)
+        val registered2 = runBlocking { registerSSHKeys.execute(true, onProgress) }
 
         assertTrue("SSH keys registered with force flag", registered2)
         assertNotNull("Progress message should not be null", progressMessage)
@@ -87,13 +87,13 @@ class RegisterSSHKeysTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testRegisterSSHKeys_noUser() = runBlocking {
+    fun testRegisterSSHKeys_noUser() {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
 
-        val registered = registerSSHKeys.execute(false, onProgress)
+        val registered = runBlocking { registerSSHKeys.execute(false, onProgress) }
 
         assertFalse("SSH keys not registered without user", registered)
         assertNotNull("Progress message should not be null", progressMessage)

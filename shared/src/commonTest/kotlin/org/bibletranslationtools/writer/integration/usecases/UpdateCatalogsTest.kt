@@ -57,10 +57,11 @@ class UpdateCatalogsTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUpdateCatalogs() = runBlocking {
-        prepareCatalogs()
-
-        val result = updateCatalogs.execute(false)
+    fun testUpdateCatalogs() {
+        val result = runBlocking {
+            prepareCatalogs()
+            updateCatalogs.execute(false)
+        }
 
         assertTrue("Update catalogs should succeed", result.success)
         assertEquals("Added 2 languages", 2, result.addedCount)

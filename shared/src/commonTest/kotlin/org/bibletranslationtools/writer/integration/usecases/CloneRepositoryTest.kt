@@ -1,6 +1,6 @@
 package org.bibletranslationtools.writer.integration.usecases
 
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.usecases.CloneRepository
 import org.junit.Assert.assertEquals
@@ -16,14 +16,14 @@ class CloneRepositoryTest : BaseIntegrationTest() {
     private val cloneRepository: CloneRepository by inject()
 
     @Test
-    fun cloneRepositorySuccessfully() = runTest {
+    fun cloneRepositorySuccessfully() {
         val cloneUrl = "https://wacs.bibletranslationtools.org/WycliffeAssociates/en_ulb.git"
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
 
-        val result = cloneRepository.execute(cloneUrl, onProgress)
+        val result = runBlocking { cloneRepository.execute(cloneUrl, onProgress) }
 
         assertNotNull("Clone repository result should not be null", result)
         assertNotNull("Progress message should not be null", progressMessage)
@@ -40,7 +40,7 @@ class CloneRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun cloneNonExistingRepositoryFailed() = runTest {
+    fun cloneNonExistingRepositoryFailed() {
         val cloneUrl = "https://wacs.bibletranslationtools.org/WycliffeAssociates/non_existing_repo.git"
 
         var progressMessage: String? = null
@@ -48,7 +48,7 @@ class CloneRepositoryTest : BaseIntegrationTest() {
             progressMessage = message
         }
 
-        val result = cloneRepository.execute(cloneUrl, onProgress)
+        val result = runBlocking { cloneRepository.execute(cloneUrl, onProgress) }
 
         assertNotNull("Clone repository result should not be null", result)
         assertNotNull("Progress message should not be null", progressMessage)

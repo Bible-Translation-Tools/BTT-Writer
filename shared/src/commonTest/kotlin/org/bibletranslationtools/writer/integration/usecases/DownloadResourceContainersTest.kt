@@ -117,9 +117,9 @@ class DownloadResourceContainersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun downloadIncorrectResourceContainers() = runTest {
+    fun downloadIncorrectResourceContainers() {
         val badTranslationIds = listOf("bad_tr_id1", "bad_tr_id2")
-        val result = downloadResourceContainers.download(badTranslationIds)
+        val result = runBlocking { downloadResourceContainers.download(badTranslationIds) }
 
         assertNotNull("Download result should not be null", result)
 

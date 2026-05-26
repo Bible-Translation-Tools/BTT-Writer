@@ -27,7 +27,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchParticularUser() = runBlocking {
+    fun searchParticularUser() {
         val user = "test"
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
@@ -53,7 +53,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
             .code(200)
             .build())
 
-        val gogsUser = searchGogsUsers.execute(user, 1, onProgress).singleOrNull()
+        val gogsUser = runBlocking { searchGogsUsers.execute(user, 1, onProgress).singleOrNull() }
 
         assertNotNull("Gogs user should not be null", gogsUser)
         assertEquals("Ids should match", gogsUser?.id, 222)
@@ -62,7 +62,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchMultipleUsersByQuery() = runBlocking {
+    fun searchMultipleUsersByQuery() {
         val successResponse = """
             {
                 "data": [
@@ -89,7 +89,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
             .build())
 
         val userQuery = "test"
-        val gogsUsers = searchGogsUsers.execute(userQuery, 3)
+        val gogsUsers = runBlocking { searchGogsUsers.execute(userQuery, 3) }
 
         assertTrue("Gogs users should not be empty", gogsUsers.isNotEmpty())
 
@@ -98,7 +98,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentUsers() = runBlocking {
+    fun searchNonExistentUsers() {
         val successResponse = """
             {
                 "data": [],
@@ -112,7 +112,7 @@ class SearchGogsUsersTest : BaseIntegrationTest() {
             .build())
 
         val userQuery = "non-existent-user"
-        val gogsUsers = searchGogsUsers.execute(userQuery, 3)
+        val gogsUsers = runBlocking { searchGogsUsers.execute(userQuery, 3) }
         assertTrue("Gogs users should be empty", gogsUsers.isEmpty())
     }
 }

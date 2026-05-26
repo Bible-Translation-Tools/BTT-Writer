@@ -1,6 +1,6 @@
 package org.bibletranslationtools.writer.integration.usecases
 
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.bibletranslationtools.writer.BaseIntegrationTest
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.usecases.CheckForLatestRelease
@@ -16,8 +16,8 @@ class CheckForLatestReleaseTest : BaseIntegrationTest() {
     private val platform: Platform by inject()
 
     @Test
-    fun checkForLatestRelease() = runTest {
-        val result = checkForLatestRelease.execute()
+    fun checkForLatestRelease() {
+        val result = runBlocking { checkForLatestRelease.execute() }
 
         if (result.release != null) {
             assertFalse(

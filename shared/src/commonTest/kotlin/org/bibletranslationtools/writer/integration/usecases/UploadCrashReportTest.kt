@@ -39,14 +39,14 @@ class UploadCrashReportTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUploadCrashReport() = runBlocking {
+    fun testUploadCrashReport() {
         createStackTraces()
 
         server.enqueue(MockResponse.Builder().body("{success: true}").code(200).build())
 
         val message = "Test crash report"
         val uploadCrashReport = UploadCrashReport(directoryProvider)
-        val reported = uploadCrashReport.execute(message, "")
+        val reported = runBlocking { uploadCrashReport.execute(message, "") }
 
         assertTrue("Upload success when response code 200", reported)
 
@@ -63,27 +63,27 @@ class UploadCrashReportTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun crashReportFailsWhenNoCrashes() = runBlocking {
+    fun crashReportFailsWhenNoCrashes() {
         deleteStackTraces()
 
         server.enqueue(MockResponse.Builder().body("{success: true}").code(200).build())
 
         val message = "Test crash report"
         val uploadCrashReport = UploadCrashReport(directoryProvider)
-        val reported = uploadCrashReport.execute(message, "")
+        val reported = runBlocking { uploadCrashReport.execute(message, "") }
 
         assertFalse("Upload failed when no crash files", reported)
     }
 
     @Test
-    fun testUploadCrashServerDown() = runBlocking {
+    fun testUploadCrashServerDown() {
         createStackTraces()
 
         server.enqueue(MockResponse.Builder().code(500).build())
 
         val message = "Test crash report"
         val uploadCrashReport = UploadCrashReport(directoryProvider)
-        val reported = uploadCrashReport.execute(message, "")
+        val reported = runBlocking { uploadCrashReport.execute(message, "") }
 
         assertFalse("Upload fails when response code 500", reported)
     }

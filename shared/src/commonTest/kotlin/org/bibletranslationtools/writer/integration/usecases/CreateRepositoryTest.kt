@@ -62,40 +62,40 @@ class CreateRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun createRepositoryWithAuthenticationSucceeds() = runBlocking {
+    fun createRepositoryWithAuthenticationSucceeds() {
         loginGogsUser()
 
         createRepoResponse(201)
 
-        val created = createRepository.execute(targetTranslation)
+        val created = runBlocking { createRepository.execute(targetTranslation) }
 
         assertTrue("Repository should be created when authenticated", created)
     }
 
     @Test
-    fun createRepositoryThatAlreadyExistsSucceeds() = runBlocking {
+    fun createRepositoryThatAlreadyExistsSucceeds() {
         loginGogsUser()
 
         createRepoResponse(409)
 
-        val created = createRepository.execute(targetTranslation)
+        val created = runBlocking { createRepository.execute(targetTranslation) }
 
         assertTrue("Repository should be created when authenticated", created)
     }
 
     @Test
-    fun createRepositoryServerError() = runBlocking {
+    fun createRepositoryServerError() {
         loginGogsUser()
 
         createRepoResponse(500)
 
-        val created = createRepository.execute(targetTranslation)
+        val created = runBlocking { createRepository.execute(targetTranslation) }
 
         assertFalse("Repository should not be created", created)
     }
 
     @Test
-    fun createRepositoryWithoutAuthenticationFails() = runBlocking {
+    fun createRepositoryWithoutAuthenticationFails() {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -103,19 +103,16 @@ class CreateRepositoryTest : BaseIntegrationTest() {
 
         createRepoResponse(403)
 
-        val created = createRepository.execute(targetTranslation, onProgress)
+        val created = runBlocking { createRepository.execute(targetTranslation, onProgress) }
 
         assertFalse("Repository should not be created when not authenticated", created)
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
-    private fun loginGogsUser()  = runBlocking{
-        profile.gogsUser = TestUtils.simulateLoginGogsUser(
-            platform,
-            server,
-            gogsLogin,
-            "test"
-        )
+    private fun loginGogsUser() {
+        profile.gogsUser = runBlocking {
+            TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+        }
     }
 
     private fun createRepoResponse(responseCode: Int) {

@@ -240,6 +240,7 @@ class UpdateAppTest {
 
         val targetTranslation: TargetTranslation = mockk {
             every { id }.returns("aa_mrk_text_ulb")
+            every { unlockRepo() }.returns(true)
         }
         coEvery { translator.getTargetTranslations() }.returns(listOf(targetTranslation))
 
