@@ -5,6 +5,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.SourceLanguage
@@ -148,6 +149,12 @@ class PublishComponentTest : BaseComponentTest() {
             )
 
             component.openReview(item)
+
+            val start = System.currentTimeMillis()
+            while (resultReceived == null) {
+                check(System.currentTimeMillis() - start < 2000) { "Timeout waiting for openReview result" }
+                delay(10)
+            }
 
             coVerify { preference.setLastViewMode("target-1", org.bibletranslationtools.writer.core.TranslationViewMode.REVIEW) }
             coVerify { preference.setLastFocus("target-1", "1", "1") }
