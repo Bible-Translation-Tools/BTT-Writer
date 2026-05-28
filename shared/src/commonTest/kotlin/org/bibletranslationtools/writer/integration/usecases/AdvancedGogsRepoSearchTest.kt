@@ -26,7 +26,7 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByUser() = runBlocking {
+    fun searchReposByUser() {
         val user = "test"
 
         server.enqueue(createUsersResponse())
@@ -37,25 +37,25 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
-        val repos = advancedGogsRepoSearch.execute(user, "", 5, onProgress)
+        val repos = runBlocking { advancedGogsRepoSearch.execute(user, "", 5, onProgress) }
 
         assertTrue(repos.isNotEmpty())
         assertFalse(progressMessage.isNullOrEmpty())
     }
 
     @Test
-    fun searchReposByRepoName() = runBlocking {
+    fun searchReposByRepoName() {
         val repo = "_gen_"
 
         server.enqueue(createReposResponse())
         server.enqueue(createRepoResponse())
 
-        val repos = advancedGogsRepoSearch.execute("", repo, 5)
+        val repos = runBlocking { advancedGogsRepoSearch.execute("", repo, 5) }
         assertTrue(repos.isNotEmpty())
     }
 
     @Test
-    fun searchReposByUserAndRepoName() = runBlocking {
+    fun searchReposByUserAndRepoName() {
         val user = "mxaln"
         val repo = "_gen_"
 
@@ -63,27 +63,27 @@ class AdvancedGogsRepoSearchTest : BaseIntegrationTest() {
         server.enqueue(createReposResponse())
         server.enqueue(createRepoResponse())
 
-        val repos = advancedGogsRepoSearch.execute(user, repo, 5)
+        val repos = runBlocking { advancedGogsRepoSearch.execute(user, repo, 5) }
         assertTrue(repos.isNotEmpty())
     }
 
     @Test
-    fun searchNonExistentUser() = runBlocking {
+    fun searchNonExistentUser() {
         val user = "non-existent-user"
 
         server.enqueue(createEmptyDataResponse())
 
-        val repos = advancedGogsRepoSearch.execute(user, "", 5)
+        val repos = runBlocking { advancedGogsRepoSearch.execute(user, "", 5) }
         assertTrue(repos.isEmpty())
     }
 
     @Test
-    fun searchNonExistentRepo() = runBlocking {
+    fun searchNonExistentRepo() {
         val repo = "non-existent-repo"
 
         server.enqueue(createEmptyDataResponse())
 
-        val repos = advancedGogsRepoSearch.execute("", repo, 5)
+        val repos = runBlocking { advancedGogsRepoSearch.execute("", repo, 5) }
         assertTrue(repos.isEmpty())
     }
 

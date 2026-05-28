@@ -31,7 +31,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchReposByUser() = runBlocking {
+    fun searchReposByUser() {
         val userResponse = """
             {
                 "data": [
@@ -52,7 +52,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
             .build())
 
         val user = "test"
-        val gogsUser = searchGogsUsers.execute(user, 1).singleOrNull()
+        val gogsUser = runBlocking { searchGogsUsers.execute(user, 1).singleOrNull() }
 
         assertNotNull("Gogs user should not be null", gogsUser)
         assertEquals("Gogs user id should match", gogsUser?.id, 222)
@@ -93,7 +93,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
-        val repos = searchGogsRepositories.execute(gogsUser!!.id, "", 3, onProgress)
+        val repos = runBlocking { searchGogsRepositories.execute(gogsUser!!.id, "", 3, onProgress) }
 
         assertTrue("Repos should not be empty", repos.isNotEmpty())
         assertFalse("Progress message should not be empty", progressMessage.isNullOrEmpty())
@@ -104,11 +104,11 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
         assertEquals("Repo cloneUrl should match","http://example.com/test_repo.git", repo.cloneUrl)
         assertEquals("Repo sshUrl should match","ssh://example.com/test_repo.git", repo.sshUrl)
         assertFalse("Repo should not be private", repo.isPrivate)
-        assertEquals("Repo owner should match", gogsUser.username, repo.owner?.username)
+        assertEquals("Repo owner should match", gogsUser!!.username, repo.owner?.username)
     }
 
     @Test
-    fun searchReposByRepoName() = runBlocking {
+    fun searchReposByRepoName() {
         val repo1Response = """
             {
                 "id": 111,
@@ -161,7 +161,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
             .build())
 
         val query = "_gen_"
-        val repos = searchGogsRepositories.execute(0, query, 3)
+        val repos = runBlocking { searchGogsRepositories.execute(0, query, 3) }
         assertTrue("Repos should not be empty", repos.isNotEmpty())
 
         assertEquals("Repos size should match", 2, repos.size)
@@ -170,7 +170,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun searchNonExistentRepo() = runBlocking {
+    fun searchNonExistentRepo() {
         val reposResponse = """
             {
                 "data": [],
@@ -184,7 +184,7 @@ class SearchGogsRepositoriesTest : BaseIntegrationTest() {
             .build())
 
         val query = "non-existent-repo"
-        val repos = searchGogsRepositories.execute(0, query, 3)
+        val repos = runBlocking { searchGogsRepositories.execute(0, query, 3) }
         assertTrue("Repos should be empty", repos.isEmpty())
     }
 }

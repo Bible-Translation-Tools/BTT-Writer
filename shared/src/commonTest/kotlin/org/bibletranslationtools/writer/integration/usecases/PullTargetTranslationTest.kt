@@ -75,7 +75,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedNewRepo() = runBlocking {
+    fun testPullTargetTranslationAuthorizedNewRepo() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -88,12 +88,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PullCommand>().call() }
             .throws(Exception("New repo doesn't have a branch yet."))
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be UNKNOWN",
@@ -105,7 +107,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedExistingRepo() = runBlocking {
+    fun testPullTargetTranslationAuthorizedExistingRepo() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -125,12 +127,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { pullResult.mergeResult }.returns(mergeResult)
         every { anyConstructed<PullCommand>().call() }.returns(pullResult)
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be MERGE_CONFLICTS",
@@ -142,7 +146,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedExistingRepoNoMergeConflicts() = runBlocking {
+    fun testPullTargetTranslationAuthorizedExistingRepoNoMergeConflicts() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -159,12 +163,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { pullResult.mergeResult }.returns(mergeResult)
         every { anyConstructed<PullCommand>().call() }.returns(pullResult)
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be UP_TO_DATE",
@@ -176,7 +182,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizedConflicts() = runBlocking {
+    fun testPullTargetTranslationAuthorizedConflicts() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -197,12 +203,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { pullResult.mergeResult }.returns(mergeResult)
         every { anyConstructed<PullCommand>().call() }.returns(pullResult)
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be MERGE_CONFLICTS",
@@ -214,18 +222,20 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationUnAuthorizedFails() = runBlocking {
+    fun testPullTargetTranslationUnAuthorizedFails() {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be AUTH_FAILURE",
@@ -237,7 +247,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationAuthorizationFailed() = runBlocking {
+    fun testPullTargetTranslationAuthorizationFailed() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -256,12 +266,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PullCommand>().call() }
             .throws(exception)
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be AUTH_FAILURE",
@@ -273,7 +285,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationRemoteNotFound() = runBlocking {
+    fun testPullTargetTranslationRemoteNotFound() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -290,12 +302,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PullCommand>().call() }
             .throws(exception)
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be NO_REMOTE_REPO",
@@ -307,7 +321,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationUnknownTransportException() = runBlocking {
+    fun testPullTargetTranslationUnknownTransportException() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -320,12 +334,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PullCommand>().call() }
             .throws(TransportException("An error occurred."))
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be UNKNOWN",
@@ -337,7 +353,7 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPullTargetTranslationOutOfMemoryError() = runBlocking {
+    fun testPullTargetTranslationOutOfMemoryError() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -350,12 +366,14 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PullCommand>().call() }
             .throws(OutOfMemoryError("Out of memory."))
 
-        val result = pullTargetTranslation.execute(
-            targetTranslation,
-            MergeStrategy.RECURSIVE,
-            null,
-            onProgress
-        )
+        val result = runBlocking {
+            pullTargetTranslation.execute(
+                targetTranslation,
+                MergeStrategy.RECURSIVE,
+                null,
+                onProgress
+            )
+        }
 
         assertEquals(
             "Pull status should be OUT_OF_MEMORY",
@@ -366,8 +384,10 @@ class PullTargetTranslationTest : BaseIntegrationTest() {
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
-    private suspend fun loginGogsUser() {
-        val user = TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+    private fun loginGogsUser() {
+        val user = runBlocking {
+            TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+        }
         every { profile.gogsUser } returns user
         profile.gogsUser = user
     }

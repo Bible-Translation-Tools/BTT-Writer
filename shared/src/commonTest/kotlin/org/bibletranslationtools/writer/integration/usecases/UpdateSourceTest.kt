@@ -77,13 +77,13 @@ class UpdateSourceTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testUpdateSource() = runBlocking {
+    fun testUpdateSource() {
         val url = server.url("/test")
         every {
             preference.getPref(Preference.KEY_PREF_MEDIA_SERVER, any(), String::class)
         } returns url.toString()
 
-        val result = updateSource.execute()
+        val result = runBlocking { updateSource.execute() }
 
         assertTrue("Update source succeeded", result.success)
         assertEquals("Added 1 source", 1, result.addedCount)

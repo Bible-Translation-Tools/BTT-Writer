@@ -60,6 +60,7 @@ class PushTargetTranslationTest {
         every { repository.sshUrl }.returns("ssh://repo.git")
         coEvery { getRepository.execute(targetTranslation, onProgress) }.returns(repository)
 
+        every { targetTranslation.id }.returns("test")
         every { targetTranslation.commitSync() }.returns(true)
         every { targetTranslation.repo }.returns(repo)
         every { repo.git }.returns(git)

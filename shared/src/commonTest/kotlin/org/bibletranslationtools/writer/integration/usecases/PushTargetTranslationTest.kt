@@ -76,7 +76,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationAuthorized() = runBlocking {
+    fun testPushTargetTranslationAuthorized() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -94,7 +94,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail, because remote exists but not synced with local",
@@ -107,7 +109,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNotSynced() = runBlocking {
+    fun testPushTargetTranslationNotSynced() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -125,7 +127,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail, because remote exists but not synced with local",
@@ -138,7 +142,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRefDeleteNotAllowed() = runBlocking {
+    fun testPushTargetTranslationRefDeleteNotAllowed() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -156,7 +160,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail, because remote doesn't allow deleting refs",
@@ -169,7 +175,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRemoteChanged() = runBlocking {
+    fun testPushTargetTranslationRemoteChanged() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -187,7 +193,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail, because remote changed during push",
@@ -200,7 +208,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationRejectedByOtherReason() = runBlocking {
+    fun testPushTargetTranslationRejectedByOtherReason() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -219,7 +227,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail for other reason",
@@ -232,7 +242,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNotRejected() = runBlocking {
+    fun testPushTargetTranslationNotRejected() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -251,7 +261,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { anyConstructed<PushCommand>().call() }.returns(listOf(pushResult))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail for other reason",
@@ -264,13 +276,15 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationUnAuthorized() = runBlocking {
+    fun testPushTargetTranslationUnAuthorized() {
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
         }
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Fails when there is no auth user",
@@ -282,7 +296,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationAuthorizationFails() = runBlocking {
+    fun testPushTargetTranslationAuthorizationFails() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -301,7 +315,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(exception)
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -313,7 +329,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationToPrivateRepoFails() = runBlocking {
+    fun testPushTargetTranslationToPrivateRepoFails() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -330,7 +346,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(exception)
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -342,7 +360,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationNoRemoteException() = runBlocking {
+    fun testPushTargetTranslationNoRemoteException() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -359,7 +377,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(exception)
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -371,7 +391,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationUnknownTransportException() = runBlocking {
+    fun testPushTargetTranslationUnknownTransportException() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -388,7 +408,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(exception)
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -400,7 +422,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationOutOfMemoryError() = runBlocking {
+    fun testPushTargetTranslationOutOfMemoryError() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -413,7 +435,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(OutOfMemoryError("An error occurred."))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -425,7 +449,7 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testPushTargetTranslationGenericError() = runBlocking {
+    fun testPushTargetTranslationGenericError() {
         loginGogsUser()
 
         var progressMessage: String? = null
@@ -438,7 +462,9 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         every { anyConstructed<PushCommand>().call() }
             .throws(Exception("An error occurred."))
 
-        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
+        val result = runBlocking {
+            pushTargetTranslation.execute(targetTranslation, onProgress)
+        }
 
         assertEquals(
             "Push should fail",
@@ -449,8 +475,10 @@ class PushTargetTranslationTest : BaseIntegrationTest() {
         assertNotNull("Progress message should not be null", progressMessage)
     }
 
-    private suspend fun loginGogsUser() {
-        val user = TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+    private fun loginGogsUser() {
+        val user = runBlocking {
+            TestUtils.simulateLoginGogsUser(platform, server, gogsLogin, "test")
+        }
         every { profile.gogsUser } returns user
         profile.gogsUser = user
     }

@@ -38,46 +38,45 @@ class GogsLoginLogoutTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun testGogsLogin() = runBlocking {
-        val user = loginUserWithPassword("Test User")
+    fun testGogsLogin() {
+        val user = runBlocking { loginUserWithPassword("Test User") }
         assertEquals("Test User", user.fullName)
     }
 
     @Test
-    fun testGogsLoginWithoutFullName() = runBlocking {
-        val user = loginUserWithPassword()
+    fun testGogsLoginWithoutFullName() {
+        val user = runBlocking { loginUserWithPassword() }
         assertEquals("", user.fullName)
     }
 
     @Test
-    fun testGogsLoginWithWrongCredentials() = runBlocking {
-        val result = gogsLogin.execute(
-            "btt-test",
-            "incorrect_password"
-        )
+    fun testGogsLoginWithWrongCredentials() {
+        val result = runBlocking { gogsLogin.execute("btt-test", "incorrect_password") }
 
         assertNull("User should be null", result.user)
     }
 
     @Test
-    fun testGogsLogout() = runBlocking {
-        val userBefore = loginUserWithPassword()
-        profile.gogsUser = userBefore
+    fun testGogsLogout() {
+        runBlocking {
+            val userBefore = loginUserWithPassword()
+            profile.gogsUser = userBefore
 
-        server.enqueue(MockResponse.Builder().code(204).build()) // delete token response
+            server.enqueue(MockResponse.Builder().code(204).build()) // delete token response
 
-        gogsLogout.execute()
+            gogsLogout.execute()
 
-        val userAfter = loginUserWithPassword()
+            val userAfter = loginUserWithPassword()
 
-        println(userBefore.token)
-        println(userAfter.token)
+            println(userBefore.token)
+            println(userAfter.token)
 
-        assertFalse(
-            "Token should be updated after logout",
-            userBefore.token == userAfter.token
-        )
-        assertEquals("User should be the same", userBefore.username, userAfter.username)
+            assertFalse(
+                "Token should be updated after logout",
+                userBefore.token == userAfter.token
+            )
+            assertEquals("User should be the same", userBefore.username, userAfter.username)
+        }
     }
 
     private suspend fun loginUserWithPassword(fullName: String? = null): User {
