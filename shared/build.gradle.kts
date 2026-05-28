@@ -134,6 +134,7 @@ kotlin {
                 implementation(libs.mock.webserver)
                 implementation(libs.ktor.client.mock)
                 implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.compose.ui.test)
             }
         }
 
@@ -150,6 +151,12 @@ kotlin {
 
                 // FileKit (used in DesktopDirectoryProvider)
                 implementation(libs.filekit.core)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(compose.desktop.currentOs)
             }
         }
     }

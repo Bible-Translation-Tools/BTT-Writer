@@ -77,7 +77,7 @@ fun UsfmEditText(
     // Icon rendering setup
     val iconPainter = rememberVectorPainter(Icons.Default.Description)
     val iconColorFilter = remember(noteColor) { ColorFilter.tint(noteColor) }
-    var layoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    val layoutResult = remember { mutableStateOf<(() -> TextLayoutResult?)?>(null) }
 
     // Clipboard interception: copy raw USFM instead of visual text with placeholders
     val platformClipboard = LocalClipboard.current
@@ -133,7 +133,7 @@ fun UsfmEditText(
             textStyle = textStyle,
             cursorBrush = SolidColor(textStyle.color),
             onTextLayout = { resultProvider ->
-                layoutResult = resultProvider()
+                layoutResult.value = resultProvider
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -142,7 +142,7 @@ fun UsfmEditText(
                 .drawWithContent {
                     // Draw search highlights behind text
                     if (!searchQuery.isNullOrEmpty()) {
-                        layoutResult?.let { result ->
+                        layoutResult.value?.invoke()?.let { result ->
                             val outputText = result.layoutInput.text.text
                             val lowerOutput = outputText.lowercase()
                             val lowerQuery = searchQuery.lowercase()
@@ -174,7 +174,7 @@ fun UsfmEditText(
                     }
 
                     // Draw footnote icons at NOTE_CHAR positions
-                    layoutResult?.let { result ->
+                    layoutResult.value?.invoke()?.let { result ->
                         val outputText = result.layoutInput.text.text
                         for (i in outputText.indices) {
                             if (outputText[i] == NOTE_CHAR) {
