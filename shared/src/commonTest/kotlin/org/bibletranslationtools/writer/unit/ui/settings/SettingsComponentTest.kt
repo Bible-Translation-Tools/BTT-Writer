@@ -164,6 +164,117 @@ class SettingsComponentTest : BaseComponentTest() {
     }
 
     @Test
+    fun testLoadsSystemFontsWithDisplayNames() {
+        runBlocking {
+            every { typography.getFontNames() } returns listOf("font1.ttf", "/sys/Arial.ttf")
+            every { typography.getSystemFonts() } returns listOf(
+                org.bibletranslationtools.writer.core.SystemFont("Arial", "/sys/Arial.ttf")
+            )
+
+            val component = createComponent()
+            component.state.awaitState { it.availableFonts.size > 1 }
+
+            val fonts = component.state.value.availableFonts
+            val names = component.state.value.availableFontNames
+            assertTrue("/sys/Arial.ttf" in fonts, "system font path listed")
+            assertEquals("Arial", names[fonts.indexOf("/sys/Arial.ttf")])
+        }
+    }
+
+    @Test
+    fun testFontsSortedAlphabeticallyByDisplayName() {
+        runBlocking {
+            coEvery { getStringArray(Res.array.pref_typeface_titles) } returns listOf("Zeta", "Alpha")
+            every { typography.getFontNames() } returns listOf("zfont.ttf", "afont.ttf", "/sys/Mango.ttf")
+            every { typography.getSystemFonts() } returns listOf(
+                org.bibletranslationtools.writer.core.SystemFont("Mango", "/sys/Mango.ttf")
+            )
+
+            val component = createComponent()
+            component.state.awaitState { it.availableFonts.size > 2 }
+
+            assertEquals(
+                listOf("Alpha", "Mango", "Zeta"),
+                component.state.value.availableFontNames
+            )
+            assertEquals(
+                listOf("afont.ttf", "/sys/Mango.ttf", "zfont.ttf"),
+                component.state.value.availableFonts
+            )
+        }
+    }
+
+    @Test
+    fun testImportFontCopiesFileAndRefreshesList() {
+        runBlocking {
+            val file: PlatformFile = mockk(relaxed = true)
+            coEvery { directoryProvider.copyFile(any(), any()) } returns mockk(relaxed = true)
+            every { typography.getFontNames() } returnsMany listOf(
+                listOf("font1.ttf"),
+                listOf("font1.ttf", "/fonts/Custom.ttf")
+            )
+            every { typography.getSystemFonts() } returns listOf(
+                org.bibletranslationtools.writer.core.SystemFont("Custom", "/fonts/Custom.ttf")
+            )
+
+            val component = createComponent()
+            component.state.awaitState { it.availableFonts.isNotEmpty() }
+
+            component.importFont(file)
+            component.state.awaitState { state -> state.availableFonts.any { it == "/fonts/Custom.ttf" } }
+
+            coVerify { directoryProvider.copyFile(file, any()) }
+            assertTrue("/fonts/Custom.ttf" in component.state.value.availableFonts)
+        }
+    }
+
+    @Test
+    fun testImportFontShowsConfirmationDialogWithFontName() {
+        runBlocking {
+            val file: PlatformFile = mockk(relaxed = true)
+            val importedFile = mockk<File>(relaxed = true)
+            every { importedFile.absolutePath } returns "/fonts/Custom.ttf"
+            coEvery { directoryProvider.copyFile(any(), any()) } returns importedFile
+            every { typography.getFontNames() } returnsMany listOf(
+                listOf("font1.ttf"),
+                listOf("font1.ttf", "/fonts/Custom.ttf")
+            )
+            every { typography.getSystemFonts() } returns listOf(
+                org.bibletranslationtools.writer.core.SystemFont("Custom", "/fonts/Custom.ttf")
+            )
+
+            val component = createComponent()
+            component.state.awaitState { it.availableFonts.isNotEmpty() }
+
+            component.importFont(file)
+            component.state.awaitState { it.importedFontName != null }
+            assertEquals("Custom", component.state.value.importedFontName)
+
+            component.dismissImportFontDialog()
+            assertEquals(null, component.state.value.importedFontName)
+        }
+    }
+
+    @Test
+    fun testUpdateTypefaceShowsDisplayName() {
+        runBlocking {
+            every { typography.getFontNames() } returns listOf("font1.ttf", "/sys/Arial.ttf")
+            every { typography.getSystemFonts() } returns listOf(
+                org.bibletranslationtools.writer.core.SystemFont("Arial", "/sys/Arial.ttf")
+            )
+
+            val component = createComponent()
+            component.state.awaitState { it.availableFonts.size > 1 }
+
+            component.updateTranslationTypeface("/sys/Arial.ttf")
+            assertEquals("Arial", component.state.value.currentTranslationFontName)
+
+            component.updateSourceTypeface("/sys/Arial.ttf")
+            assertEquals("Arial", component.state.value.currentSourceFontName)
+        }
+    }
+
+    @Test
     fun testUpdateTranslationFontSize() {
         runBlocking {
             val component = createComponent()

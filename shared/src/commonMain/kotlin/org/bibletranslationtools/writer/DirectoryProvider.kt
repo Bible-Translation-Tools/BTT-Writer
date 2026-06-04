@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer
 import btt_writer.shared.generated.resources.Res
 import btt_writer.shared.generated.resources.keys_dir
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +79,15 @@ interface DirectoryProvider {
      */
     val backupsDir: File
         get() = File(externalAppDir, "backups").apply {
+            mkdirs()
+        }
+
+    /**
+     * The directory where user-imported custom fonts are stored. Scanned by the
+     * system font providers so imported fonts appear in the font picker.
+     */
+    val fontsDir: File
+        get() = File(externalAppDir, "fonts").apply {
             mkdirs()
         }
 
@@ -248,6 +258,25 @@ interface DirectoryProvider {
             FileOutputStream(file).use { fos ->
                 fos.write(contents.toByteArray())
             }
+        }
+    }
+
+    /**
+     * Copies a user-picked file into [dest] dir and returns the stored file.
+     */
+    suspend fun copyFile(file: PlatformFile, dest: File): File {
+        if (!dest.isDirectory) {
+            throw IllegalArgumentException("Dest should be a directory.")
+        }
+
+        return withContext(Dispatchers.IO) {
+            val target = File(dest, file.name)
+            file.inputStream().use { input ->
+                target.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            target
         }
     }
 

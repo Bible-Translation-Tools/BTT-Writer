@@ -79,6 +79,16 @@ class FakeSettingsComponent : SettingsComponent {
         updateSourceFontSizeCalledWith = newValue
     }
 
+    var importFontCalledWith: PlatformFile? = null
+    override fun importFont(file: PlatformFile) {
+        importFontCalledWith = file
+    }
+
+    var dismissImportFontDialogCalled = false
+    override fun dismissImportFontDialog() {
+        dismissImportFontDialogCalled = true
+    }
+
     override fun onContentServerChanged(newValue: String) {
         onContentServerChangedCalledWith = newValue
     }
