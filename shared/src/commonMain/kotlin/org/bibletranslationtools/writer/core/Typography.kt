@@ -27,6 +27,7 @@ import btt_writer.shared.generated.resources.scheherazade_r
 import btt_writer.shared.generated.resources.snr
 import btt_writer.shared.generated.resources.tai_heritage_pro_r
 import btt_writer.shared.generated.resources.tuladha_jejeg_gr
+import androidx.compose.ui.text.font.FontFamily
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
 import org.jetbrains.compose.resources.FontResource
@@ -42,7 +43,10 @@ enum class TextStyleType(val sizeMultiplier: Float) {
 /**
  * Created by mxaln on 2/25/2026.
  */
-class Typography(private val preference: Preference) {
+class Typography(
+    private val preference: Preference,
+    private val systemFontProvider: SystemFontProvider
+) {
 
     private lateinit var defaultFontName: String
     private lateinit var defaultFontSize: String
@@ -96,7 +100,9 @@ class Typography(private val preference: Preference) {
         val fontName = languageSubstituteFonts[languageCode] ?: getFontName(translationType)
 
         return TextFormatConfig(
-            fontAssetPath = "fonts/$fontName",
+            // Bundled keys are bare filenames; system fonts are absolute paths. Keep as-is so
+            // resolveSystemFontFamily receives the real path (resolveFontResource strips any prefix).
+            fontAssetPath = fontName,
             fontSizeSp = baseFontSize * style.sizeMultiplier,
             isBold = style == TextStyleType.TITLE,
             directionString = direction
@@ -117,8 +123,19 @@ class Typography(private val preference: Preference) {
     }
 
     fun getFontNames(): List<String> {
-        return fontResources.keys.toList()
+        return fontResources.keys.toList() + getSystemFonts().map { it.path }
     }
+
+    /** Fonts installed on the host OS, discovered through [SystemFontProvider]. */
+    fun getSystemFonts(): List<SystemFont> = systemFontProvider.listSystemFonts()
+
+    /** True when [fontKey] refers to a font bundled with the app (not a system font). */
+    fun isBundledFont(fontKey: String): Boolean =
+        fontResources.containsKey(fontKey.substringAfterLast('/').lowercase())
+
+    /** Loads a system font file into a [FontFamily], or null if unavailable. */
+    fun resolveSystemFontFamily(path: String): FontFamily? =
+        systemFontProvider.loadFontFamily(path)
 
     private fun getFontName(translationType: TranslationType): String {
         val prefKey = if (translationType == TranslationType.SOURCE) {

@@ -779,6 +779,10 @@ Do you want to enable SD card access?  If so then:
     <string name="success_translation_update">Your translation has been successfully updated.</string>
     <string name="success_translation_update_with_conflicts">Your translation has been successfully updated.\nSome chunks had conflicts and need review.</string>
     <string name="search_hint">Enter Search String</string>
+    <string name="title_add_custom_font">Add custom font</string>
+    <string name="summary_add_custom_font">Import a .ttf or .otf font file</string>
+    <string name="font_imported_title">Font imported</string>
+    <string name="font_imported_message">"%1$s" was imported. You can now select it as your source or target font.</string>
     <string name="search_source">Search Source:</string>
     <string name="search_translation">Search Translation:</string>
     <string name="tip_export_to_usfm">Creates a .usfm file of your project</string>

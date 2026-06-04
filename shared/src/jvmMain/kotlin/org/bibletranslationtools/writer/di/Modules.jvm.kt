@@ -15,6 +15,8 @@ import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.BackupNotifier
 import org.bibletranslationtools.writer.core.BackupScheduler
+import org.bibletranslationtools.writer.core.DesktopSystemFontProvider
+import org.bibletranslationtools.writer.core.SystemFontProvider
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -25,6 +27,7 @@ actual val platformModule = module {
     singleOf(::DesktopDirectoryProvider).bind<DirectoryProvider>()
     singleOf(::DesktopBackupScheduler).bind<BackupScheduler>()
     singleOf(::DesktopBackupNotifier).bind<BackupNotifier>()
+    singleOf(::DesktopSystemFontProvider).bind<SystemFontProvider>()
 
     @OptIn(ExperimentalSettingsApi::class, ExperimentalSettingsImplementation::class)
     single<ObservableSettings> {

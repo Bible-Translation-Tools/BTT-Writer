@@ -11,7 +11,9 @@ import org.bibletranslationtools.writer.AndroidDirectoryProvider
 import org.bibletranslationtools.writer.AndroidPlatform
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.AndroidSystemFontProvider
 import org.bibletranslationtools.writer.core.BackupScheduler
+import org.bibletranslationtools.writer.core.SystemFontProvider
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -22,6 +24,7 @@ actual val platformModule = module {
     singleOf(::AndroidPlatform).bind<Platform>()
     singleOf(::AndroidDirectoryProvider).bind<DirectoryProvider>()
     singleOf(::AndroidBackupScheduler).bind<BackupScheduler>()
+    singleOf(::AndroidSystemFontProvider).bind<SystemFontProvider>()
 
     @OptIn(ExperimentalSettingsApi::class, ExperimentalSettingsImplementation::class)
     single<ObservableSettings> {

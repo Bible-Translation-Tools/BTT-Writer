@@ -58,6 +58,10 @@ import btt_writer.shared.generated.resources.title_media_server
 import btt_writer.shared.generated.resources.title_migrate_old_app
 import btt_writer.shared.generated.resources.title_reader_server
 import btt_writer.shared.generated.resources.title_source_typeface
+import btt_writer.shared.generated.resources.font_imported_message
+import btt_writer.shared.generated.resources.font_imported_title
+import btt_writer.shared.generated.resources.summary_add_custom_font
+import btt_writer.shared.generated.resources.title_add_custom_font
 import btt_writer.shared.generated.resources.title_source_typeface_size
 import btt_writer.shared.generated.resources.title_tm_url
 import btt_writer.shared.generated.resources.title_translation_typeface
@@ -70,7 +74,9 @@ import btt_writer.shared.generated.resources.view_statement_of_faith
 import btt_writer.shared.generated.resources.view_translation_guidelines
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
+import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.LegalDocumentDialog
@@ -110,6 +116,13 @@ fun SettingsScreen(
         dialogSettings = FileKitDialogSettings.createDefault()
     ) { directory: PlatformFile? ->
         directory?.let(component::migrateOldAppData)
+    }
+
+    val openFontPicker = rememberFilePickerLauncher(
+        type = FileKitType.File(extensions = listOf("ttf", "otf")),
+        dialogSettings = FileKitDialogSettings.createDefault()
+    ) { file: PlatformFile? ->
+        file?.let(component::importFont)
     }
 
     val uriHandler = LocalUriHandler.current
@@ -195,6 +208,16 @@ fun SettingsScreen(
                     title = stringResource(Res.string.title_source_typeface_size),
                     summary = state.currentSourceFontSizeName,
                     onClick = { showSourceFontSizeDialog = true }
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                ClickablePreference(
+                    title = stringResource(Res.string.title_add_custom_font),
+                    summary = stringResource(Res.string.summary_add_custom_font),
+                    onClick = { openFontPicker.launch() }
                 )
             }
 
@@ -426,6 +449,20 @@ fun SettingsScreen(
         }
     }
 
+    state.importedFontName?.let { fontName ->
+        BaseDialog(
+            onDismiss = component::dismissImportFontDialog,
+            title = stringResource(Res.string.font_imported_title),
+            message = stringResource(Res.string.font_imported_message, fontName)
+        ) {
+            TextButton(
+                onClick = component::dismissImportFontDialog
+            ) {
+                Text(stringResource(Res.string.label_ok))
+            }
+        }
+    }
+
     if (state.migrationFinished) {
         BaseDialog(
             onDismiss = component::onMigrationFinished,
@@ -462,7 +499,8 @@ fun SettingsScreen(
                 component.updateTranslationTypeface(newFileName)
                 showTranslationFontDialog = false
             },
-            onDismissRequest = { showTranslationFontDialog = false }
+            onDismissRequest = { showTranslationFontDialog = false },
+            searchable = true
         )
     }
 
@@ -490,7 +528,8 @@ fun SettingsScreen(
                 component.updateSourceTypeface(newFileName)
                 showSourceFontDialog = false
             },
-            onDismissRequest = { showSourceFontDialog = false }
+            onDismissRequest = { showSourceFontDialog = false },
+            searchable = true
         )
     }
 

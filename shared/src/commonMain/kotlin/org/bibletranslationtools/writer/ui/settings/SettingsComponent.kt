@@ -89,6 +89,8 @@ interface SettingsComponent {
     fun updateTranslationFontSize(newValue: String)
     fun updateSourceTypeface(newValue: String)
     fun updateSourceFontSize(newValue: String)
+    fun importFont(file: PlatformFile)
+    fun dismissImportFontDialog()
     fun onContentServerChanged(newValue: String)
     fun updateGogsApiUrl(newValue: String)
     fun updateMediaServerUrl(newValue: String)
@@ -125,6 +127,7 @@ interface SettingsComponent {
         val currentSourceFontName: String = "",
         val currentSourceFontSizeValue: String = "",
         val currentSourceFontSizeName: String = "",
+        val importedFontName: String? = null,
 
         // Server Prefs
         val contentServerNames: List<String> = emptyList(),
@@ -362,24 +365,44 @@ class DefaultSettingsComponent(
 
     private fun loadTypefaces() {
         launchWithProgress {
-            val fontNames = getStringArray(Res.array.pref_typeface_titles)
-            val loadedFonts = typography.getFontNames()
-            val defaultFont = getString(Res.string.pref_default_translation_typeface)
+            refreshTypefaces()
+        }
+    }
+
+    private suspend fun refreshTypefaces() {
+        val bundledTitles = getStringArray(Res.array.pref_typeface_titles)
+        val defaultFont = getString(Res.string.pref_default_translation_typeface)
+
+            // Scanning the OS font directories touches the filesystem; keep it off the main thread.
+            val (loadedFonts, systemNameByPath) = withContext(Dispatchers.IO) {
+                typography.getFontNames() to typography.getSystemFonts().associate {
+                    it.path to it.displayName
+                }
+            }
+
+            // Pair each value with its display name (bundled titles aligned by index, system fonts
+            // by their own name), then sort the whole list alphabetically by display name.
+            val sorted = loadedFonts
+                .mapIndexed { index, value ->
+                    value to (systemNameByPath[value] ?: bundledTitles.getOrNull(index) ?: value)
+                }
+                .sortedBy { it.second.lowercase() }
+            val orderedFonts = sorted.map { it.first }
+            val fontNames = sorted.map { it.second }
 
             _state.update { state ->
-                val translationIndex = loadedFonts.indexOf(state.currentTranslationFontValue)
+                val translationIndex = orderedFonts.indexOf(state.currentTranslationFontValue)
                 val translationFontName = fontNames.getOrNull(translationIndex) ?: defaultFont
-                val sourceIndex = loadedFonts.indexOf(state.currentSourceFontValue)
+                val sourceIndex = orderedFonts.indexOf(state.currentSourceFontValue)
                 val sourceFontName = fontNames.getOrNull(sourceIndex) ?: defaultFont
 
                 state.copy(
-                    availableFonts = loadedFonts,
+                    availableFonts = orderedFonts,
                     availableFontNames = fontNames,
                     currentTranslationFontName = translationFontName,
                     currentSourceFontName = sourceFontName
                 )
             }
-        }
     }
 
     override fun updateColorTheme(newValue: String) {
@@ -401,9 +424,8 @@ class DefaultSettingsComponent(
     override fun updateTranslationTypeface(newFileName: String) {
         preference.setPref(Preference.KEY_PREF_TRANSLATION_TYPEFACE, newFileName)
 
-        val newName = _state.value.availableFonts.find {
-            it == newFileName
-        } ?: "Default"
+        val index = _state.value.availableFonts.indexOf(newFileName)
+        val newName = _state.value.availableFontNames.getOrNull(index) ?: "Default"
 
         _state.update {
             it.copy(
@@ -441,10 +463,28 @@ class DefaultSettingsComponent(
         }
     }
 
+    override fun importFont(file: PlatformFile) {
+        launchWithProgress {
+            val imported = withContext(Dispatchers.IO) {
+                directoryProvider.copyFile(file, directoryProvider.fontsDir)
+            }
+            refreshTypefaces()
+
+            val index = _state.value.availableFonts.indexOf(imported.absolutePath)
+            val name = _state.value.availableFontNames.getOrNull(index) ?: imported.name
+            _state.update { it.copy(importedFontName = name) }
+        }
+    }
+
+    override fun dismissImportFontDialog() {
+        _state.update { it.copy(importedFontName = null) }
+    }
+
     override fun updateSourceTypeface(newValue: String) {
         preference.setPref(Preference.KEY_PREF_SOURCE_TYPEFACE, newValue)
 
-        val newName = _state.value.availableFonts.find { it == newValue } ?: "Default"
+        val index = _state.value.availableFonts.indexOf(newValue)
+        val newName = _state.value.availableFontNames.getOrNull(index) ?: "Default"
 
         _state.update {
             it.copy(

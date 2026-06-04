@@ -27,11 +27,13 @@ fun Typography.getComposeTextStyle(
         getFormatConfig(translationType, style, languageCode, direction)
     }
 
-    val fontFamily = FontFamily(
-        Font(
-            resolveFontResource(config.fontAssetPath)
-        )
-    )
+    val fontFamily = if (isBundledFont(config.fontAssetPath)) {
+        FontFamily(Font(resolveFontResource(config.fontAssetPath)))
+    } else {
+        remember(config.fontAssetPath) {
+            resolveSystemFontFamily(config.fontAssetPath)
+        } ?: FontFamily(Font(resolveFontResource(config.fontAssetPath)))
+    }
     val safeSize = if (config.fontSizeSp > 0f) config.fontSizeSp else 18f
 
     return TextStyle(
@@ -44,18 +46,3 @@ fun Typography.getComposeTextStyle(
         color = MaterialTheme.colorScheme.onSurface
     )
 }
-
-//@Composable
-//private fun rememberFontFamily(absolutePath: String): FontFamily {
-//    var family by remember(absolutePath) {
-//        mutableStateOf<FontFamily>(FontFamily.Default)
-//    }
-//
-//    LaunchedEffect(absolutePath) {
-//        runCatching {
-//            val bytes = PlatformFile(absolutePath).readBytes()
-//            family = FontFamily(Font(identity = absolutePath, data = bytes))
-//        }
-//    }
-//    return family
-//}
