@@ -275,6 +275,52 @@ class VerseMarkerDragTest {
         assertEquals("\\v 1 hello world", result)
     }
 
+    // --- footnote drag (reuses moveVerseByRawPosition with the footnote as the marker) ---
+
+    @Test
+    fun `moveVerseByRawPosition moves footnote to start of chunk`() {
+        val text = "hello\\f + \\ft note\\f* world"
+        // footnote tag at raw 5..21, "world" text node starts at 22
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 5,
+            verseRawEnd = 21,
+            marker = "\\f + \\ft note\\f*",
+            targetRawPosition = 0  // rawStart of "hello"
+        )
+        assertEquals("\\f + \\ft note\\f*hello world", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition moves footnote forward past a verse`() {
+        val text = "\\v 1 hello\\f + \\ft note\\f* \\v 2 world"
+        // footnote tag at raw 10..26, \v 2 at 27..31, "world" at 32
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 10,
+            verseRawEnd = 26,
+            marker = "\\f + \\ft note\\f*",
+            targetRawPosition = 32  // rawStart of "world"
+        )
+        // After removing the footnote (16 chars), target 32 adjusts to 16
+        assertEquals("\\v 1 hello \\v 2 \\f + \\ft note\\f*world", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition keeps footnote content intact`() {
+        val text = "alpha\\f + \\ft my note\\f* beta gamma"
+        // footnote tag at raw 5..24, "gamma" text node starts at 30
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 5,
+            verseRawEnd = 24,
+            marker = "\\f + \\ft my note\\f*",
+            targetRawPosition = 30  // rawStart of "gamma"
+        )
+        // After removing the footnote (19 chars), target 30 adjusts to 11
+        assertEquals("alpha beta \\f + \\ft my note\\f*gamma", result)
+    }
+
     @Test
     fun `moveVerseByRawPosition before another verse marker`() {
         val text = "\\v 1 hello \\v 9 \\v 10 world"

@@ -133,6 +133,66 @@ class ComposeTextAdapterTest {
     }
 
     @Test
+    fun note_marker_adds_NOTE_MARKER_annotation() {
+        val nodes = listOf(
+            RenderNode.Note(
+                caller = "+",
+                passage = "some passage",
+                notes = "footnote body",
+                noteStyle = NoteStyle.FOOTNOTE,
+                machineReadable = "\\f + \\ft footnote body\\f*"
+            )
+        )
+        val result = ComposeTextAdapter.convert(nodes)
+        val annotations = result.getStringAnnotations(
+            tag = "NOTE_MARKER", start = 0, end = result.text.length
+        )
+        assertTrue("Expected NOTE_MARKER annotation", annotations.isNotEmpty())
+        assertEquals("\\f + \\ft footnote body\\f*", annotations[0].item)
+    }
+
+    @Test
+    fun note_without_machine_readable_has_no_NOTE_MARKER_annotation() {
+        val nodes = listOf(
+            RenderNode.Note(
+                caller = "+",
+                passage = "some passage",
+                notes = "footnote body",
+                noteStyle = NoteStyle.FOOTNOTE
+            )
+        )
+        val result = ComposeTextAdapter.convert(nodes)
+        val annotations = result.getStringAnnotations(
+            tag = "NOTE_MARKER", start = 0, end = result.text.length
+        )
+        assertTrue(
+            "Note without machineReadable should not have NOTE_MARKER annotation",
+            annotations.isEmpty()
+        )
+    }
+
+    @Test
+    fun note_with_raw_position_adds_RAW_POSITION_annotation() {
+        val nodes = listOf(
+            RenderNode.Note(
+                caller = "+",
+                passage = "some passage",
+                notes = "footnote body",
+                noteStyle = NoteStyle.FOOTNOTE,
+                machineReadable = "\\f + \\ft footnote body\\f*",
+                startPos = 6,
+                endPos = 30
+            )
+        )
+        val result = ComposeTextAdapter.convert(nodes)
+        val annotations = result.getStringAnnotations(
+            tag = "RAW_POSITION", start = 0, end = result.text.length
+        )
+        assertTrue("Expected RAW_POSITION annotation", annotations.isNotEmpty())
+        assertEquals("6|30", annotations[0].item)
+    }
+
+    @Test
     fun note_marker_triggers_onNoteClick_callback() {
         var clickedNote: RenderNode.Note? = null
         val note = RenderNode.Note(

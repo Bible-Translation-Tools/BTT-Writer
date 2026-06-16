@@ -72,6 +72,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private const val VERSE_MARKER_TAG = "VERSE_MARKER"
+private const val NOTE_MARKER_TAG = "NOTE_MARKER"
 private const val RAW_POSITION_TAG = "RAW_POSITION"
 
 private data class DragContext(
@@ -81,7 +82,8 @@ private data class DragContext(
     val annotStart: Int,
     val annotEnd: Int,
     val label: String,
-    val renderedText: AnnotatedString
+    val renderedText: AnnotatedString,
+    val isNote: Boolean = false
 )
 
 @Composable
@@ -300,14 +302,24 @@ fun ReviewTargetCard(
                                             val layout = textLayoutResult ?: return@detectDragGesturesAfterLongPress
                                             val renderedText = currentItem.renderedTargetText
 
-                                            val verseAnnotation = findVerseAnnotationAtPosition(
+                                            // Try verse marker first, then fall back to footnote marker
+                                            val verseAnnotation = findMarkerAnnotationAtPosition(
                                                 layout,
                                                 renderedText,
-                                                offset
-                                            ) ?: return@detectDragGesturesAfterLongPress
-
-                                            val ctx = buildDragContext(renderedText, verseAnnotation)
-                                                ?: return@detectDragGesturesAfterLongPress
+                                                offset,
+                                                VERSE_MARKER_TAG
+                                            )
+                                            val ctx = if (verseAnnotation != null) {
+                                                buildDragContext(renderedText, verseAnnotation)
+                                            } else {
+                                                val noteAnnotation = findMarkerAnnotationAtPosition(
+                                                    layout,
+                                                    renderedText,
+                                                    offset,
+                                                    NOTE_MARKER_TAG
+                                                ) ?: return@detectDragGesturesAfterLongPress
+                                                buildNoteDragContext(renderedText, noteAnnotation)
+                                            } ?: return@detectDragGesturesAfterLongPress
 
                                             dragContext = ctx
                                             dragPosition = offset
@@ -347,8 +359,8 @@ fun ReviewTargetCard(
                         )
 
                         val floatPos = dragPosition
-                        val floatLabel = dragContext?.label
-                        if (floatPos != null && floatLabel != null) {
+                        val floatCtx = dragContext
+                        if (floatPos != null && floatCtx != null) {
                             val pinSize = bodyStyle.fontSize * 2.0
                             val pinSizeDp = with(LocalDensity.current) { pinSize.toDp() }
 
@@ -362,11 +374,20 @@ fun ReviewTargetCard(
                                     }
                                     .size(pinSizeDp)
                             ) {
-                                VersePin(
-                                    label = floatLabel,
-                                    bodyStyle = bodyStyle,
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                                if (floatCtx.isNote) {
+                                    Icon(
+                                        imageVector = Icons.Default.Description,
+                                        contentDescription = "Note",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    VersePin(
+                                        label = floatCtx.label,
+                                        bodyStyle = bodyStyle,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
                             }
                         }
                     }
@@ -465,12 +486,41 @@ private fun buildDragContext(
     )
 }
 
-private fun findVerseAnnotationAtPosition(
+private fun buildNoteDragContext(
+    renderedText: AnnotatedString,
+    noteAnnotation: AnnotatedString.Range<String>
+): DragContext? {
+    val machineReadable = noteAnnotation.item
+    if (machineReadable.isEmpty()) return null
+
+    val rawParts = renderedText.getStringAnnotations(
+        RAW_POSITION_TAG,
+        noteAnnotation.start,
+        noteAnnotation.end
+    ).firstOrNull()?.item?.split("|") ?: return null
+
+    val noteRawStart = rawParts.getOrNull(0)?.toIntOrNull() ?: return null
+    val noteRawEnd = rawParts.getOrNull(1)?.toIntOrNull() ?: return null
+
+    return DragContext(
+        machineReadable = machineReadable,
+        verseRawStart = noteRawStart,
+        verseRawEnd = noteRawEnd,
+        annotStart = noteAnnotation.start,
+        annotEnd = noteAnnotation.end,
+        label = "",
+        renderedText = renderedText,
+        isNote = true
+    )
+}
+
+private fun findMarkerAnnotationAtPosition(
     layout: TextLayoutResult,
     renderedText: AnnotatedString,
-    position: Offset
+    position: Offset,
+    tag: String
 ): AnnotatedString.Range<String>? {
-    val all = renderedText.getStringAnnotations(VERSE_MARKER_TAG, 0, renderedText.length)
+    val all = renderedText.getStringAnnotations(tag, 0, renderedText.length)
     if (all.isEmpty()) return null
 
     // Pass 1: char offset with ±2 window — handles wide placeholder neighbor mapping.
@@ -526,7 +576,8 @@ private fun wordRangeFromOffset(annotated: AnnotatedString, offset: Int): IntRan
     if (text.isEmpty()) return null
     val clamped = offset.coerceIn(0, text.length - 1)
 
-    val markers = annotated.getStringAnnotations(VERSE_MARKER_TAG, 0, text.length)
+    val markers = annotated.getStringAnnotations(VERSE_MARKER_TAG, 0, text.length) +
+        annotated.getStringAnnotations(NOTE_MARKER_TAG, 0, text.length)
     fun isWordChar(pos: Int): Boolean =
         pos in text.indices &&
             !text[pos].isWhitespace() &&
