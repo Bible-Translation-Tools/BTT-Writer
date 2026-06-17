@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer.unit.ui.translate.review
 import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.ui.translate.review.VerseMarkerDrag
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VerseMarkerDragTest {
@@ -319,6 +320,30 @@ class VerseMarkerDragTest {
         )
         // After removing the footnote (19 chars), target 30 adjusts to 11
         assertEquals("alpha beta \\f + \\ft my note\\f*gamma", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition does not insert verse inside an adjacent footnote`() {
+        // Footnote sits directly before "everything" (no space). Dropping \v 3 on that word
+        // must not land inside the footnote (between its content and \f*), which would make
+        // the verse marker disappear when parsed.
+        val text = "alpha \\v 3 beta \\f + \\ft my note\\f*everything"
+        // \v 3 at raw 6..11; footnote at 16..35; "everything" starts at 35 (right after \f*)
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 6,
+            verseRawEnd = 11,
+            marker = "\\v 3 ",
+            targetRawPosition = 35, // rawStart of "everything"
+            format = TranslationFormat.USFM
+        )
+        // Verse must be pushed out to the footnote's start, not inside it
+        assertEquals("alpha beta \\v 3 \\f + \\ft my note\\f*everything", result)
+        // The footnote markup must remain intact
+        assertTrue(
+            "Footnote must not be split by the verse marker",
+            result.contains("\\f + \\ft my note\\f*")
+        )
     }
 
     @Test

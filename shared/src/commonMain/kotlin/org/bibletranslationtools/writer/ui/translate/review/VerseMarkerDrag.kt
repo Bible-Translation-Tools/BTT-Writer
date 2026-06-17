@@ -191,6 +191,7 @@ object VerseMarkerDrag {
      * @param verseRawEnd       Raw end position of the verse marker being moved
      * @param marker            The verse marker string to insert (e.g. `\v 1 `)
      * @param targetRawPosition Raw position where the verse should be inserted
+     * @param format            Translation format, used to keep the insertion out of markup
      * @return Updated raw text with the verse at its new position
      */
     fun moveVerseByRawPosition(
@@ -198,7 +199,8 @@ object VerseMarkerDrag {
         verseRawStart: Int,
         verseRawEnd: Int,
         marker: String,
-        targetRawPosition: Int
+        targetRawPosition: Int,
+        format: TranslationFormat = TranslationFormat.USFM
     ): String {
         // Remove the verse from its current position
         val textWithout = text.removeRange(verseRawStart, verseRawEnd)
@@ -211,7 +213,12 @@ object VerseMarkerDrag {
         }.coerceIn(0, textWithout.length)
 
         // Snap to word boundary — don't split words
-        val snapped = snapToWordBoundary(textWithout, adjusted)
+        val wordSnapped = snapToWordBoundary(textWithout, adjusted)
+
+        // Never insert inside another markup token (e.g. a footnote): the word-boundary
+        // walk-back can stop on a space inside a `\f ... \f*` and land between its content
+        // and `\f*`, which corrupts both the footnote and the dropped marker.
+        val snapped = snapOutOfMarkup(textWithout, wordSnapped, format)
 
         return textWithout.substring(0, snapped) + marker + textWithout.substring(snapped)
     }
@@ -228,5 +235,23 @@ object VerseMarkerDrag {
         var p = pos
         while (p > 0 && !text[p - 1].isWhitespace()) p--
         return p
+    }
+
+    /**
+     * If [pos] falls strictly inside a markup token (footnote, verse, paragraph), move it
+     * to the token's start so a marker is never inserted in the middle of markup.
+     */
+    private fun snapOutOfMarkup(text: String, pos: Int, format: TranslationFormat): Int {
+        var i = 0
+        while (i < text.length) {
+            val len = skipMarkupAt(text, i, format)
+            if (len > 0) {
+                if (pos > i && pos < i + len) return i
+                i += len
+            } else {
+                i++
+            }
+        }
+        return pos
     }
 }

@@ -70,6 +70,7 @@ import org.bibletranslationtools.writer.ui.translate.components.withSearchHighli
 import org.bibletranslationtools.writer.utils.getComposeTextStyle
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.abs
 
 private const val VERSE_MARKER_TAG = "VERSE_MARKER"
 private const val NOTE_MARKER_TAG = "NOTE_MARKER"
@@ -302,23 +303,15 @@ fun ReviewTargetCard(
                                             val layout = textLayoutResult ?: return@detectDragGesturesAfterLongPress
                                             val renderedText = currentItem.renderedTargetText
 
-                                            // Try verse marker first, then fall back to footnote marker
-                                            val verseAnnotation = findMarkerAnnotationAtPosition(
-                                                layout,
-                                                renderedText,
-                                                offset,
-                                                VERSE_MARKER_TAG
-                                            )
-                                            val ctx = if (verseAnnotation != null) {
-                                                buildDragContext(renderedText, verseAnnotation)
+                                            // Resolve verse and footnote markers together so adjacency
+                                            // (e.g. a verse pin immediately followed by a footnote icon)
+                                            // picks whichever marker was actually tapped.
+                                            val hit = findMarkerAt(layout, renderedText, offset)
+                                                ?: return@detectDragGesturesAfterLongPress
+                                            val ctx = if (hit.isNote) {
+                                                buildNoteDragContext(renderedText, hit.annotation)
                                             } else {
-                                                val noteAnnotation = findMarkerAnnotationAtPosition(
-                                                    layout,
-                                                    renderedText,
-                                                    offset,
-                                                    NOTE_MARKER_TAG
-                                                ) ?: return@detectDragGesturesAfterLongPress
-                                                buildNoteDragContext(renderedText, noteAnnotation)
+                                                buildDragContext(renderedText, hit.annotation)
                                             } ?: return@detectDragGesturesAfterLongPress
 
                                             dragContext = ctx
@@ -514,28 +507,45 @@ private fun buildNoteDragContext(
     )
 }
 
-private fun findMarkerAnnotationAtPosition(
+private class MarkerHit(
+    val annotation: AnnotatedString.Range<String>,
+    val isNote: Boolean
+)
+
+/**
+ * Find the verse or footnote marker under [position]. Verse and footnote candidates are
+ * considered together: when markers are adjacent (a verse pin directly followed by a footnote
+ * icon, or vice-versa), the one whose bounding box actually contains the tap wins.
+ */
+private fun findMarkerAt(
     layout: TextLayoutResult,
     renderedText: AnnotatedString,
-    position: Offset,
-    tag: String
-): AnnotatedString.Range<String>? {
-    val all = renderedText.getStringAnnotations(tag, 0, renderedText.length)
-    if (all.isEmpty()) return null
+    position: Offset
+): MarkerHit? {
+    val len = renderedText.length
+    val candidates =
+        renderedText.getStringAnnotations(VERSE_MARKER_TAG, 0, len).map { MarkerHit(it, false) } +
+            renderedText.getStringAnnotations(NOTE_MARKER_TAG, 0, len).map { MarkerHit(it, true) }
+    if (candidates.isEmpty()) return null
 
-    // Pass 1: char offset with ±2 window — handles wide placeholder neighbor mapping.
-    val charOffset = layout.getOffsetForPosition(position)
-    all.firstOrNull { ann ->
-        charOffset in (ann.start - 2)..(ann.end + 1)
-    }?.let { return it }
-
-    // Pass 2: bounding-box hit on same line — covers char-mapping misses.
     val touchLine = layout.getLineForVerticalPosition(position.y)
-    return all.firstOrNull { ann ->
-        if (layout.getLineForOffset(ann.start) != touchLine) return@firstOrNull false
-        val box = layout.getBoundingBox(ann.start)
-        position.x in (box.left - 8f)..(box.right + 8f)
-    }
+
+    // Pass 1: tap x within a marker's own bounding box on the touched line — an exact
+    // geometric hit, which disambiguate adjacent markers by where the finger actually landed.
+    candidates
+        .filter { layout.getLineForOffset(it.annotation.start) == touchLine }
+        .firstOrNull { hit ->
+            val box = layout.getBoundingBox(hit.annotation.start)
+            position.x in box.left..box.right
+        }
+        ?.let { return it }
+
+    // Pass 2: nearest marker within a small char-offset window — handles wide-placeholder
+    // neighbor mapping when the tap lands just outside any bounding box.
+    val charOffset = layout.getOffsetForPosition(position)
+    return candidates
+        .filter { charOffset in (it.annotation.start - 2)..(it.annotation.end + 1) }
+        .minByOrNull { abs(charOffset - it.annotation.start) }
 }
 
 private fun computeTargetRawPosition(ctx: DragContext, displayOffset: Int): Int? {
