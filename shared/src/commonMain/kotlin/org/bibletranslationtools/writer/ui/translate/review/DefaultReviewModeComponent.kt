@@ -424,7 +424,8 @@ class DefaultReviewModeComponent(
                     verseRawStart = verseRawStart,
                     verseRawEnd = verseRawEnd,
                     marker = machineReadable,
-                    targetRawPosition = targetRawPosition
+                    targetRawPosition = targetRawPosition,
+                    format = item.chunk.targetTranslationFormat
                 )
                 item.saveTranslation(newText)
                 updateItem(prepareItem(item.chunk, TargetMode.MARKER))

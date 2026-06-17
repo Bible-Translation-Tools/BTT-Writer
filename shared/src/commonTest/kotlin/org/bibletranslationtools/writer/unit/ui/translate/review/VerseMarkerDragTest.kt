@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer.unit.ui.translate.review
 import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.ui.translate.review.VerseMarkerDrag
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VerseMarkerDragTest {
@@ -273,6 +274,76 @@ class VerseMarkerDragTest {
         )
         // Clamped to verseRawStart (0), effectively keeps it in place
         assertEquals("\\v 1 hello world", result)
+    }
+
+    // --- footnote drag (reuses moveVerseByRawPosition with the footnote as the marker) ---
+
+    @Test
+    fun `moveVerseByRawPosition moves footnote to start of chunk`() {
+        val text = "hello\\f + \\ft note\\f* world"
+        // footnote tag at raw 5..21, "world" text node starts at 22
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 5,
+            verseRawEnd = 21,
+            marker = "\\f + \\ft note\\f*",
+            targetRawPosition = 0  // rawStart of "hello"
+        )
+        assertEquals("\\f + \\ft note\\f*hello world", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition moves footnote forward past a verse`() {
+        val text = "\\v 1 hello\\f + \\ft note\\f* \\v 2 world"
+        // footnote tag at raw 10..26, \v 2 at 27..31, "world" at 32
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 10,
+            verseRawEnd = 26,
+            marker = "\\f + \\ft note\\f*",
+            targetRawPosition = 32  // rawStart of "world"
+        )
+        // After removing the footnote (16 chars), target 32 adjusts to 16
+        assertEquals("\\v 1 hello \\v 2 \\f + \\ft note\\f*world", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition keeps footnote content intact`() {
+        val text = "alpha\\f + \\ft my note\\f* beta gamma"
+        // footnote tag at raw 5..24, "gamma" text node starts at 30
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 5,
+            verseRawEnd = 24,
+            marker = "\\f + \\ft my note\\f*",
+            targetRawPosition = 30  // rawStart of "gamma"
+        )
+        // After removing the footnote (19 chars), target 30 adjusts to 11
+        assertEquals("alpha beta \\f + \\ft my note\\f*gamma", result)
+    }
+
+    @Test
+    fun `moveVerseByRawPosition does not insert verse inside an adjacent footnote`() {
+        // Footnote sits directly before "everything" (no space). Dropping \v 3 on that word
+        // must not land inside the footnote (between its content and \f*), which would make
+        // the verse marker disappear when parsed.
+        val text = "alpha \\v 3 beta \\f + \\ft my note\\f*everything"
+        // \v 3 at raw 6..11; footnote at 16..35; "everything" starts at 35 (right after \f*)
+        val result = VerseMarkerDrag.moveVerseByRawPosition(
+            text = text,
+            verseRawStart = 6,
+            verseRawEnd = 11,
+            marker = "\\v 3 ",
+            targetRawPosition = 35, // rawStart of "everything"
+            format = TranslationFormat.USFM
+        )
+        // Verse must be pushed out to the footnote's start, not inside it
+        assertEquals("alpha beta \\v 3 \\f + \\ft my note\\f*everything", result)
+        // The footnote markup must remain intact
+        assertTrue(
+            "Footnote must not be split by the verse marker",
+            result.contains("\\f + \\ft my note\\f*")
+        )
     }
 
     @Test

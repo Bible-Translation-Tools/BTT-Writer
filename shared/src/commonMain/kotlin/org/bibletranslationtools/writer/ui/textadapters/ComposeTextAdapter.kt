@@ -297,6 +297,16 @@ object ComposeTextAdapter {
                     end = end
                 )
 
+                // Note marker annotation for long-press drag identification
+                if (node.machineReadable.isNotEmpty()) {
+                    addStringAnnotation(
+                        tag = "NOTE_MARKER",
+                        annotation = node.machineReadable,
+                        start = start,
+                        end = end
+                    )
+                }
+
                 if (node.startPos >= 0) {
                     addStringAnnotation(
                         tag = "RAW_POSITION",
