@@ -28,26 +28,33 @@ import org.bibletranslationtools.writer.utils.Util
 import org.bibletranslationtools.writer.utils.Zip
 import org.eclipse.jgit.errors.TransportException
 import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.setPref
 import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintStream
+import java.text.SimpleDateFormat
 import java.util.Locale
 
 class ExportProjects(
     private val directoryProvider: DirectoryProvider,
     private val catalogClient: ResourceCatalogClient,
     private val typography: Typography,
-    private val platform: Platform
+    private val platform: Platform,
+    private val preference: Preference
 ) {
 
-    /**
-     * Exports a single target translation in .tstudio format to File
-     * @param targetTranslation
-     * @param outputFile
-     */
     @Throws(Exception::class)
-    suspend fun exportProject(targetTranslation: TargetTranslation, outputFile: File) {
-        exportProject(targetTranslation, PlatformFile(outputFile))
+    suspend fun exportProject(
+        targetTranslation: TargetTranslation,
+        outputFile: File,
+        updateTimestamp: Boolean = false
+    ) {
+        exportProject(
+            targetTranslation = targetTranslation,
+            platformFile = PlatformFile(outputFile),
+            updateTimestamp = updateTimestamp
+        )
     }
 
     /**
@@ -58,7 +65,8 @@ class ExportProjects(
     suspend fun exportProject(
         targetTranslation: TargetTranslation,
         platformFile: PlatformFile,
-        recoverBadRepo: Boolean = true
+        recoverBadRepo: Boolean = true,
+        updateTimestamp: Boolean = false
     ): Result {
         var success = false
         val tempDir = directoryProvider.createTempDir()
@@ -78,13 +86,26 @@ class ExportProjects(
                     files = arrayOf(manifestFile, targetTranslation.path),
                     dest = out
                 )
-                success = true
             }
+
+            if (updateTimestamp) {
+                val trId = targetTranslation.id
+                val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
+                val datetime = sdf.format(java.util.Date())
+                preference.setPref(Preference.LAST_BACKUP + trId, datetime)
+            }
+
+            success = true
         } catch (_: TransportException) {
             if (recoverBadRepo) {
                 // fix corrupt repo and try again
                 RepoUtils.recover(targetTranslation)
-                return exportProject(targetTranslation, platformFile, false)
+                return exportProject(
+                    targetTranslation = targetTranslation,
+                    platformFile = platformFile,
+                    recoverBadRepo = false,
+                    updateTimestamp = updateTimestamp
+                )
             }
             success = true
         } catch (e: Exception) {

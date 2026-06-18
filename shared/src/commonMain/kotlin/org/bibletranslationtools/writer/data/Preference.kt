@@ -40,6 +40,8 @@ class Preference(private val settings: ObservableSettings) {
         const val OPEN_SOURCE_TRANSLATIONS = "open_source_translations_"
         const val SELECTED_SOURCE_TRANSLATION = "selected_source_translation_"
         const val PROFILE = "profile"
+        const val LAST_BACKUP = "last_backup_"
+        const val LAST_UPLOADED = "last_uploaded_"
 
         const val KEY_PREF_TRANSLATION_TYPEFACE = "translation_typeface"
         const val KEY_PREF_TRANSLATION_TYPEFACE_SIZE = "typeface_size"

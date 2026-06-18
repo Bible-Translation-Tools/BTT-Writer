@@ -46,6 +46,9 @@ import btt_writer.shared.generated.resources.label_delete
 import btt_writer.shared.generated.resources.print
 import btt_writer.shared.generated.resources.progress
 import btt_writer.shared.generated.resources.publish
+import btt_writer.shared.generated.resources.label_last_backup
+import btt_writer.shared.generated.resources.label_last_uploaded
+import btt_writer.shared.generated.resources.label_unknown
 import btt_writer.shared.generated.resources.target_language
 import btt_writer.shared.generated.resources.translators
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
@@ -58,6 +61,13 @@ import org.bibletranslationtools.writer.ui.home.TranslationItem
 import org.bibletranslationtools.writer.utils.getComposeTextStyle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPrefOrNull
+import org.bibletranslationtools.writer.DirectoryProvider
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ProjectDetailsDialog(
@@ -69,6 +79,45 @@ fun ProjectDetailsDialog(
     onExport: (Boolean) -> Unit
 ) {
     val typography: Typography = koinInject()
+    val preference: Preference = koinInject()
+    val directoryProvider: DirectoryProvider = koinInject()
+
+    val savedBackup = preference.getPrefOrNull<String>(Preference.LAST_BACKUP + project.translation.id)
+    var displayBackupTime: String? = null
+    if (!savedBackup.isNullOrEmpty()) {
+        try {
+            val date = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US).parse(savedBackup)
+            if (date != null) {
+                displayBackupTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+            }
+        } catch (_: Exception) {
+            displayBackupTime = savedBackup
+        }
+    }
+
+    if (displayBackupTime == null) {
+        val backupFile = File(
+            directoryProvider.backupsDir,
+            "${project.translation.id}.tstudio"
+        )
+        if (backupFile.exists() && backupFile.isFile) {
+            val date = Date(backupFile.lastModified())
+            displayBackupTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+        }
+    }
+
+    val savedUpload = preference.getPrefOrNull<String>(Preference.LAST_UPLOADED + project.translation.id)
+    var displayUploadTime: String? = null
+    if (!savedUpload.isNullOrEmpty()) {
+        try {
+            val date = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US).parse(savedUpload)
+            if (date != null) {
+                displayUploadTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+            }
+        } catch (_: Exception) {
+            displayUploadTime = savedUpload
+        }
+    }
 
     val titleStyle = typography.getComposeTextStyle(
         translationType = TranslationType.TARGET,
@@ -167,6 +216,18 @@ fun ProjectDetailsDialog(
                                 }
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        DetailRow(
+                            label = stringResource(Res.string.label_last_backup),
+                            value = displayBackupTime ?: stringResource(Res.string.label_unknown)
+                        )
+
+                        DetailRow(
+                            label = stringResource(Res.string.label_last_uploaded),
+                            value = displayUploadTime ?: stringResource(Res.string.label_unknown)
+                        )
                     }
                 }
 

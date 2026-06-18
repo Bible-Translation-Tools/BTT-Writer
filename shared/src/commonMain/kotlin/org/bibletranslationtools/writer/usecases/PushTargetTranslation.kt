@@ -24,12 +24,17 @@ import org.eclipse.jgit.errors.NoRemoteRepositoryException
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.jetbrains.compose.resources.getString
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.setPref
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class PushTargetTranslation(
     private val profile: Profile,
     private val getRepository: GetRepository,
-    private val transportCallback: TransportCallback
+    private val transportCallback: TransportCallback,
+    private val preference: Preference
 ) {
     companion object {
         private const val TAG = "PushTargetTranslation"
@@ -50,9 +55,17 @@ class PushTargetTranslation(
                 val repo: Repo = targetTranslation.repo
                 val repository = getRepository.execute(targetTranslation, onProgress)
 
-                return repository?.let {
+                val result = repository?.let {
                     push(repo, repository.sshUrl, onProgress)
                 } ?: Result(Status.UNKNOWN, null)
+
+                if (result.status == Status.OK) {
+                    val trId = targetTranslation.id
+                    val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
+                    val datetime = sdf.format(java.util.Date())
+                    preference.setPref(Preference.LAST_UPLOADED + trId, datetime)
+                }
+                return result
 
             } catch (e: Exception) {
                 Logger.e(TAG, "Failed to push target translation", e)

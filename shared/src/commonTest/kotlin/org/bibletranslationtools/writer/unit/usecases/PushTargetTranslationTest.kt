@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.runTest
 import org.bibletranslationtools.gogsclient.Repository
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.git.Repo
 import org.bibletranslationtools.writer.git.TransportCallback
 import org.bibletranslationtools.writer.usecases.GetRepository
@@ -49,12 +50,21 @@ class PushTargetTranslationTest {
     @MockK private lateinit var deleteCommand: DeleteBranchCommand
     @MockK private lateinit var createCommand: CreateBranchCommand
     @MockK private lateinit var pushCommand: PushCommand
+    @MockK(relaxed = true) private lateinit var preference: Preference
 
     private val onProgress = mockk<(Float, String?) -> Unit>(relaxed = true)
+    private lateinit var pushTargetTranslation: PushTargetTranslation
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+
+        pushTargetTranslation = PushTargetTranslation(
+            profile,
+            getRepository,
+            transportCallback,
+            preference
+        )
 
         every { onProgress(any(), any()) }.just(runs)
         every { repository.sshUrl }.returns("ssh://repo.git")
@@ -102,11 +112,7 @@ class PushTargetTranslationTest {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { pushCommand.call() }.returns(listOf(pushResult))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
             [${refUpdate.remoteName}] Success push to remote ref.
@@ -125,11 +131,7 @@ class PushTargetTranslationTest {
     fun `test push target translation not authorized`() = runTest {
         every { profile.gogsUser }.returns(null)
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.AUTH_FAILURE, result.status)
         assertFalse(result.status.isRejected)
@@ -148,11 +150,7 @@ class PushTargetTranslationTest {
 
         coEvery { getRepository.execute(any(), any()) }.returns(null)
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)
@@ -171,11 +169,7 @@ class PushTargetTranslationTest {
         coEvery { getRepository.execute(any(), any()) }.returns(null)
         every { targetTranslation.commitSync() }.throws(Exception("Error committing translation"))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)
@@ -193,11 +187,7 @@ class PushTargetTranslationTest {
 
         every { repo.deleteRemote(any()) }.throws(IOException("Error deleting remote"))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)
@@ -224,11 +214,7 @@ class PushTargetTranslationTest {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { pushCommand.call() }.returns(listOf(pushResult))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
             [${refUpdate.remoteName}] Remote ref update was rejected, as it would cause non fast-forward update.
@@ -255,11 +241,7 @@ class PushTargetTranslationTest {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { pushCommand.call() }.returns(listOf(pushResult))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
             [${refUpdate.remoteName}] Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.
@@ -286,11 +268,7 @@ class PushTargetTranslationTest {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { pushCommand.call() }.returns(listOf(pushResult))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
             [${refUpdate.remoteName}] Remote ref update was rejected,  because old object id on remote repository wasn\'t the same as defined expected old object.
@@ -318,11 +296,7 @@ class PushTargetTranslationTest {
         every { pushResult.remoteUpdates }.returns(listOf(refUpdate))
         every { pushCommand.call() }.returns(listOf(pushResult))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
             [${refUpdate.remoteName}] Remote ref update was rejected, because test reason.
@@ -349,11 +323,7 @@ class PushTargetTranslationTest {
         )
         every { pushCommand.call() }.throws(exception)
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.AUTH_FAILURE, result.status)
         assertFalse(result.status.isRejected)
@@ -372,11 +342,7 @@ class PushTargetTranslationTest {
         )
         every { pushCommand.call() }.throws(exception)
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.NO_REMOTE_REPO, result.status)
         assertFalse(result.status.isRejected)
@@ -395,11 +361,7 @@ class PushTargetTranslationTest {
         )
         every { pushCommand.call() }.throws(exception)
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.AUTH_FAILURE, result.status)
         assertFalse(result.status.isRejected)
@@ -414,11 +376,7 @@ class PushTargetTranslationTest {
 
         every { pushCommand.call() }.throws(TransportException("An error occurred."))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)
@@ -433,11 +391,7 @@ class PushTargetTranslationTest {
 
         every { pushCommand.call() }.throws(OutOfMemoryError("Out of memory"))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.OUT_OF_MEMORY, result.status)
         assertFalse(result.status.isRejected)
@@ -452,11 +406,7 @@ class PushTargetTranslationTest {
 
         every { pushCommand.call() }.throws(Exception("An error occurred."))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)
@@ -471,11 +421,7 @@ class PushTargetTranslationTest {
 
         every { pushCommand.call() }.throws(Throwable("An error occurred."))
 
-        val result = PushTargetTranslation(
-            profile,
-            getRepository,
-            transportCallback
-        ).execute(targetTranslation, onProgress)
+        val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         assertEquals(PushTargetTranslation.Status.UNKNOWN, result.status)
         assertFalse(result.status.isRejected)

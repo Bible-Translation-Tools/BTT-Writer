@@ -32,6 +32,7 @@ import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENS
 import org.bibletranslationtools.writer.core.Translator.Companion.ZIP_EXTENSION
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.outputStream
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.RepoUtils
@@ -63,10 +64,21 @@ class ExportProjectsTest {
     @MockK private lateinit var index: Index
     @MockK private lateinit var platform: Platform
     @MockK private lateinit var info: AppInfo
+    @MockK(relaxed = true) private lateinit var preference: Preference
+
+    private lateinit var exportProjects: ExportProjects
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+
+        exportProjects = ExportProjects(
+            directoryProvider,
+            catalogClient,
+            typography,
+            platform,
+            preference
+        )
 
         mockkObject(Zip)
         mockkObject(RepoUtils)
@@ -136,12 +148,7 @@ class ExportProjectsTest {
         every { platformFile.outputStream() }.returns(outputStream)
         every { outputStream.close() } just runs
 
-        ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportProject(targetTranslation, platformFile)
+        exportProjects.exportProject(targetTranslation, platformFile)
 
         coVerify { directoryProvider.createTempDir(any()) }
         verify { platformFile.outputStream() }
@@ -169,12 +176,7 @@ class ExportProjectsTest {
             } else Unit
         }
 
-        ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportProject(targetTranslation, platformFile)
+        exportProjects.exportProject(targetTranslation, platformFile)
 
         coVerify(exactly = 2) { directoryProvider.createTempDir(any()) }
         verify(exactly = 1) { platformFile.outputStream() }
@@ -190,12 +192,7 @@ class ExportProjectsTest {
         val projectDir = tempDir.newFolder("project")
         val outFile = tempDir.newFile("output.tstudio")
 
-        ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportProject(projectDir, outFile)
+        exportProjects.exportProject(projectDir, outFile)
 
         verify { Zip.zipToStream(any(), any()) }
     }
@@ -209,12 +206,7 @@ class ExportProjectsTest {
             "Output file must have '$TSTUDIO_EXTENSION' or '$ZIP_EXTENSION' extension",
             Exception::class.java
         ) {
-            ExportProjects(
-                directoryProvider,
-                catalogClient,
-                typography,
-                platform
-            ).exportProject(projectDir, outFile)
+            exportProjects.exportProject(projectDir, outFile)
         }
 
         verify(exactly = 0) { Zip.zipToStream(any(), any()) }
@@ -229,12 +221,7 @@ class ExportProjectsTest {
             "Project directory doesn't exist.",
             Exception::class.java
         ) {
-            ExportProjects(
-                directoryProvider,
-                catalogClient,
-                typography,
-                platform
-            ).exportProject(projectDir, outFile)
+            exportProjects.exportProject(projectDir, outFile)
         }
 
         verify(exactly = 0) { Zip.zipToStream(any(), any()) }
@@ -262,12 +249,7 @@ class ExportProjectsTest {
         every { platformFile.outputStream() }.returns(outputStream)
         every { outputStream.close() } just runs
 
-        val result = ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportUSFM(targetTranslation, platformFile)
+        val result = exportProjects.exportUSFM(targetTranslation, platformFile)
 
         assertTrue(result.success)
         assertEquals(platformFile, result.file)
@@ -317,12 +299,7 @@ class ExportProjectsTest {
         every { platformFile.outputStream() }.throws(Exception("Bad uri"))
         every { outputStream.close() } just runs
 
-        val result = ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportUSFM(targetTranslation, platformFile)
+        val result = exportProjects.exportUSFM(targetTranslation, platformFile)
 
         assertFalse(result.success)
         assertEquals(platformFile, result.file)
@@ -347,12 +324,7 @@ class ExportProjectsTest {
         every { platformFile.outputStream() }.returns(outputStream)
         every { outputStream.close() } just runs
 
-        val result = ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportPDF(
+        val result = exportProjects.exportPDF(
             targetTranslation,
             platformFile,
             includeImages = true,
@@ -381,12 +353,7 @@ class ExportProjectsTest {
         every { platformFile.outputStream() }.throws(Exception("Bad uri"))
         every { outputStream.close() } just runs
 
-        val result = ExportProjects(
-            directoryProvider,
-            catalogClient,
-            typography,
-            platform
-        ).exportPDF(
+        val result = exportProjects.exportPDF(
             targetTranslation,
             platformFile,
             includeImages = true,
