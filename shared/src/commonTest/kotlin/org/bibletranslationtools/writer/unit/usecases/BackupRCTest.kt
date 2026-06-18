@@ -23,6 +23,7 @@ import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.ArchiveMigrator
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.ExportProjects
 import org.bibletranslationtools.writer.utils.FileUtilities
@@ -47,6 +48,7 @@ class BackupRCTest {
     @MockK private lateinit var project: Project
     @MockK private lateinit var resource: Resource
     @MockK private lateinit var targetTranslation: TargetTranslation
+    @MockK(relaxed = true) private lateinit var preference: Preference
 
     private lateinit var backupRC: BackupRC
     private lateinit var backupsDir: File
@@ -60,7 +62,8 @@ class BackupRCTest {
             migrator,
             exportProjects,
             profile,
-            catalogClient
+            catalogClient,
+            preference
         )
 
         mockkObject(FileUtilities)

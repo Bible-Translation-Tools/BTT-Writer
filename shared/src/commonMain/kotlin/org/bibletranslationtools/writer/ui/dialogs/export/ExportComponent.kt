@@ -302,7 +302,11 @@ class DefaultExportComponent(
             }
 
             val result = withContext(Dispatchers.IO) {
-                export.exportProject(targetTranslation, file)
+                export.exportProject(
+                    targetTranslation = targetTranslation,
+                    platformFile = file,
+                    updateTimestamp = true
+                )
             }
 
             val title = getString(Res.string.backup_to_sd)
@@ -324,7 +328,11 @@ class DefaultExportComponent(
                 try {
                     val filename = "${targetTranslation.id}.${Translator.TSTUDIO_EXTENSION}"
                     val exportFile = File(directoryProvider.sharingDir, filename)
-                    export.exportProject(targetTranslation, exportFile)
+                    export.exportProject(
+                        targetTranslation = targetTranslation,
+                        outputFile = exportFile,
+                        updateTimestamp = true
+                    )
                     exportFile
                 } catch (e: Exception) {
                     Logger.e(

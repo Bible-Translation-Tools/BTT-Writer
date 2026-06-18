@@ -9,6 +9,8 @@ import org.bibletranslationtools.writer.core.ArchiveMigrator
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.setPref
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.Zip
 import java.io.File
@@ -21,7 +23,8 @@ class BackupRC (
     private val archiveMigrator: ArchiveMigrator,
     private val exportProjects: ExportProjects,
     private val profile: Profile,
-    private val catalogClient: ResourceCatalogClient
+    private val catalogClient: ResourceCatalogClient,
+    private val preference: Preference
 ) {
     fun backupResourceContainer(translation: Translation): File {
         val dest = File(
@@ -40,13 +43,15 @@ class BackupRC (
     @Throws(Exception::class)
     suspend fun backupTargetTranslation(
         targetTranslation: TargetTranslation?,
-        orphaned: Boolean
+        orphaned: Boolean,
+        updateTimestamp: Boolean = false
     ): Boolean {
         if (targetTranslation != null) {
             var name = targetTranslation.id
             val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
+            val datetime = sdf.format(Date())
             if (orphaned) {
-                name += "." + sdf.format(Date())
+                name += ".$datetime"
             }
 
             var archiveExtension = Translator.TSTUDIO_EXTENSION
@@ -76,10 +81,20 @@ class BackupRC (
             try {
                 temp = directoryProvider.createTempFile(name, ".$archiveExtension")
                 targetTranslation.setDefaultContributor(profile.nativeSpeaker)
-                exportProjects.exportProject(targetTranslation, temp)
+                exportProjects.exportProject(
+                    targetTranslation = targetTranslation,
+                    outputFile = temp,
+                    updateTimestamp = updateTimestamp
+                )
+
                 if (temp.exists() && temp.isFile) {
                     // copy into backup locations
                     backup.parentFile?.mkdirs()
+
+                    if (updateTimestamp) {
+                        val trId = targetTranslation.id
+                        preference.setPref(Preference.LAST_BACKUP + trId, datetime)
+                    }
 
                     FileUtilities.copyFile(temp, backup)
                     return true

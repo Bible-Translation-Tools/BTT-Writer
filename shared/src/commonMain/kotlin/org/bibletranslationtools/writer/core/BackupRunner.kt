@@ -5,6 +5,7 @@ import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.utils.RepoUtils
 import org.eclipse.jgit.api.errors.JGitInternalException
+import kotlin.time.Duration.Companion.milliseconds
 
 interface BackupScheduler {
     fun start(intervalMinutes: Int)
@@ -37,7 +38,7 @@ class BackupRunner(
         val targetTranslations = translator.targetTranslationFileNames
 
         for (filename in targetTranslations) {
-            delay(1000)
+            delay(1000.milliseconds)
 
             val t = translator.getTargetTranslation(filename)
             if (t == null) {
@@ -60,7 +61,11 @@ class BackupRunner(
             // run backup if there are translations
             if (t.numTranslated > 0) {
                 try {
-                    val success = backupRC.backupTargetTranslation(t, false)
+                    val success = backupRC.backupTargetTranslation(
+                        targetTranslation = t,
+                        orphaned = false,
+                        updateTimestamp = true
+                    )
                     if (success) {
                         Logger.i(TAG, "${t.id} backed up")
                         backupPerformed = true

@@ -39,3 +39,6 @@ captures
 # Android signing
 *.jks
 *.keystore
+
+# Graphify
+graphify-out/

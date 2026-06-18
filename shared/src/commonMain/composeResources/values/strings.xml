@@ -987,4 +987,7 @@ Do you want to enable SD card access?  If so then:
     <string name="header_general">General</string>
     <string name="title_remember_position">Remember my place</string>
     <string name="description_remember_position">Display the last viewed page when starting the app</string>
+    <string name="label_last_backup">Last Backup</string>
+    <string name="label_last_uploaded">Last Uploaded</string>
+    <string name="label_unknown">Unknown</string>
 </resources>
