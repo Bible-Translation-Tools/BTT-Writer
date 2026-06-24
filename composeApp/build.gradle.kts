@@ -48,6 +48,14 @@ kotlin {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources { enable = true }
+        packaging {
+            resources {
+                pickFirsts.add("plugin.properties")
+                pickFirsts.add("META-INF/DEPENDENCIES")
+                pickFirsts.add("META-INF/LICENSE*")
+                pickFirsts.add("META-INF/NOTICE*")
+            }
+        }
     }
 
     jvm()
@@ -132,6 +140,12 @@ kotlin {
                 implementation(libs.mockk.agent)
                 implementation(libs.mock.webserver)
                 implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(compose.desktop.currentOs)
             }
         }
 
