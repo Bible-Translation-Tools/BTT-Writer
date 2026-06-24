@@ -4,18 +4,19 @@ appId: org.bibletranslationtools.writer
     clearState: true
 - extendedWaitUntil:
     visible: "Migrate from Old App"
-    timeout: 120000
+    timeout: 3000
     optional: true
 - tapOn:
     text: "No"
     optional: true
+    waitToSettleTimeoutMs: 500
 - runFlow:
     when:
       visible: "Do not show again"
     commands:
-      - tapOn: "Do not show again"
-      - tapOn: "Continue"
-- extendedWaitUntil:
-    visible: "Welcome to BTT Writer"
-    timeout: 120000
-    optional: true
+      - tapOn:
+          text: "Do not show again"
+          waitToSettleTimeoutMs: 500
+      - tapOn:
+          text: "Continue"
+          waitToSettleTimeoutMs: 500

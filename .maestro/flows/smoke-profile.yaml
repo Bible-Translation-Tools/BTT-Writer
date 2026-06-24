@@ -1,0 +1,37 @@
+appId: org.bibletranslationtools.writer
+---
+- runFlow: smoke-launch.yaml
+- extendedWaitUntil:
+    visible: "Create offline Account"
+    timeout: 45000
+- tapOn:
+    text: "Create offline Account"
+    waitToSettleTimeoutMs: 500
+- assertVisible: "Your Name or Pseudonym"
+- tapOn:
+    text: "Your Name or Pseudonym"
+    waitToSettleTimeoutMs: 500
+- inputText: "Test User"
+- tapOn:
+    text: "Continue"
+    waitToSettleTimeoutMs: 500
+- runFlow:
+    when:
+      visible: "Privacy Notice"
+    commands:
+      - tapOn:
+          text: "Continue"
+          waitToSettleTimeoutMs: 500
+- tapOn:
+    text: "I Agree"
+    waitToSettleTimeoutMs: 500
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 30000
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 500
+- tapOn:
+    text: "Settings"
+    waitToSettleTimeoutMs: 500
+- assertVisible: "General"

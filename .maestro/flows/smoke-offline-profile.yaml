@@ -1,8 +1,0 @@
-appId: org.bibletranslationtools.writer
----
-- runFlow: smoke-launch.yaml
-- extendedWaitUntil:
-    visible: "Create offline Account"
-    timeout: 120000
-- tapOn: "Create offline Account"
-- assertVisible: "Your Name or Pseudonym"
