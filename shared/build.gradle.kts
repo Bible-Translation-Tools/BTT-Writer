@@ -13,6 +13,7 @@ val versionName = libs.versions.app.version.name.get()
 val versionCode = libs.versions.app.version.code.get()
 
 val generateBuildInfo = tasks.register("generateBuildInfo") {
+    description = "Generate BuildInfo object"
     val outputDir = layout.buildDirectory.dir("generated/buildinfo/kotlin")
     val versionNameValue = versionName
     val versionCodeValue = versionCode
@@ -75,6 +76,7 @@ kotlin {
                 implementation(libs.androidx.lifecycle.runtimeCompose)
                 implementation(libs.kotlinx.io)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.datetime)
 
                 // JGit
                 implementation(libs.jgit)

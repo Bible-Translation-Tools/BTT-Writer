@@ -15,8 +15,11 @@ import btt_writer.shared.generated.resources.git_uptodate
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.setPref
 import org.bibletranslationtools.writer.git.Repo
 import org.bibletranslationtools.writer.git.TransportCallback
+import org.bibletranslationtools.writer.utils.DateUtils
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.JGitInternalException
 import org.eclipse.jgit.api.errors.TransportException
@@ -24,11 +27,7 @@ import org.eclipse.jgit.errors.NoRemoteRepositoryException
 import org.eclipse.jgit.transport.RefSpec
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.jetbrains.compose.resources.getString
-import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.data.setPref
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class PushTargetTranslation(
     private val profile: Profile,
@@ -61,8 +60,7 @@ class PushTargetTranslation(
 
                 if (result.status == Status.OK) {
                     val trId = targetTranslation.id
-                    val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
-                    val datetime = sdf.format(java.util.Date())
+                    val datetime = DateUtils.getCurrentDateTime()
                     preference.setPref(Preference.LAST_UPLOADED + trId, datetime)
                 }
                 return result

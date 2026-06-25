@@ -21,20 +21,19 @@ import org.bibletranslationtools.writer.core.TranslationType
 import org.bibletranslationtools.writer.core.Translator.Companion.TSTUDIO_EXTENSION
 import org.bibletranslationtools.writer.core.Translator.Companion.ZIP_EXTENSION
 import org.bibletranslationtools.writer.core.Typography
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.setPref
 import org.bibletranslationtools.writer.outputStream
+import org.bibletranslationtools.writer.utils.DateUtils
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.RepoUtils
 import org.bibletranslationtools.writer.utils.Util
 import org.bibletranslationtools.writer.utils.Zip
 import org.eclipse.jgit.errors.TransportException
 import org.jetbrains.compose.resources.getString
-import org.bibletranslationtools.writer.data.Preference
-import org.bibletranslationtools.writer.data.setPref
 import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintStream
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class ExportProjects(
     private val directoryProvider: DirectoryProvider,
@@ -90,8 +89,7 @@ class ExportProjects(
 
             if (updateTimestamp) {
                 val trId = targetTranslation.id
-                val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
-                val datetime = sdf.format(java.util.Date())
+                val datetime = DateUtils.getCurrentDateTime()
                 preference.setPref(Preference.LAST_BACKUP + trId, datetime)
             }
 
@@ -350,7 +348,7 @@ class ExportProjects(
         catalogClient: ResourceCatalogClient,
     ) {
         val defaultUSFMFileName: String
-        val bookCode: String = targetTranslation.projectId.uppercase(Locale.getDefault())
+        val bookCode: String = targetTranslation.projectId.uppercase()
         val languageId: String = targetTranslation.targetLanguageId
         val languageName: String = targetTranslation.targetLanguageName
         var bookName: String
