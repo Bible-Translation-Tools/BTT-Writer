@@ -43,31 +43,30 @@ import btt_writer.shared.generated.resources.backup
 import btt_writer.shared.generated.resources.confirm_delete_target_translation
 import btt_writer.shared.generated.resources.label_change
 import btt_writer.shared.generated.resources.label_delete
-import btt_writer.shared.generated.resources.print
-import btt_writer.shared.generated.resources.progress
-import btt_writer.shared.generated.resources.publish
 import btt_writer.shared.generated.resources.label_last_backup
 import btt_writer.shared.generated.resources.label_last_uploaded
 import btt_writer.shared.generated.resources.label_unknown
+import btt_writer.shared.generated.resources.print
+import btt_writer.shared.generated.resources.progress
+import btt_writer.shared.generated.resources.publish
 import btt_writer.shared.generated.resources.target_language
 import btt_writer.shared.generated.resources.translators
-import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
-import org.bibletranslationtools.writer.ui.dialogs.ContributorsDialog
+import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.NativeSpeaker
 import org.bibletranslationtools.writer.core.TextStyleType
 import org.bibletranslationtools.writer.core.TranslationType
 import org.bibletranslationtools.writer.core.Typography
-import org.bibletranslationtools.writer.ui.home.TranslationItem
-import org.bibletranslationtools.writer.utils.getComposeTextStyle
-import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPrefOrNull
-import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
+import org.bibletranslationtools.writer.ui.dialogs.ContributorsDialog
+import org.bibletranslationtools.writer.ui.home.TranslationItem
+import org.bibletranslationtools.writer.utils.DateUtils
+import org.bibletranslationtools.writer.utils.getComposeTextStyle
+import org.bibletranslationtools.writer.utils.getLastModified
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun ProjectDetailsDialog(
@@ -82,13 +81,15 @@ fun ProjectDetailsDialog(
     val preference: Preference = koinInject()
     val directoryProvider: DirectoryProvider = koinInject()
 
-    val savedBackup = preference.getPrefOrNull<String>(Preference.LAST_BACKUP + project.translation.id)
+    val savedBackup = preference.getPrefOrNull<String>(
+        Preference.LAST_BACKUP + project.translation.id
+    )
     var displayBackupTime: String? = null
     if (!savedBackup.isNullOrEmpty()) {
         try {
-            val date = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US).parse(savedBackup)
+            val date = DateUtils.parseDateString(savedBackup)
             if (date != null) {
-                displayBackupTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+                displayBackupTime = DateUtils.dateToDateTime(date)
             }
         } catch (_: Exception) {
             displayBackupTime = savedBackup
@@ -101,18 +102,20 @@ fun ProjectDetailsDialog(
             "${project.translation.id}.tstudio"
         )
         if (backupFile.exists() && backupFile.isFile) {
-            val date = Date(backupFile.lastModified())
-            displayBackupTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+            val date = backupFile.getLastModified()
+            displayBackupTime = DateUtils.dateToDateTime(date)
         }
     }
 
-    val savedUpload = preference.getPrefOrNull<String>(Preference.LAST_UPLOADED + project.translation.id)
+    val savedUpload = preference.getPrefOrNull<String>(
+        Preference.LAST_UPLOADED + project.translation.id
+    )
     var displayUploadTime: String? = null
     if (!savedUpload.isNullOrEmpty()) {
         try {
-            val date = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US).parse(savedUpload)
+            val date = DateUtils.parseDateString(savedUpload)
             if (date != null) {
-                displayUploadTime = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM).format(date)
+                displayUploadTime = DateUtils.dateToDateTime(date)
             }
         } catch (_: Exception) {
             displayUploadTime = savedUpload

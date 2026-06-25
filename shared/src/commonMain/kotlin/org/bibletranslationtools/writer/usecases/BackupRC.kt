@@ -11,12 +11,10 @@ import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.setPref
+import org.bibletranslationtools.writer.utils.DateUtils
 import org.bibletranslationtools.writer.utils.FileUtilities
 import org.bibletranslationtools.writer.utils.Zip
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class BackupRC (
     private val directoryProvider: DirectoryProvider,
@@ -48,8 +46,7 @@ class BackupRC (
     ): Boolean {
         if (targetTranslation != null) {
             var name = targetTranslation.id
-            val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
-            val datetime = sdf.format(Date())
+            val datetime = DateUtils.getCurrentDateTime()
             if (orphaned) {
                 name += ".$datetime"
             }
@@ -113,11 +110,14 @@ class BackupRC (
      */
     @Throws(Exception::class)
     suspend fun backupTargetTranslation(projectDir: File): Boolean {
-        val sdf = SimpleDateFormat("yyyy-MM-dd_HH.mm.ss", Locale.US)
-        val name = projectDir.name + "." + sdf.format(Date())
+        val datetime = DateUtils.getCurrentDateTime()
+        val name = "${projectDir.name}.$datetime"
 
         // backup locations
-        val backup = File(directoryProvider.backupsDir, name + "." + Translator.ZIP_EXTENSION)
+        val backup = File(
+            directoryProvider.backupsDir,
+            "$name.${Translator.ZIP_EXTENSION}"
+        )
 
         // run backup
         var temp: File? = null
