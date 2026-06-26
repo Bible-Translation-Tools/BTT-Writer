@@ -2,11 +2,8 @@ appId: org.bibletranslationtools.writer
 ---
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible: "Welcome to BTT Writer"
-    timeout: 120000
-    optional: true
 - runFlow:
+    label: Dismiss slow-device warning if shown
     when:
       visible: "Slow Device"
     commands:
@@ -18,12 +15,13 @@ appId: org.bibletranslationtools.writer
           waitToSettleTimeoutMs: 500
 - extendedWaitUntil:
     visible: "Migrate from Old App"
-    timeout: 15000
-    optional: true
+    timeout: 120000
 - tapOn:
     text: "No"
-    optional: true
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 1000
+- extendedWaitUntil:
+    notVisible: "Migrate from Old App"
+    timeout: 5000
 - extendedWaitUntil:
     visible: "Please create or login to your account."
     timeout: 300000

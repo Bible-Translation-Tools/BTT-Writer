@@ -62,10 +62,8 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 **`smoke-launch.yaml`**
 
 - `launchApp` with `clearState: true`
-- Optional migration dialog → tap `No`
-- Optional wait for splash `Welcome to BTT Writer`
 - Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not") — handled **before** migration (matches app startup order)
-- Optional migration dialog → tap `No`
+- Migration dialog → required `extendedWaitUntil` + `tapOn: "No"` + `assertNotVisible` (always shown after `clearState`; do **not** use `optional: true` or a failed tap hangs on the 300s profile wait)
 - Wait up to **300s** for profile title `Please create or login to your account.` (splash + ~158 MB library unzip on CI; do not wait for `Create offline Account` here — it may be off-screen)
 
 **`smoke-profile.yaml`**
@@ -131,7 +129,9 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 3. **Hardware dialog** — UI string is `Don't show again`, not `Do not show again`
 4. **Splash → profile** can take **several minutes** on CI (bundled `containers.zip` is ~158 MB); `smoke-launch` waits up to 300s for the profile **title**, not the offline card
 5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`; `extendedWaitUntil` requires on-screen visibility
-6. **`qemu-system-x86_64-headless: I/O thread spun`** — benign emulator warning
+6. **Migration dialog** — with `clearState: true` the prompt always appears; use required `extendedWaitUntil` + `tapOn: "No"` (not `optional: true`). A silent optional tap failure leaves the dialog up while Maestro waits minutes for the profile screen.
+7. **`when` condition `timeout`** — only supported on newer Maestro; use `extendedWaitUntil` for long waits instead of `timeout` under `runFlow when`.
+8. **`qemu-system-x86_64-headless: I/O thread spun`** — benign emulator warning
 
 ## Known Issues / Follow-ups
 
