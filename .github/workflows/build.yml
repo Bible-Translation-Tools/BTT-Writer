@@ -52,13 +52,11 @@ jobs:
             set +e
             "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke-profile.yaml
             MAESTRO_EXIT=$?
-            set -e
-            if [ "$MAESTRO_EXIT" -ne 0 ]; then
-              PNG="$(find "$HOME/.maestro/tests" -type f -name '*.png' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
-              if [ -n "$PNG" ]; then
-                curl -fsS -F "file=@$PNG" -F "expire=86400" https://tmpfiles.org/api/v1/upload \
-                  | python3 -c "import json,sys; d=json.load(sys.stdin); u=d.get('data',{}).get('url',''); print('Maestro screenshot:', u, 'direct:', u.replace('tmpfiles.org/','tmpfiles.org/dl/') if u else '')"
-              fi
+            PNG="$(find "$HOME/.maestro/tests" -type f -name '*.png' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
+            if [ -n "$PNG" ]; then
+              curl -fsS -F "file=@$PNG" -F "expire=86400" https://tmpfiles.org/api/v1/upload \
+                | python3 -c "import json,sys; d=json.load(sys.stdin); u=d.get('data',{}).get('url',''); print('Maestro screenshot:', u, 'direct:', u.replace('tmpfiles.org/','tmpfiles.org/dl/') if u else '')" \
+                || echo "Maestro screenshot upload failed"
             fi
             exit "$MAESTRO_EXIT"
 

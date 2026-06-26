@@ -19,14 +19,10 @@ appId: org.bibletranslationtools.writer
 - tapOn:
     text: "No"
     waitToSettleTimeoutMs: 1000
+- takeScreenshot: debug-after-migration-no
 - extendedWaitUntil:
     notVisible: "Migrate from Old App"
     timeout: 5000
 - extendedWaitUntil:
     visible: "Please create or login to your account."
-    timeout: 10000
-    optional: true
-- takeScreenshot: debug-wait-10s
-- extendedWaitUntil:
-    visible: "Please create or login to your account."
-    timeout: 290000
+    timeout: 300000
