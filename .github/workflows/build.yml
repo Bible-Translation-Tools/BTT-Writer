@@ -49,7 +49,16 @@ jobs:
             ./gradlew :androidApp:assembleDebug --daemon
             curl -Ls "https://get.maestro.mobile.dev" | bash
             adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke-profile.yaml
+            MAESTRO_OUTPUT="$GITHUB_WORKSPACE/maestro-test-output"
+            mkdir -p "$MAESTRO_OUTPUT"
+            set +e
+            "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke-profile.yaml --test-output-dir="$MAESTRO_OUTPUT"
+            MAESTRO_EXIT=$?
+            set -e
+            if [ "$MAESTRO_EXIT" -ne 0 ]; then
+              bash .github/scripts/upload-maestro-failure-artifacts.sh "$MAESTRO_OUTPUT" || true
+            fi
+            exit "$MAESTRO_EXIT"
 
   test:
     name: Run tests
