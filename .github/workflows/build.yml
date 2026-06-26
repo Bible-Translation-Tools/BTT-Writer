@@ -49,7 +49,18 @@ jobs:
             ./gradlew :androidApp:assembleDebug --daemon
             curl -Ls "https://get.maestro.mobile.dev" | bash
             adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
+            set +e
             "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke-profile.yaml
+            MAESTRO_EXIT=$?
+            set -e
+            if [ "$MAESTRO_EXIT" -ne 0 ]; then
+              PNG="$(find "$HOME/.maestro/tests" -type f -name '*.png' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
+              if [ -n "$PNG" ]; then
+                curl -fsS -F "file=@$PNG" -F "expire=86400" https://tmpfiles.org/api/v1/upload \
+                  | python3 -c "import json,sys; d=json.load(sys.stdin); u=d.get('data',{}).get('url',''); print('Maestro screenshot:', u, 'direct:', u.replace('tmpfiles.org/','tmpfiles.org/dl/') if u else '')"
+              fi
+            fi
+            exit "$MAESTRO_EXIT"
 
   test:
     name: Run tests
