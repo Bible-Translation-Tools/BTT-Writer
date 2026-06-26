@@ -63,8 +63,10 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 
 - `launchApp` with `clearState: true`
 - Optional migration dialog → tap `No`
-- Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not")
-- Wait up to **120s** for `Create offline Account` (splash + library deploy on CI)
+- Optional wait for splash `Welcome to BTT Writer`
+- Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not") — handled **before** migration (matches app startup order)
+- Optional migration dialog → tap `No`
+- Wait up to **300s** for profile title `Please create or login to your account.` (splash + ~158 MB library unzip on CI; do not wait for `Create offline Account` here — it may be off-screen)
 
 **`smoke-profile.yaml`**
 
@@ -127,15 +129,15 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 1. **Emulator boot timeout** — free disk space, KVM, tuned `emulator-options`; avoid heavy `pixel_6` profile on CI
 2. **`maestro: not found`** — use full path `$HOME/.maestro/bin/maestro`, not `export PATH` in a prior script line
 3. **Hardware dialog** — UI string is `Don't show again`, not `Do not show again`
-4. **Splash → profile** can take **>45s** on CI; `smoke-launch` waits up to 120s
-5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`
+4. **Splash → profile** can take **several minutes** on CI (bundled `containers.zip` is ~158 MB); `smoke-launch` waits up to 300s for the profile **title**, not the offline card
+5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`; `extendedWaitUntil` requires on-screen visibility
 6. **`qemu-system-x86_64-headless: I/O thread spun`** — benign emulator warning
 
 ## Known Issues / Follow-ups
 
 | Issue | Notes |
 |-------|--------|
-| **Maestro splash on real network** | No debug flag to skip `UpdateApp`; relies on 120s wait |
+| **Maestro splash on real network** | No debug flag to skip `UpdateApp`; relies on 300s wait for library deploy |
 | **Desktop vs Maestro parity** | Desktop mocks `UpdateApp`; Maestro exercises real deploy path |
 | **Pre-existing `jvmTest` failures** | Unrelated unit/integration tests may still fail in full `jvmTest` |
 | **Android instrumented UI tests** | Not set up; only Maestro for Android E2E today |
