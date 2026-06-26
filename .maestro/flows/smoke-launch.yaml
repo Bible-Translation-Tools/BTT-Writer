@@ -12,11 +12,14 @@ appId: org.bibletranslationtools.writer
     waitToSettleTimeoutMs: 500
 - runFlow:
     when:
-      visible: "Do not show again"
+      visible: "Slow Device"
     commands:
       - tapOn:
-          text: "Do not show again"
+          text: "Don't show again"
           waitToSettleTimeoutMs: 500
       - tapOn:
           text: "Continue"
           waitToSettleTimeoutMs: 500
+- extendedWaitUntil:
+    visible: "Create offline Account"
+    timeout: 120000

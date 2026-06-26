@@ -49,7 +49,7 @@ jobs:
             ./gradlew :androidApp:assembleDebug --daemon
             curl -Ls "https://get.maestro.mobile.dev" | bash
             adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            "$HOME/.maestro/bin/maestro" test .maestro/flows/
+            "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke-profile.yaml
 
   test:
     name: Run tests

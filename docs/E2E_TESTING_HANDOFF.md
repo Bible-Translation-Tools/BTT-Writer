@@ -1,147 +1,167 @@
 # E2E Testing Handoff
 
-Handoff from chat session (2026-06-24): Kotlin Multiplatform E2E testing for BTT-Writer (desktop + Android).
+Handoff for Kotlin Multiplatform E2E testing in BTT-Writer (desktop JVM + Android Maestro).
 
 ## Goal
 
 Two-layer E2E strategy:
 
-1. **Compose Multiplatform UI tests** — write once, run on desktop (fast) and Android (instrumented on emulator).
-2. **Maestro** — Android black-box smoke tests against a real installed APK.
+1. **Compose UI tests (JVM/desktop)** — fast, headless smoke test mirroring the Maestro profile flow; runs in `jvmTest` on Windows/Linux/macOS CI.
+2. **Maestro (Android)** — black-box smoke test against a real debug APK on an emulator.
 
-Desktop has no Maestro equivalent; desktop E2E stays on Compose UI tests.
+Desktop has no Maestro equivalent; the desktop test covers the same user journey via `runComposeUiTest`.
 
-## What Was Implemented
+## What Is Implemented
 
 ### Gradle & dependencies
 
-- Compose Multiplatform bumped **1.10.3 → 1.11.1** in `gradle/libs.versions.toml`
-- Added `compose-uiTest`, `androidx-ui-test-junit4`, `androidx-ui-test-manifest`
+- Compose Multiplatform **1.11.1** in `gradle/libs.versions.toml`
 - `composeApp/build.gradle.kts`:
-  - `commonTest` — unit/integration tests only (no `compose.uiTest`)
-  - `uiTest` source set — shared desktop UI tests (`dependsOn(commonTest)`)
-  - `jvmTest` — `dependsOn(uiTest)` + `compose.desktop.currentOs`
-  - `androidDeviceTest` — Android-only UI test copies + `compose.uiTest`
-  - `androidLibrary { withDeviceTestBuilder { } }` — device tests **do not** share full `commonTest` (avoids DEX errors from JVM unit tests with backtick names containing spaces)
-  - Android `packaging.resources.pickFirsts` for `META-INF/DEPENDENCIES`, etc.
-- `androidApp/build.gradle.kts`: `testInstrumentationRunner`, `androidTestImplementation` / `debugImplementation` for Compose UI test artifacts
+  - `jvmTest` — `compose.desktop.currentOs` + `compose.uiTest`
+  - Android `packaging.resources.pickFirsts` for duplicate `META-INF/*` in device/test APKs
 
-### UI test infrastructure
+### Desktop UI tests (`composeApp/src/jvmTest/.../uitest/`)
 
 | File | Purpose |
 |------|---------|
-| `composeApp/src/uiTest/kotlin/.../uitest/UiTestHarness.kt` | Koin setup, fake `UpdateApp`/`MigrateTranslations`, lifecycle, `launchWriterApp()` |
-| `composeApp/src/uiTest/kotlin/.../uitest/NavigationSmokeTest.kt` | Desktop JVM UI smoke tests |
-| `composeApp/src/androidDeviceTest/kotlin/.../uitest/` | Mirror of harness + tests for Android instrumented runs |
-| `composeApp/src/androidDeviceTest/AndroidManifest.xml` | Minimal manifest for device tests |
-| `composeApp/src/commonMain/kotlin/.../ui/UiTestTags.kt` | Stable `testTag` constants |
+| `UiTestHarness.kt` | Koin + `TestDirectoryProvider`, mocked `UpdateApp`, `runComposeUiTest`, starts at `Config.Splash` by default |
+| `SmokeFlow.kt` | Shared steps: `completeSmokeLaunch()`, `completeSmokeProfileToSettings()` |
+| `SmokeProfileTest.kt` | Single test: cold start → profile → settings |
 
-### Production code changes (for testability)
+**Flow covered (matches Maestro `smoke-profile.yaml`):**
 
-- **`UiTestTags`** on Splash, Profile offline card, offline form, privacy dialog, terms accept, Home, Settings menu item, Settings screen
-- **`DefaultRootComponent`**: optional `initialConfiguration` (default `Config.Splash`); tests start at `Config.Profile(thenLogin = false)` to skip async splash/`UpdateApp`
-- **`SidebarAction`**: optional `testTag` (used for `home_settings`)
+1. Splash — dismiss migration (`No`) and hardware warning (`Don't show again` → `Continue`) if shown
+2. Wait for profile index (`Create offline Account`)
+3. Offline account form → privacy notice → terms (`I Agree`)
+4. Home (`Your Translation Projects`) → More Options → Settings → assert `General`
 
-### Maestro
+**Notes:**
+
+- Tests are **headless** — no visible window when running `jvmTest` (expected for `runComposeUiTest`).
+- `UpdateApp` is **mocked** in the harness so splash completes reliably without network; all other UI interaction is real.
+- Default `initialConfiguration` is `Config.Splash` (full user path, not skipped).
+
+### Production code (minimal)
+
+- `DefaultRootComponent`: optional `initialConfiguration` parameter (default `Config.Splash`) for test entry points.
+
+No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` source sets in the repo today.
+
+### Maestro (`.maestro/`)
 
 ```
 .maestro/
-  config.yaml
+  config.yaml              # appId, android disableAnimations
   flows/
-    smoke-launch.yaml          # launch, wait for welcome, dismiss migration
-    smoke-offline-profile.yaml # tap offline account, assert name field
+    smoke-launch.yaml      # subflow: cold launch → dismiss dialogs → wait for profile
+    smoke-profile.yaml     # full smoke: runFlow smoke-launch + profile → settings
 ```
 
 `appId`: `org.bibletranslationtools.writer`
 
+**`smoke-launch.yaml`**
+
+- `launchApp` with `clearState: true`
+- Optional migration dialog → tap `No`
+- Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not")
+- Wait up to **120s** for `Create offline Account` (splash + library deploy on CI)
+
+**`smoke-profile.yaml`**
+
+- `runFlow: smoke-launch.yaml`
+- `scrollUntilVisible` for offline card (may be below fold on emulator)
+- Full profile → home → settings path
+- `waitToSettleTimeoutMs: 500` on taps
+
+Merged former `smoke-offline-profile.yaml` and `smoke-settings.yaml` into `smoke-profile.yaml`.
+
 ### CI (`.github/workflows/build.yml`)
 
-- **Existing `test` job** — `Xvfb` + `jvmTest` now includes desktop UI tests automatically
-- **New `test-android-e2e` job** — emulator, `assembleDebug`, `connectedAndroidDeviceTest`, Maestro flows (6 GB Gradle heap)
+**Job order:**
+
+1. **`test-android-e2e`** — Maestro on API 34 emulator (runs first)
+2. **`test`** — `jvmTest` with Xvfb (includes desktop smoke test); `needs: test-android-e2e`
+3. **Build jobs** — `needs: test`
+
+**E2E job details:**
+
+- Free disk space + enable KVM (Now in Android pattern)
+- `android-emulator-runner@v2`: `disk-size: 6000M`, `heap-size: 600M`, `emulator-boot-timeout: 900`, `swiftshader_indirect` GPU
+- Assemble debug APK, install Maestro, run **`smoke-profile.yaml` only**
+- Use **`"$HOME/.maestro/bin/maestro"`** — `android-emulator-runner` runs each script line in a separate shell, so `export PATH` does not persist
 
 ## How to Run
 
 ```bash
-# Desktop UI tests (fast dev loop)
-gradlew :composeApp:jvmTest --tests org.bibletranslationtools.writer.uitest.NavigationSmokeTest
+# Desktop smoke test only (fast, headless)
+gradlew :composeApp:jvmTest --tests org.bibletranslationtools.writer.uitest.SmokeProfileTest
 
-# All JVM tests (includes UI + unit/integration)
+# All JVM tests (unit + integration + desktop smoke)
 gradlew :composeApp:jvmTest
 
-# Android instrumented (emulator/device required)
-gradlew :composeApp:connectedAndroidDeviceTest
-
-# Maestro (after debug APK install)
+# Maestro locally (emulator/device + debug APK)
 gradlew :androidApp:assembleDebug
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-maestro test .maestro/flows/
+maestro test .maestro/flows/smoke-profile.yaml
+
+# Optional: launch subflow only
+maestro test .maestro/flows/smoke-launch.yaml
 ```
 
-## Tests Covered
+On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows locally, `jvmTest` runs headless without Xvfb for the smoke test.
 
-**`NavigationSmokeTest`**
+## Debugging Lessons
 
-1. `splash_to_profile_to_home` — profile index → offline account → terms → home
-2. `home_to_settings_and_back` — sidebar menu → settings → back to home
+### Desktop (`runComposeUiTest`)
 
-Both pass on JVM desktop as of handoff.
+1. **`@OptIn(ExperimentalTestApi::class)`** on harness and tests
+2. **`DefaultRootComponent`** created inside `setContent` on the main thread
+3. **Essenty `LifecycleRegistry`** + `resume()` for Decompose
+4. **`LocalLifecycleOwner`** provided by `runComposeUiTest` (Compose 1.11+)
+5. **Mock `UpdateApp` only** — use real `Preference` from Koin; do not skip splash unless testing a narrower path
+6. **Two `Continue` buttons** when privacy dialog is open — use `onAllNodesWithText("Continue")[1]` for the dialog button
+7. **No visible UI** during `jvmTest` is normal
 
-## Key Debugging Lessons (from this session)
+### Maestro / CI emulator
 
-Initial JVM runs failed for these reasons (all fixed):
-
-1. **`@OptIn(ExperimentalTestApi::class)`** required on harness using `setContent`
-2. **`collectAsStateWithLifecycle`** needs `LocalLifecycleOwner` in `setContent` (created inside composition on main thread)
-3. **Decompose** `DefaultRootComponent` must be created **inside** `setContent` (main thread), not before
-4. **Mocked `Preference`** caused `ClassCastException` when Home read `LAST_TRANSLATION` — use real `Preference` from Koin + pre-set migration/hardware prefs
-5. **Splash `UpdateApp` coroutines** don’t advance reliably under test `StandardTestDispatcher` — tests skip splash via `initialConfiguration = Profile`
-6. **Android device test DEX** — cannot package all `commonTest` classes (backtick test names with spaces); use separate `androidDeviceTest` sources
+1. **Emulator boot timeout** — free disk space, KVM, tuned `emulator-options`; avoid heavy `pixel_6` profile on CI
+2. **`maestro: not found`** — use full path `$HOME/.maestro/bin/maestro`, not `export PATH` in a prior script line
+3. **Hardware dialog** — UI string is `Don't show again`, not `Do not show again`
+4. **Splash → profile** can take **>45s** on CI; `smoke-launch` waits up to 120s
+5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`
+6. **`qemu-system-x86_64-headless: I/O thread spun`** — benign emulator warning
 
 ## Known Issues / Follow-ups
 
 | Issue | Notes |
 |-------|--------|
-| **Android device test APK build OOM locally** | `mergeExtDexAndroidDeviceTest` may crash Gradle daemon on low-memory machines; CI uses 6 GB heap |
-| **Duplicated UI test code** | `uiTest` (JVM) and `androidDeviceTest` (Android) mirror harness/tests due to KMP source-set tree constraints |
-| **Pre-existing `jvmTest` failures** | e.g. `MergeConflictsParseTest`, `UsxBrokenRenderTest`, `ExportProjectsTest` — unrelated to E2E; still fail in full `jvmTest` |
-| **Maestro vs real network** | Black-box flows wait up to 120s for splash; no debug flag to skip `UpdateApp` yet |
-| **Gradle deprecation warnings** | `androidLibrary { }` block deprecated in favor of `android { }`; `compose.uiTest` catalog entries could be cleaned up |
+| **Maestro splash on real network** | No debug flag to skip `UpdateApp`; relies on 120s wait |
+| **Desktop vs Maestro parity** | Desktop mocks `UpdateApp`; Maestro exercises real deploy path |
+| **Pre-existing `jvmTest` failures** | Unrelated unit/integration tests may still fail in full `jvmTest` |
+| **Android instrumented UI tests** | Not set up; only Maestro for Android E2E today |
+| **`runComposeUiTest` v1 deprecation** | Consider migrating to `androidx.compose.ui.test.v2.runComposeUiTest` |
 
-## Architecture (quick reference)
+## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph shared [Shared UI test code]
-    uiTest["uiTest source set"]
-    androidDeviceTest["androidDeviceTest mirror"]
-  end
-  subgraph desktop [Desktop]
+  subgraph desktop [Desktop JVM]
+    smokeTest["SmokeProfileTest"]
     jvmTest["jvmTest / Xvfb CI"]
   end
-  subgraph androidInstr [Android instrumented]
-    emulator["Emulator + connectedAndroidDeviceTest"]
+  subgraph android [Android]
+    maestro["Maestro smoke-profile.yaml"]
+    emulator["API 34 emulator"]
   end
-  subgraph androidBB [Android black-box]
-    maestro["Maestro on debug APK"]
-  end
-  uiTest --> jvmTest
-  androidDeviceTest --> emulator
-  maestro --> androidBB
+  smokeTest --> jvmTest
+  maestro --> emulator
 ```
 
 ## Files Touched (summary)
 
 - `gradle/libs.versions.toml`
 - `composeApp/build.gradle.kts`
-- `androidApp/build.gradle.kts`
 - `.github/workflows/build.yml`
 - `.maestro/**`
-- `composeApp/src/commonMain/.../UiTestTags.kt` + tagged screens (Splash, Profile, Home, Settings, dialogs)
+- `composeApp/src/jvmTest/.../uitest/*`
 - `composeApp/src/commonMain/.../RootComponent.kt` (`initialConfiguration`)
-- `composeApp/src/uiTest/**`
-- `composeApp/src/androidDeviceTest/**`
-- `composeApp/src/commonMain/.../MenuItems.kt`, `HomeSidebar.kt` (`testTag` on settings)
-
-## Plan Reference
-
-Original plan todos were all marked completed. Plan file was **not** edited per user request (`kmp_e2e_testing_setup_b73f7cc2.plan.md` in Cursor plans).
