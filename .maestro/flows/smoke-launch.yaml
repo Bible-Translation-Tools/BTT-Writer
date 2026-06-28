@@ -27,4 +27,4 @@ appId: org.bibletranslationtools.writer
     timeout: 5000
 - extendedWaitUntil:
     visible: "Please create or login to your account."
-    timeout: 300000
+    timeout: 60000

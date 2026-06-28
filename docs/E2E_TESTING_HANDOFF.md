@@ -64,7 +64,7 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 - `launchApp` with `clearState: true`
 - Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not") — handled **before** migration (matches app startup order)
 - Migration dialog → required `extendedWaitUntil` + `tapOn: "No"` + `assertNotVisible` (always shown after `clearState`; do **not** use `optional: true` or a failed tap hangs on the 300s profile wait)
-- Wait up to **300s** for profile title `Please create or login to your account.` (splash + ~158 MB library unzip on CI; do not wait for `Create offline Account` here — it may be off-screen)
+- Wait up to **60s** for profile title `Please create or login to your account.` (CI debug APK is built with `-PbttE2e=true` to skip the ~158 MB library deploy; local Maestro uses a normal debug build and may need longer)
 
 **`smoke-profile.yaml`**
 
@@ -137,7 +137,7 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 
 | Issue | Notes |
 |-------|--------|
-| **Maestro splash on real network** | No debug flag to skip `UpdateApp`; relies on 300s wait for library deploy |
+| **Maestro splash on real network** | CI uses `-PbttE2e=true` to skip library deploy; local Maestro on a normal debug APK still runs full `UpdateApp` |
 | **Desktop vs Maestro parity** | Desktop mocks `UpdateApp`; Maestro exercises real deploy path |
 | **Pre-existing `jvmTest` failures** | Unrelated unit/integration tests may still fail in full `jvmTest` |
 | **Android instrumented UI tests** | Not set up; only Maestro for Android E2E today |
