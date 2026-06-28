@@ -18,10 +18,7 @@ appId: org.bibletranslationtools.writer
     timeout: 120000
 - tapOn:
     text: "No"
-    waitToSettleTimeoutMs: 2000
-- waitForAnimationToEnd:
-    timeout: 5000
-- takeScreenshot: debug-after-migration-no
+    waitToSettleTimeoutMs: 1000
 - extendedWaitUntil:
     notVisible: "Migrate from Old App"
     timeout: 5000
