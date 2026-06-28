@@ -41,9 +41,11 @@ jobs:
           target: google_apis
           disable-animations: true
           disk-size: 6000M
-          heap-size: 600M
+          ram-size: 4096M
+          heap-size: 512M
           emulator-boot-timeout: 900
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          pre-emulator-launch-script: bash .github/scripts/setup-android-emulator.sh
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 4096
           script: |
             set -e
             ./gradlew :androidApp:assembleDebug --daemon
