@@ -65,6 +65,8 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Run tests
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2048M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
         run: |
           Xvfb :99 -screen 0 1024x768x24 &
           DISPLAY=:99 ./gradlew jvmTest

@@ -219,6 +219,9 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
 }
 
 tasks.named<Test>("jvmTest") {
+    // Integration tests deploy the bundled library (~158 MB); avoid parallel forks OOM on CI.
+    maxParallelForks = 1
+    jvmArgs("-Xmx4g")
     testLogging {
         events("passed", "skipped", "failed")
 
