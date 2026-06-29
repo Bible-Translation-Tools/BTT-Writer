@@ -21,3 +21,4 @@ appId: org.bibletranslationtools.writer
 - tapOn: "Edit Source"
 - tapOn: "English (en) - Unlocked Literal Bible"
 - tapOn: "Confirm"
+- runFlow: smoke-draft-chunk.yaml

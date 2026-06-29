@@ -1,0 +1,18 @@
+appId: org.bibletranslationtools.writer
+---
+- extendedWaitUntil:
+    visible: "Review Mode"
+    timeout: 3000
+- tapOn: "Review Mode"
+- scrollUntilVisible:
+    element: "Chapter 1:4-5"
+    direction: DOWN
+    speed: 40
+    timeout: 15000
+- tapOn: "toggle edit"
+- inputText: "\\v 4 In him was life \\v 5 The light shine"
+- hideKeyboard
+- tapOn: "toggle edit"
+- scroll
+- tapOn: "toggle done"
+- tapOn: "Confirm"
