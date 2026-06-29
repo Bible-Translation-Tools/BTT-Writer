@@ -78,7 +78,7 @@ All `extendedWaitUntil` and `scrollUntilVisible` steps use **`timeout: 5000`** (
 
 **`smoke-new-translation.yaml`**
 
-- `Start a new translation` → language `aaa` → category `bible-nt` → book `John` → assert `John` on home
+- `Start a new translation` → language `aaa` → category `bible-nt` → book `John` → assert `John` on home → open project → `Edit Source` → `English (en) - Unlocked Literal Bible`
 - `scrollUntilVisible` for `aaa` and `John` when list items are off-screen
 
 **`smoke-settings.yaml`**

@@ -1,5 +1,6 @@
 appId: org.bibletranslationtools.writer
 ---
 - runFlow: smoke-launch.yaml
+- setOrientation: LANDSCAPE_LEFT
 - runFlow: smoke-settings.yaml
 - runFlow: smoke-new-translation.yaml

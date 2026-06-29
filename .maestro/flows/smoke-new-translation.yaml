@@ -2,11 +2,6 @@ appId: org.bibletranslationtools.writer
 ---
 - assertVisible: "Start a new translation"
 - tapOn: "Start a new translation"
-- scrollUntilVisible:
-    element: "aaa"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
 - tapOn: "aaa"
 - tapOn: "bible-nt"
 - scrollUntilVisible:
@@ -19,3 +14,10 @@ appId: org.bibletranslationtools.writer
     visible: "Your Translation Projects"
     timeout: 5000
 - assertVisible: "John"
+- tapOn: "John"
+- extendedWaitUntil:
+    visible: "Edit Source"
+    timeout: 5000
+- tapOn: "Edit Source"
+- tapOn: "English (en) - Unlocked Literal Bible"
+- tapOn: "Confirm"

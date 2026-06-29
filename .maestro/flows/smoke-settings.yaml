@@ -1,5 +1,6 @@
 appId: org.bibletranslationtools.writer
 ---
+- setOrientation: LANDSCAPE_LEFT
 - scrollUntilVisible:
     element: "Create offline Account"
     direction: DOWN
@@ -13,22 +14,19 @@ appId: org.bibletranslationtools.writer
     text: "Your Name or Pseudonym"
     waitToSettleTimeoutMs: 200
 - inputText: "Test User"
-- tapOn:
-    text: "Continue"
-    waitToSettleTimeoutMs: 200
-- runFlow:
-    when:
-      visible: "Privacy Notice"
-    commands:
-      - tapOn:
-          text: "Continue"
-          waitToSettleTimeoutMs: 200
+- hideKeyboard
+- tapOn: "Continue"
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Terms of Use"
+    timeout: 5000
+- scroll
 - tapOn:
     text: "I Agree"
-    waitToSettleTimeoutMs: 200
+    rightOf: "No Thanks"
 - extendedWaitUntil:
     visible: "Your Translation Projects"
-    timeout: 5000
+    timeout: 3000
 - tapOn:
     text: "More Options"
     waitToSettleTimeoutMs: 200
