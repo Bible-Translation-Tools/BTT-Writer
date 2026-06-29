@@ -1,0 +1,21 @@
+appId: org.bibletranslationtools.writer
+---
+- assertVisible: "Start a new translation"
+- tapOn: "Start a new translation"
+- scrollUntilVisible:
+    element: "aaa"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn: "aaa"
+- tapOn: "bible-nt"
+- scrollUntilVisible:
+    element: "John"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn: "John"
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 5000
+- assertVisible: "John"

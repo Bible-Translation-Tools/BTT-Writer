@@ -33,7 +33,8 @@ Desktop has no Maestro equivalent; the desktop test covers the same user journey
 1. Splash — dismiss migration (`No`) and hardware warning (`Don't show again` → `Continue`) if shown
 2. Wait for profile index (`Create offline Account`)
 3. Offline account form → privacy notice → terms (`I Agree`)
-4. Home (`Your Translation Projects`) → More Options → Settings → assert `General`
+4. Home (`Your Translation Projects`) → More Options → Settings → assert `General` → back to home
+5. New translation: `aaa` → `bible-nt` → `John` → assert `John` on home
 
 **Notes:**
 
@@ -54,29 +55,37 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 .maestro/
   config.yaml              # appId, android disableAnimations
   flows/
-    smoke.yaml             # parent: runFlow smoke-launch + smoke-settings
+    smoke.yaml             # parent: launch + settings + new translation
     smoke-launch.yaml      # subflow: cold launch → dismiss dialogs → wait for profile
     smoke-settings.yaml    # subflow: profile → home → settings → home
+    smoke-new-translation.yaml  # subflow: create John project for aaa
 ```
 
 `appId`: `org.bibletranslationtools.writer`
+
+All `extendedWaitUntil` and `scrollUntilVisible` steps use **`timeout: 5000`** (5s).
 
 **`smoke-launch.yaml`**
 
 - `launchApp` with `clearState: true`
 - Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not") — handled **before** migration (matches app startup order)
 - Migration dialog → required `extendedWaitUntil` + `tapOn: "No"` + `notVisible` check (always shown after `clearState`; do **not** use `optional: true` on the tap)
-- Wait up to **60s** for profile title `Please create or login to your account.` (CI debug APK uses `-PbttE2e=true` to skip library deploy; local Maestro on a normal debug build may need longer)
+- Wait up to **5s** for profile title `Please create or login to your account.` (CI debug APK uses `-PbttE2e=true` to skip library deploy; increase `timeout` locally if splash is slow without `-PbttE2e=true`)
 
 **`smoke.yaml`**
 
-- `runFlow: smoke-launch.yaml` then `runFlow: smoke-settings.yaml`
+- `runFlow: smoke-launch.yaml` then `runFlow: smoke-settings.yaml` then `runFlow: smoke-new-translation.yaml`
+
+**`smoke-new-translation.yaml`**
+
+- `Start a new translation` → language `aaa` → category `bible-nt` → book `John` → assert `John` on home
+- `scrollUntilVisible` for `aaa` and `John` when list items are off-screen
 
 **`smoke-settings.yaml`**
 
 - `scrollUntilVisible` for offline card (may be below fold on emulator)
 - Full profile → home → settings path
-- `waitToSettleTimeoutMs: 500` on taps
+- `waitToSettleTimeoutMs: 200` on taps caps Maestro’s post-action settle wait (default can be several seconds)
 
 Former `smoke-offline-profile.yaml` and an earlier settings-only flow were merged into `smoke-settings.yaml`.
 
@@ -112,6 +121,7 @@ maestro test .maestro/flows/smoke.yaml
 # Optional: individual subflows
 maestro test .maestro/flows/smoke-launch.yaml
 maestro test .maestro/flows/smoke-settings.yaml
+maestro test .maestro/flows/smoke-new-translation.yaml
 ```
 
 On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows locally, `jvmTest` runs headless without Xvfb for the smoke test.
@@ -133,12 +143,13 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 1. **Emulator boot timeout** — free disk space, KVM, tuned `emulator-options`; avoid heavy `pixel_6` profile on CI
 2. **`maestro: not found`** — use full path `$HOME/.maestro/bin/maestro`, not `export PATH` in a prior script line
 3. **Hardware dialog** — UI string is `Don't show again`, not `Do not show again`
-4. **Splash → profile on CI** — use `-PbttE2e=true` to skip ~158 MB library deploy; without it, allow several minutes on cold start
+4. **Splash → profile on CI** — use `-PbttE2e=true` to skip ~158 MB library deploy; without it, cold start may exceed the 5s Maestro wait — bump `smoke-launch.yaml` timeouts locally if needed
 5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`
 6. **Migration dialog** — with `clearState: true` the prompt always appears; use required `extendedWaitUntil` + `tapOn: "No"` (not `optional: true`)
 7. **`when` condition `timeout`** — only supported on newer Maestro; use `extendedWaitUntil` for long waits instead
 8. **`Failed to find ColorBuffer`** — benign emulator GPU stderr during dialog transitions; not a Maestro failure
 9. **`qemu-system-x86_64-headless: I/O thread spun`** — benign emulator warning
+10. **Post-tap delay** — Maestro waits for the UI to settle after each action by default; use `waitToSettleTimeoutMs` on `tapOn` to cap that wait (200ms in our flows). Prefer `assertVisible` / `extendedWaitUntil` over manual sleeps.
 
 ## Known Issues / Follow-ups
 

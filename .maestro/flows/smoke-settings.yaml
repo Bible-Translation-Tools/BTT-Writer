@@ -3,40 +3,40 @@ appId: org.bibletranslationtools.writer
 - scrollUntilVisible:
     element: "Create offline Account"
     direction: DOWN
-    timeout: 30000
+    timeout: 5000
     centerElement: true
 - tapOn:
     text: "Create offline Account"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - assertVisible: "Your Name or Pseudonym"
 - tapOn:
     text: "Your Name or Pseudonym"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - inputText: "Test User"
 - tapOn:
     text: "Continue"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - runFlow:
     when:
       visible: "Privacy Notice"
     commands:
       - tapOn:
           text: "Continue"
-          waitToSettleTimeoutMs: 500
+          waitToSettleTimeoutMs: 200
 - tapOn:
     text: "I Agree"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     visible: "Your Translation Projects"
-    timeout: 30000
+    timeout: 5000
 - tapOn:
     text: "More Options"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - tapOn:
     text: "Settings"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - assertVisible: "General"
 - tapOn:
     text: "back"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - assertVisible: "Your Translation Projects"

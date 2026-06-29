@@ -2,3 +2,4 @@ appId: org.bibletranslationtools.writer
 ---
 - runFlow: smoke-launch.yaml
 - runFlow: smoke-settings.yaml
+- runFlow: smoke-new-translation.yaml

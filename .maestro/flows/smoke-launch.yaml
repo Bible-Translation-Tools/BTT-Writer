@@ -9,19 +9,19 @@ appId: org.bibletranslationtools.writer
     commands:
       - tapOn:
           text: "Don't show again"
-          waitToSettleTimeoutMs: 500
+          waitToSettleTimeoutMs: 200
       - tapOn:
           text: "Continue"
-          waitToSettleTimeoutMs: 500
+          waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     visible: "Migrate from Old App"
-    timeout: 120000
+    timeout: 10000
 - tapOn:
     text: "No"
-    waitToSettleTimeoutMs: 1000
+    waitToSettleTimeoutMs: 500
 - extendedWaitUntil:
     notVisible: "Migrate from Old App"
-    timeout: 5000
+    timeout: 1000
 - extendedWaitUntil:
     visible: "Please create or login to your account."
-    timeout: 60000
+    timeout: 10000
