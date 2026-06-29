@@ -28,7 +28,7 @@ Desktop has no Maestro equivalent; the desktop test covers the same user journey
 | `SmokeFlow.kt` | Shared steps: `completeSmokeLaunch()`, `completeSmokeProfileToSettings()` |
 | `SmokeProfileTest.kt` | Single test: cold start → profile → settings |
 
-**Flow covered (matches Maestro `smoke-profile.yaml`):**
+**Flow covered (matches Maestro `smoke.yaml`):**
 
 1. Splash — dismiss migration (`No`) and hardware warning (`Don't show again` → `Continue`) if shown
 2. Wait for profile index (`Create offline Account`)
@@ -54,8 +54,9 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 .maestro/
   config.yaml              # appId, android disableAnimations
   flows/
+    smoke.yaml             # parent: runFlow smoke-launch + smoke-settings
     smoke-launch.yaml      # subflow: cold launch → dismiss dialogs → wait for profile
-    smoke-profile.yaml     # full smoke: runFlow smoke-launch + profile → settings
+    smoke-settings.yaml    # subflow: profile → home → settings → home
 ```
 
 `appId`: `org.bibletranslationtools.writer`
@@ -67,14 +68,17 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 - Migration dialog → required `extendedWaitUntil` + `tapOn: "No"` + `notVisible` check (always shown after `clearState`; do **not** use `optional: true` on the tap)
 - Wait up to **60s** for profile title `Please create or login to your account.` (CI debug APK uses `-PbttE2e=true` to skip library deploy; local Maestro on a normal debug build may need longer)
 
-**`smoke-profile.yaml`**
+**`smoke.yaml`**
 
-- `runFlow: smoke-launch.yaml`
+- `runFlow: smoke-launch.yaml` then `runFlow: smoke-settings.yaml`
+
+**`smoke-settings.yaml`**
+
 - `scrollUntilVisible` for offline card (may be below fold on emulator)
 - Full profile → home → settings path
 - `waitToSettleTimeoutMs: 500` on taps
 
-Merged former `smoke-offline-profile.yaml` and `smoke-settings.yaml` into `smoke-profile.yaml`.
+Former `smoke-offline-profile.yaml` and an earlier settings-only flow were merged into `smoke-settings.yaml`.
 
 ### CI (`.github/workflows/build.yml`)
 
@@ -88,7 +92,7 @@ Merged former `smoke-offline-profile.yaml` and `smoke-settings.yaml` into `smoke
 
 - Free disk space + enable KVM
 - `android-emulator-runner@v2`: API 34, `ram-size: 4096M`, `disk-size: 6000M`, KVM, `swiftshader_indirect` GPU, `setup-android-emulator.sh` (Vulkan off)
-- Assemble debug APK with **`-PbttE2e=true`**, install Maestro, run **`smoke-profile.yaml` only**
+- Assemble debug APK with **`-PbttE2e=true`**, install Maestro, run **`smoke.yaml`**
 - Use **`"$HOME/.maestro/bin/maestro"`** — `android-emulator-runner` runs each script line in a separate shell, so `export PATH` does not persist
 
 ## How to Run
@@ -103,10 +107,11 @@ gradlew :composeApp:jvmTest
 # Maestro locally (emulator/device + debug APK; add -PbttE2e=true to match CI splash timing)
 gradlew :androidApp:assembleDebug -PbttE2e=true
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-maestro test .maestro/flows/smoke-profile.yaml
+maestro test .maestro/flows/smoke.yaml
 
-# Optional: launch subflow only
+# Optional: individual subflows
 maestro test .maestro/flows/smoke-launch.yaml
+maestro test .maestro/flows/smoke-settings.yaml
 ```
 
 On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows locally, `jvmTest` runs headless without Xvfb for the smoke test.
@@ -154,7 +159,7 @@ flowchart LR
     jvmTest["jvmTest / Xvfb CI"]
   end
   subgraph android [Android]
-    maestro["Maestro smoke-profile.yaml"]
+    maestro["Maestro smoke.yaml"]
     emulator["API 34 emulator"]
   end
   smokeTest --> jvmTest

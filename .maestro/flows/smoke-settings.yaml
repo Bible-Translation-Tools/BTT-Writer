@@ -1,6 +1,5 @@
 appId: org.bibletranslationtools.writer
 ---
-- runFlow: smoke-launch.yaml
 - scrollUntilVisible:
     element: "Create offline Account"
     direction: DOWN
@@ -37,3 +36,7 @@ appId: org.bibletranslationtools.writer
     text: "Settings"
     waitToSettleTimeoutMs: 500
 - assertVisible: "General"
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 500
+- assertVisible: "Your Translation Projects"
