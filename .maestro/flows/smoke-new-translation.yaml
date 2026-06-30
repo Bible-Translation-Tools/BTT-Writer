@@ -1,7 +1,11 @@
 appId: org.bibletranslationtools.writer
 ---
-- assertVisible: "Start a new translation"
-- tapOn: "Start a new translation"
+- extendedWaitUntil:
+    visible: "Start a new translation"
+    timeout: 5000
+- tapOn:
+    text: "Start a new translation"
+    waitToSettleTimeoutMs: 200
 - tapOn: "aaa"
 - tapOn: "bible-nt"
 - scrollUntilVisible:

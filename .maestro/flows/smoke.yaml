@@ -1,6 +1,10 @@
 appId: org.bibletranslationtools.writer
 ---
 - runFlow: smoke-launch.yaml
+- startRecording:
+    path: "../../maestro-artifacts/smoke-recording"
+    optional: true
 - setOrientation: LANDSCAPE_LEFT
 - runFlow: smoke-settings.yaml
 - runFlow: smoke-new-translation.yaml
+- stopRecording

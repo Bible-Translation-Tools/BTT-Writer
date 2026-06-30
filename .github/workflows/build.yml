@@ -34,6 +34,7 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Run Maestro smoke flows
+        id: maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -51,7 +52,21 @@ jobs:
             ./gradlew :androidApp:assembleDebug --daemon -PbttE2e=true
             curl -Ls "https://get.maestro.mobile.dev" | bash
             adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            "$HOME/.maestro/bin/maestro" test .maestro/flows/smoke.yaml
+            mkdir -p maestro-artifacts
+            set +e
+            "$HOME/.maestro/bin/maestro" test --test-output-dir maestro-artifacts --debug-output maestro-artifacts --flatten-debug-output .maestro/flows/smoke.yaml
+            MAESTRO_EXIT=$?
+            set -e
+            exit $MAESTRO_EXIT
+
+      - name: Upload Maestro E2E artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: maestro-e2e-artifacts
+          path: maestro-artifacts/
+          if-no-files-found: ignore
+          retention-days: 2
 
   test:
     name: Run tests
