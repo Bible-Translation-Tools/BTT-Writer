@@ -15,10 +15,10 @@ appId: org.bibletranslationtools.writer
           waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     visible: "Migrate from Old App"
-    timeout: 10000
+    timeout: 15000
 - tapOn:
     text: "No"
-    waitToSettleTimeoutMs: 500
+    waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     notVisible: "Migrate from Old App"
     timeout: 1000
