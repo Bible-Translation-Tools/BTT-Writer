@@ -6,4 +6,6 @@ appId: org.bibletranslationtools.writer
     optional: true
 - runFlow: smoke-settings.yaml
 - runFlow: smoke-new-translation.yaml
+- runFlow: smoke-draft-chunk.yaml
+- runFlow: smoke-project-menu.yaml
 - stopRecording

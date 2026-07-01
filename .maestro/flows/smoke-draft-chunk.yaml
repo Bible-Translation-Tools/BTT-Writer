@@ -26,4 +26,10 @@ appId: org.bibletranslationtools.writer
     text: "toggle done"
     index: 1
     waitToSettleTimeoutMs: 200
-- tapOn: "Confirm"
+- tapOn: 
+    text: "Confirm"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200"
+- tapOn: "Home"

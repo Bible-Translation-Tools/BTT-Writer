@@ -28,4 +28,3 @@ appId: org.bibletranslationtools.writer
     text: "English (en) - Unlocked Literal Bible"
     waitToSettleTimeoutMs: 200
 - tapOn: "Confirm"
-- runFlow: smoke-draft-chunk.yaml
