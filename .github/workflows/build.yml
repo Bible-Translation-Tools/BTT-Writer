@@ -33,6 +33,9 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
+      - name: Build debug APK for E2E
+        run: ./gradlew :androidApp:assembleDebug --daemon -PbttE2e=true
+
       - name: Run Maestro smoke flows
         id: maestro
         uses: reactivecircus/android-emulator-runner@v2
@@ -50,7 +53,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 4096
           script: |
             set -e
-            ./gradlew :androidApp:assembleDebug --daemon -PbttE2e=true
+            bash .github/scripts/wait-for-emulator-ready.sh
             curl -Ls "https://get.maestro.mobile.dev" | bash
             adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
             mkdir -p maestro-artifacts

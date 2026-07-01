@@ -3,6 +3,18 @@ appId: org.bibletranslationtools.writer
 - launchApp:
     clearState: true
 - runFlow:
+    label: Recover from system ANR if shown
+    when:
+      visible: "isn't responding"
+    commands:
+      - tapOn:
+          text: "Wait"
+          waitToSettleTimeoutMs: 500
+      - extendedWaitUntil:
+          notVisible: "isn't responding"
+          timeout: 30000
+      - launchApp
+- runFlow:
     label: Dismiss slow-device warning if shown
     when:
       visible: "Slow Device"
