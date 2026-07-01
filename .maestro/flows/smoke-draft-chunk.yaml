@@ -31,5 +31,5 @@ appId: org.bibletranslationtools.writer
     waitToSettleTimeoutMs: 200
 - tapOn:
     text: "More Options"
-    waitToSettleTimeoutMs: 200"
+    waitToSettleTimeoutMs: 200
 - tapOn: "Home"
