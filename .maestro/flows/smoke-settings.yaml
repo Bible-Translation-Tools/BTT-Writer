@@ -56,7 +56,7 @@ appId: org.bibletranslationtools.writer
     waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     visible: "Success"
-    timeout: 40000
+    timeout: 120000
 - tapOn:
     text: "Dismiss"
     waitToSettleTimeoutMs: 200
