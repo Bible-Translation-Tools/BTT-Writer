@@ -24,6 +24,10 @@ appId: org.bibletranslationtools.writer
     timeout: 5000
 - tapOn: "Edit Source"
 - waitForAnimationToEnd
+- assertVisible: "Choose source translations"
+- tapOn: "Choose source translations"
+- inputText: "English"
+- waitForAnimationToEnd
 - tapOn: 
     text: "English (en) - Unlocked Literal Bible"
     waitToSettleTimeoutMs: 200
