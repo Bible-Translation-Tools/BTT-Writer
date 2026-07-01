@@ -60,6 +60,15 @@ appId: org.bibletranslationtools.writer
 - tapOn:
     text: "Dismiss"
     waitToSettleTimeoutMs: 200
-- tapOn: 
+- tapOn:
+    text: "Download New index.sqlite"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Success"
+    timeout: 20000
+- tapOn:
+    text: "Confirm"
+    waitToSettleTimeoutMs: 200
+- tapOn:
     text: "Cancel"
     waitToSettleTimeoutMs: 200
