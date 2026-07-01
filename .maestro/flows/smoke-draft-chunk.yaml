@@ -1,18 +1,29 @@
 appId: org.bibletranslationtools.writer
 ---
 - extendedWaitUntil:
-    visible: "Review Mode"
+    visible: "John"
     timeout: 3000
 - tapOn: "Review Mode"
 - scrollUntilVisible:
-    element: "Chapter 1:4-5"
+    element: "Chapter 1:6-8"
     direction: DOWN
-    speed: 40
-    timeout: 15000
-- tapOn: "toggle edit"
+    speed: 10
+    timeout: 10000
+- tapOn:
+    text: "toggle edit"
+    rightOf: "John 1:4-5 - Ghotuo"
+    waitToSettleTimeoutMs: 200
 - inputText: "\\v 4 In him was life \\v 5 The light shine"
-- hideKeyboard
-- tapOn: "toggle edit"
-- scroll
-- tapOn: "toggle done"
+- tapOn:
+    text: "John 1:4-5 - Ghotuo"
+    waitToSettleTimeoutMs: 200
+- waitForAnimationToEnd
+- tapOn:
+    text: "toggle edit"
+    rightOf: "John 1:4-5 - Ghotuo"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "toggle done"
+    index: 1
+    waitToSettleTimeoutMs: 200
 - tapOn: "Confirm"

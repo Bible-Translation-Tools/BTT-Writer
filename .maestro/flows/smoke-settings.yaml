@@ -1,6 +1,5 @@
 appId: org.bibletranslationtools.writer
 ---
-- setOrientation: LANDSCAPE_LEFT
 - scrollUntilVisible:
     element: "Create offline Account"
     direction: DOWN
@@ -14,9 +13,16 @@ appId: org.bibletranslationtools.writer
     text: "Your Name or Pseudonym"
     waitToSettleTimeoutMs: 200
 - inputText: "Test User"
-- hideKeyboard
-- tapOn: "Continue"
-- tapOn: "Continue"
+- hideKeyboard:
+    optional: true
+- waitForAnimationToEnd
+- assertVisible: "Continue"
+- tapOn:
+    text: "Continue"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "Continue"
+    waitToSettleTimeoutMs: 200
 - extendedWaitUntil:
     visible: "Terms of Use"
     timeout: 5000
@@ -38,3 +44,22 @@ appId: org.bibletranslationtools.writer
     text: "back"
     waitToSettleTimeoutMs: 200
 - assertVisible: "Your Translation Projects"
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200
+- tapOn: 
+    text: "Update"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "Update Options"
+- tapOn:
+    text: "Update List of Available Target Languages"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Success"
+    timeout: 10000
+- tapOn:
+    text: "Dismiss"
+    waitToSettleTimeoutMs: 200
+- tapOn: 
+    text: "Cancel"
+    waitToSettleTimeoutMs: 200

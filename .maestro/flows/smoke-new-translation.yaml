@@ -23,6 +23,9 @@ appId: org.bibletranslationtools.writer
     visible: "Edit Source"
     timeout: 5000
 - tapOn: "Edit Source"
-- tapOn: "English (en) - Unlocked Literal Bible"
+- waitForAnimationToEnd
+- tapOn: 
+    text: "English (en) - Unlocked Literal Bible"
+    waitToSettleTimeoutMs: 200
 - tapOn: "Confirm"
 - runFlow: smoke-draft-chunk.yaml
