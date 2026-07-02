@@ -46,11 +46,11 @@ jobs:
           profile: pixel_tablet
           disable-animations: true
           disk-size: 6000M
-          ram-size: 4096M
+          ram-size: 3072M
           heap-size: 512M
           emulator-boot-timeout: 900
           pre-emulator-launch-script: bash .github/scripts/setup-android-emulator.sh
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 4096
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 3072
           script: |
             set -e
             bash .github/scripts/wait-for-emulator-ready.sh

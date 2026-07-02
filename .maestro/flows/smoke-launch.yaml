@@ -2,32 +2,47 @@ appId: org.bibletranslationtools.writer
 ---
 - launchApp:
     clearState: true
-- runFlow:
-    label: Recover from system ANR if shown
-    when:
-      visible: "isn't responding"
+- repeat:
+    times: 3
+    while:
+      notVisible: "Migrate from Old App"
     commands:
-      - tapOn:
-          text: "Wait"
-          waitToSettleTimeoutMs: 500
+      - runFlow:
+          label: Recover from system ANR if shown
+          when:
+            visible: "isn't responding"
+          commands:
+            - tapOn:
+                text: "Wait"
+                waitToSettleTimeoutMs: 1000
+            - extendedWaitUntil:
+                notVisible: "isn't responding"
+                timeout: 60000
+            - launchApp
+      - runFlow:
+          label: Dismiss slow-device warning if shown
+          when:
+            visible: "Slow Device"
+          commands:
+            - tapOn:
+                text: "Don't show again"
+                waitToSettleTimeoutMs: 200
+            - tapOn:
+                text: "Continue"
+                waitToSettleTimeoutMs: 200
       - extendedWaitUntil:
-          notVisible: "isn't responding"
+          visible: "Migrate from Old App"
           timeout: 30000
-      - launchApp
-- runFlow:
-    label: Dismiss slow-device warning if shown
-    when:
-      visible: "Slow Device"
-    commands:
-      - tapOn:
-          text: "Don't show again"
-          waitToSettleTimeoutMs: 200
-      - tapOn:
-          text: "Continue"
-          waitToSettleTimeoutMs: 200
+          optional: true
+      - runFlow:
+          label: Relaunch app if migration dialog not shown yet
+          when:
+            notVisible: "Migrate from Old App"
+          commands:
+            - launchApp
 - extendedWaitUntil:
     visible: "Migrate from Old App"
-    timeout: 15000
+    timeout: 5000
 - tapOn:
     text: "No"
     waitToSettleTimeoutMs: 200
@@ -36,4 +51,4 @@ appId: org.bibletranslationtools.writer
     timeout: 1000
 - extendedWaitUntil:
     visible: "Please create or login to your account."
-    timeout: 10000
+    timeout: 30000
