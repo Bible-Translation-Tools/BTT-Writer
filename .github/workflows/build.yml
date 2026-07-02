@@ -34,7 +34,7 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build debug APK for E2E
-        run: ./gradlew :androidApp:assembleDebug --daemon -PbttE2e=true
+        run: ./gradlew :androidApp:assembleDebug --daemon
 
       - name: Run Maestro smoke flows
         id: maestro

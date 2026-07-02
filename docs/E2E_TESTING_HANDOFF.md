@@ -45,7 +45,6 @@ Desktop has no Maestro equivalent; the desktop test covers the same user journey
 ### Production code (minimal)
 
 - `DefaultRootComponent`: optional `initialConfiguration` parameter (default `Config.Splash`) for test entry points.
-- `UpdateApp`: when `BuildInfo.SKIP_LIBRARY_DEPLOY` is true (`-PbttE2e=true` at build time), skips bundled library deploy on splash.
 
 No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` source sets in the repo today.
 
@@ -63,14 +62,14 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
 
 `appId`: `org.bibletranslationtools.writer`
 
-All `extendedWaitUntil` and `scrollUntilVisible` steps use **`timeout: 5000`** (5s).
+Most `extendedWaitUntil` and `scrollUntilVisible` steps use **`timeout: 5000`** (5s); splash waits are longer where library deploy runs on cold start.
 
 **`smoke-launch.yaml`**
 
 - `launchApp` with `clearState: true`
 - Hardware warning (`Slow Device`) → `Don't show again` → `Continue` (string is **Don't**, not "Do not") — handled **before** migration (matches app startup order)
 - Migration dialog → required `extendedWaitUntil` + `tapOn: "No"` + `notVisible` check (always shown after `clearState`; do **not** use `optional: true` on the tap)
-- Wait up to **5s** for profile title `Please create or login to your account.` (CI debug APK uses `-PbttE2e=true` to skip library deploy; increase `timeout` locally if splash is slow without `-PbttE2e=true`)
+- Wait up to **30s** for profile title `Please create or login to your account.` (cold start deploys the bundled ~158 MB library on splash)
 
 **`smoke.yaml`**
 
@@ -101,7 +100,7 @@ Former `smoke-offline-profile.yaml` and an earlier settings-only flow were merge
 
 - Free disk space + enable KVM
 - `android-emulator-runner@v2`: API 34, `ram-size: 4096M`, `disk-size: 6000M`, KVM, `swiftshader_indirect` GPU, `setup-android-emulator.sh` (Vulkan off)
-- Assemble debug APK with **`-PbttE2e=true`**, install Maestro, run **`smoke.yaml`**
+- Assemble a normal debug APK, install Maestro, run **`smoke.yaml`**
 - Use **`"$HOME/.maestro/bin/maestro"`** — `android-emulator-runner` runs each script line in a separate shell, so `export PATH` does not persist
 
 ## How to Run
@@ -113,8 +112,8 @@ gradlew :composeApp:jvmTest --tests org.bibletranslationtools.writer.uitest.Smok
 # All JVM tests (unit + integration + desktop smoke)
 gradlew :composeApp:jvmTest
 
-# Maestro locally (emulator/device + debug APK; add -PbttE2e=true to match CI splash timing)
-gradlew :androidApp:assembleDebug -PbttE2e=true
+# Maestro locally (emulator/device + debug APK)
+gradlew :androidApp:assembleDebug
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
 maestro test .maestro/flows/smoke.yaml
 
@@ -143,7 +142,7 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 1. **Emulator boot timeout** — free disk space, KVM, tuned `emulator-options`; avoid heavy `pixel_6` profile on CI
 2. **`maestro: not found`** — use full path `$HOME/.maestro/bin/maestro`, not `export PATH` in a prior script line
 3. **Hardware dialog** — UI string is `Don't show again`, not `Do not show again`
-4. **Splash → profile on CI** — use `-PbttE2e=true` to skip ~158 MB library deploy; without it, cold start may exceed the 5s Maestro wait — bump `smoke-launch.yaml` timeouts locally if needed
+4. **Splash → profile on CI** — cold start deploys the bundled ~158 MB library; `smoke-launch.yaml` waits up to 30s for the profile screen
 5. **Profile card off-screen** — `scrollUntilVisible` before tapping `Create offline Account`
 6. **Migration dialog** — with `clearState: true` the prompt always appears; use required `extendedWaitUntil` + `tapOn: "No"` (not `optional: true`)
 7. **`when` condition `timeout`** — only supported on newer Maestro; use `extendedWaitUntil` for long waits instead
@@ -155,8 +154,7 @@ On Linux CI desktop tests, the `test` job starts Xvfb automatically. On Windows 
 
 | Issue | Notes |
 |-------|--------|
-| **Maestro splash on real network** | CI uses `-PbttE2e=true` to skip library deploy; local Maestro on a normal debug APK still runs full `UpdateApp` |
-| **Desktop vs Maestro parity** | Desktop mocks `UpdateApp`; CI Maestro uses `-PbttE2e=true` to skip library deploy |
+| **Desktop vs Maestro parity** | Desktop mocks `UpdateApp` for fast headless runs; Maestro exercises the real splash path including library deploy |
 | **Pre-existing `jvmTest` failures** | Unrelated unit/integration tests may still fail in full `jvmTest` |
 | **Android instrumented UI tests** | Not set up; only Maestro for Android E2E today |
 | **`runComposeUiTest` v1 deprecation** | Consider migrating to `androidx.compose.ui.test.v2.runComposeUiTest` |

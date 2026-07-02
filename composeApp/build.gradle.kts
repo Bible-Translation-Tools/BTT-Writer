@@ -14,17 +14,14 @@ plugins {
 
 val versionName = libs.versions.app.version.name.get()
 val versionCode = libs.versions.app.version.code.get()
-val skipLibraryDeploy = project.findProperty("bttE2e") == "true"
 
 val generateBuildInfo = tasks.register("generateBuildInfo") {
     val outputDir = layout.buildDirectory.dir("generated/buildinfo/kotlin")
     val versionNameValue = versionName
     val versionCodeValue = versionCode
-    val skipLibraryDeployValue = skipLibraryDeploy
 
     inputs.property("versionName", versionNameValue)
     inputs.property("versionCode", versionCodeValue)
-    inputs.property("skipLibraryDeploy", skipLibraryDeployValue)
     outputs.dir(outputDir)
 
     doLast {
@@ -38,7 +35,6 @@ val generateBuildInfo = tasks.register("generateBuildInfo") {
                 const val VERSION_NAME = "$versionNameValue"
                 const val VERSION_CODE = "$versionCodeValue"
                 const val OAUTH_TOKEN = "bad_token"
-                const val SKIP_LIBRARY_DEPLOY = $skipLibraryDeployValue
             }
             """.trimIndent()
         )

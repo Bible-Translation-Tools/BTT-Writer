@@ -3,7 +3,6 @@ package org.bibletranslationtools.writer.usecases
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
-import org.bibletranslationtools.writer.BuildInfo
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.TargetTranslationMigrator
@@ -30,14 +29,6 @@ class UpdateApp(
     }
 
     suspend fun execute(onProgress: (Float, String?) -> Unit = {_,_->}) {
-        if (BuildInfo.SKIP_LIBRARY_DEPLOY) {
-            Logger.i(TAG, "Skipping library deploy (E2E build)")
-            preference.setPref(Preference.LAST_VERSION_CODE, platform.info.versionCode)
-            migrateTargetTranslations()
-            updateBuildNumbers()
-            return
-        }
-
         var lastVersionCode = preference.getPref(
             "last_version_code",
             0
