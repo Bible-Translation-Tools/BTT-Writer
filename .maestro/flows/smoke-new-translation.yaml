@@ -25,26 +25,21 @@ appId: org.bibletranslationtools.writer
 - tapOn: "Edit Source"
 - waitForAnimationToEnd
 - assertVisible: "Choose source translations"
-- takeScreenshot: new-translation/source-translations-visible
 - tapOn: "Choose source translations"
 - inputText: "English"
-- takeScreenshot: new-translation/01-after-input-english
 - hideKeyboard:
     optional: true
-- takeScreenshot: new-translation/02-after-hide-keyboard
 - waitForAnimationToEnd
-- takeScreenshot: new-translation/03-after-wait-animation
 - assertVisible: "Confirm"
-- takeScreenshot: new-translation/04-after-assert-confirm-visible
 - tapOn: 
     text: "English (en) - Unlocked Literal Bible"
     waitToSettleTimeoutMs: 500
-- takeScreenshot: new-translation/05-after-tap-english-source
+- tapOn: "Confirm"
 - assertVisible: "Downloading"
-- takeScreenshot: new-translation/06-after-assert-downloading
 - extendedWaitUntil:
     notVisible: "Downloading"
     timeout: 30000
-- takeScreenshot: new-translation/07-after-download-complete
+- tapOn: 
+    text: "English (en) - Unlocked Literal Bible"
+    waitToSettleTimeoutMs: 500
 - tapOn: "Confirm"
-- takeScreenshot: new-translation/08-after-tap-confirm
