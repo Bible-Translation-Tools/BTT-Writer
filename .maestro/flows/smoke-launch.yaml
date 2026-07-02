@@ -39,9 +39,11 @@ appId: org.bibletranslationtools.writer
             notVisible: "Migrate from Old App"
           commands:
             - launchApp
+- takeScreenshot: "smoke-launch/before-migrate-from-old-app-visible"            
 - extendedWaitUntil:
     visible: "Migrate from Old App"
     timeout: 5000
+- takeScreenshot: "smoke-launch/migrate-from-old-app-visible"
 - tapOn:
     text: "No"
     waitToSettleTimeoutMs: 200
