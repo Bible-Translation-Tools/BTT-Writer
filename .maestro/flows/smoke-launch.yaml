@@ -51,15 +51,12 @@ appId: org.bibletranslationtools.writer
 - takeScreenshot:
     path: smoke-launch/migration-dismissed
     label: After migration dialog dismissed
-- repeat: # Wait for profile screen to be ready
-    times: 3
-    while:
-      notVisible: "Please create or login to your account."
+- retry: # Wait for profile screen to be ready
+    maxRetries: 3
     commands:
       - extendedWaitUntil:
           visible: "Please create or login to your account."
           timeout: 10000
-          optional: true
 - takeScreenshot:
     path: smoke-launch/profile-ready
     label: Profile screen ready
