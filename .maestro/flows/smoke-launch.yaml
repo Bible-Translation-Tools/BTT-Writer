@@ -2,47 +2,45 @@ appId: org.bibletranslationtools.writer
 ---
 - launchApp:
     clearState: true
-- repeat:
-    times: 3
-    while:
-      notVisible: "Migrate from Old App"
-    commands:
-      - tapOn:
-          text: "Wait"
-          optional: true
-          waitToSettleTimeoutMs: 1000
-          label: Recover from system ANR if shown
-      - extendedWaitUntil:
-          notVisible: "isn't responding"
-          timeout: 60000
-          optional: true
-      - runFlow:
-          when:
-            visible: "isn't responding"
-          commands:
-            - launchApp
-      - tapOn:
-          text: "Don't show again"
-          optional: true
-          waitToSettleTimeoutMs: 200
-          label: Dismiss slow-device warning if shown
-      - tapOn:
-          text: "Continue"
-          optional: true
-          waitToSettleTimeoutMs: 200
-      - extendedWaitUntil:
-          visible: "Migrate from Old App"
-          timeout: 30000
-          optional: true
-      - runFlow:
-          when:
-            notVisible: "Migrate from Old App"
-          commands:
-            - launchApp
+# - repeat:
+#     times: 3
+#     while:
+#       notVisible: "Migrate from Old App"
+#     commands:
+#       - tapOn:
+#           text: "Wait"
+#           optional: true
+#           waitToSettleTimeoutMs: 1000
+#           label: Recover from system ANR if shown
+#       - extendedWaitUntil:
+#           notVisible: "isn't responding"
+#           timeout: 60000
+#           optional: true
+#       - runFlow:
+#           when:
+#             visible: "isn't responding"
+#           commands:
+#             - launchApp
+#       - tapOn:
+#           text: "Don't show again"
+#           optional: true
+#           waitToSettleTimeoutMs: 200
+#           label: Dismiss slow-device warning if shown
+#       - tapOn:
+#           text: "Continue"
+#           optional: true
+#           waitToSettleTimeoutMs: 200
+#       - extendedWaitUntil:
+#           visible: "Migrate from Old App"
+#           timeout: 30000
+#           optional: true
 - takeScreenshot: "smoke-launch/before-migrate-from-old-app-visible"            
-- extendedWaitUntil:
-    visible: "Migrate from Old App"
-    timeout: 5000
+- retry:
+    maxRetries: 3
+    commands:
+    - extendedWaitUntil:
+        visible: "Migrate from Old App"
+        timeout: 10000
 - takeScreenshot: "smoke-launch/migrate-from-old-app-visible"
 - tapOn:
     text: "No"
