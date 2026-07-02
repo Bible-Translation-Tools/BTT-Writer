@@ -37,13 +37,3 @@ appId: org.bibletranslationtools.writer
 - tapOn: 
     text: "Confirm"
     waitToSettleTimeoutMs: 500
-- retry:
-    maxRetries: 3
-    commands:
-    - extendedWaitUntil:
-        notVisible: "Downloading"
-        timeout: 10000
-- tapOn: 
-    text: "English (en) - Unlocked Literal Bible"
-    waitToSettleTimeoutMs: 500
-- tapOn: "Confirm"
