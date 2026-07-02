@@ -7,35 +7,34 @@ appId: org.bibletranslationtools.writer
     while:
       notVisible: "Migrate from Old App"
     commands:
-      - runFlow:
+      - tapOn:
+          text: "Wait"
+          optional: true
+          waitToSettleTimeoutMs: 1000
           label: Recover from system ANR if shown
+      - extendedWaitUntil:
+          notVisible: "isn't responding"
+          timeout: 60000
+          optional: true
+      - runFlow:
           when:
             visible: "isn't responding"
           commands:
-            - tapOn:
-                text: "Wait"
-                waitToSettleTimeoutMs: 1000
-            - extendedWaitUntil:
-                notVisible: "isn't responding"
-                timeout: 60000
             - launchApp
-      - runFlow:
+      - tapOn:
+          text: "Don't show again"
+          optional: true
+          waitToSettleTimeoutMs: 200
           label: Dismiss slow-device warning if shown
-          when:
-            visible: "Slow Device"
-          commands:
-            - tapOn:
-                text: "Don't show again"
-                waitToSettleTimeoutMs: 200
-            - tapOn:
-                text: "Continue"
-                waitToSettleTimeoutMs: 200
+      - tapOn:
+          text: "Continue"
+          optional: true
+          waitToSettleTimeoutMs: 200
       - extendedWaitUntil:
           visible: "Migrate from Old App"
           timeout: 30000
           optional: true
       - runFlow:
-          label: Relaunch app if migration dialog not shown yet
           when:
             notVisible: "Migrate from Old App"
           commands:
@@ -49,6 +48,18 @@ appId: org.bibletranslationtools.writer
 - extendedWaitUntil:
     notVisible: "Migrate from Old App"
     timeout: 1000
-- extendedWaitUntil:
-    visible: "Please create or login to your account."
-    timeout: 30000
+- takeScreenshot:
+    path: smoke-launch/migration-dismissed
+    label: After migration dialog dismissed
+- repeat: # Wait for profile screen to be ready
+    times: 3
+    while:
+      notVisible: "Please create or login to your account."
+    commands:
+      - extendedWaitUntil:
+          visible: "Please create or login to your account."
+          timeout: 10000
+          optional: true
+- takeScreenshot:
+    path: smoke-launch/profile-ready
+    label: Profile screen ready

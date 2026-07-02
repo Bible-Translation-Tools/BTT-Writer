@@ -1,9 +1,9 @@
 appId: org.bibletranslationtools.writer
 ---
-- runFlow: smoke-launch.yaml
 - startRecording:
     path: "../../maestro-artifacts/smoke-recording"
     optional: true
+- runFlow: smoke-launch.yaml
 - runFlow: smoke-settings.yaml
 - runFlow: smoke-new-translation.yaml
 - runFlow: smoke-draft-chunk.yaml
