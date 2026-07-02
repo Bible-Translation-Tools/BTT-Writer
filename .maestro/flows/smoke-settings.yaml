@@ -1,128 +1,70 @@
 appId: org.bibletranslationtools.writer
 ---
 - assertVisible: "Create offline Account"
-- takeScreenshot:
-    path: smoke-settings/01-offline-account-visible
 - tapOn:
     text: "Create offline Account"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/02-offline-account-tapped
 - assertVisible: "Your Name or Pseudonym"
-- takeScreenshot:
-    path: smoke-settings/03-name-field-visible
 - tapOn:
     text: "Your Name or Pseudonym"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/04-name-field-focused
 - inputText: "Test User"
-- takeScreenshot:
-    path: smoke-settings/05-name-entered
 - hideKeyboard:
     optional: true
-- takeScreenshot:
-    path: smoke-settings/06-keyboard-hidden
 - waitForAnimationToEnd
-- takeScreenshot:
-    path: smoke-settings/07-after-animation
 - assertVisible: "Continue"
-- takeScreenshot:
-    path: smoke-settings/08-continue-visible
 - tapOn:
     text: "Continue"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/09-continue-tapped-first
 - tapOn:
     text: "Continue"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/10-continue-tapped-second
 - extendedWaitUntil:
     visible: "Terms of Use"
     timeout: 5000
-- takeScreenshot:
-    path: smoke-settings/11-terms-visible
 - scroll
-- takeScreenshot:
-    path: smoke-settings/12-terms-scrolled
 - tapOn:
     text: "I Agree"
     rightOf: "No Thanks"
-- takeScreenshot:
-    path: smoke-settings/13-terms-agreed
 - extendedWaitUntil:
     visible: "Your Translation Projects"
     timeout: 3000
-- takeScreenshot:
-    path: smoke-settings/14-home-visible
 - tapOn:
     text: "More Options"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/15-more-options-open
 - tapOn:
     text: "Settings"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/16-settings-open
 - assertVisible: "General"
-- takeScreenshot:
-    path: smoke-settings/17-general-visible
 - tapOn:
     text: "back"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/18-back-to-home
 - assertVisible: "Your Translation Projects"
-- takeScreenshot:
-    path: smoke-settings/19-home-visible-again
 - tapOn:
     text: "More Options"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/20-more-options-open-again
 - tapOn:
     text: "Update"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/21-update-open
 - assertVisible: "Update Options"
-- takeScreenshot:
-    path: smoke-settings/22-update-options-visible
 - tapOn:
     text: "Update List of Available Target Languages"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/23-target-languages-update-started
 - extendedWaitUntil:
     visible: "Success"
     timeout: 120000
-- takeScreenshot:
-    path: smoke-settings/24-target-languages-success
 - tapOn:
     text: "Dismiss"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/25-success-dismissed
 - tapOn:
     text: "Download New index.sqlite"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/26-index-download-started
 - extendedWaitUntil:
     visible: "Success"
     timeout: 20000
-- takeScreenshot:
-    path: smoke-settings/27-index-download-success
 - tapOn:
     text: "Confirm"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/28-index-confirmed
 - tapOn:
     text: "Cancel"
     waitToSettleTimeoutMs: 200
-- takeScreenshot:
-    path: smoke-settings/29-update-cancelled
