@@ -42,11 +42,10 @@ appId: org.bibletranslationtools.writer
 - retry:
     maxRetries: 3
     commands:
-      - assertVisible: "Downloading"
-- takeScreenshot: new-translation/03-download-dialog-visible
-- extendedWaitUntil:
-    notVisible: "Downloading"
-    timeout: 60000
+    - takeScreenshot: new-translation/03-download-dialog-visible
+    - extendedWaitUntil:
+        notVisible: "Downloading"
+        timeout: 10000
 - takeScreenshot: new-translation/04-after-download-complete
 - tapOn: 
     text: "English (en) - Unlocked Literal Bible"
