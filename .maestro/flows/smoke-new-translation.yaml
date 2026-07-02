@@ -34,14 +34,20 @@ appId: org.bibletranslationtools.writer
 - tapOn: 
     text: "English (en) - Unlocked Literal Bible"
     waitToSettleTimeoutMs: 500
+- takeScreenshot: new-translation/01-after-tap-english-source
 - tapOn: "Confirm"
+- takeScreenshot: new-translation/02-after-confirm-download
 - extendedWaitUntil:
     visible: "Downloading"
     timeout: 3000
+- takeScreenshot: new-translation/03-download-dialog-visible
 - extendedWaitUntil:
     notVisible: "Downloading"
     timeout: 30000
+- takeScreenshot: new-translation/04-after-download-complete
 - tapOn: 
     text: "English (en) - Unlocked Literal Bible"
     waitToSettleTimeoutMs: 500
+- takeScreenshot: new-translation/05-after-select-english-source
 - tapOn: "Confirm"
+- takeScreenshot: new-translation/06-after-confirm-sources
