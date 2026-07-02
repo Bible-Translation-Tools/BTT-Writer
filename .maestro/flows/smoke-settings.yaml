@@ -1,10 +1,6 @@
 appId: org.bibletranslationtools.writer
 ---
-- scrollUntilVisible:
-    element: "Create offline Account"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- assertVisible: "Create offline Account"
 - tapOn:
     text: "Create offline Account"
     waitToSettleTimeoutMs: 200
