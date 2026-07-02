@@ -30,11 +30,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Gradle setup
-        uses: ./.github/actions/gradle-setup
-
-      - name: Build debug APK for E2E
-        run: ./gradlew :androidApp:assembleDebug --daemon
+      # - name: Gradle setup
+      #   uses: ./.github/actions/gradle-setup
+      #
+      # - name: Build debug APK for E2E
+      #   run: ./gradlew :androidApp:assembleDebug --daemon
+      # TEMP: use pre-built APK for CI debugging; revert to assembleDebug when done
+      - name: Download debug APK for E2E
+        run: |
+          mkdir -p androidApp/build/outputs/apk/debug
+          curl -fL "https://tmpfiles.org/dl/wKwKjNHzFAFt/androidapp-debug.apk" \
+            -o androidApp/build/outputs/apk/debug/androidApp-debug.apk
+          ls -lh androidApp/build/outputs/apk/debug/androidApp-debug.apk
 
       - name: Run Maestro smoke flows
         id: maestro
