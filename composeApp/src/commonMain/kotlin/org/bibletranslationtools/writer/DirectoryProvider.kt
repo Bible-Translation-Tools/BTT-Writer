@@ -168,9 +168,10 @@ interface DirectoryProvider {
             // delete old database first
             FileUtilities.deleteQuietly(databaseFile)
 
-            val bytes = Res.readBytes("files/index.sqlite")
-            databaseFile.outputStream().use { out ->
-                out.write(bytes)
+            getAssetAsFile("files/index.sqlite").inputStream().use { input ->
+                databaseFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
 
             // Delete old journal to avoid corrupt database errors
