@@ -5,7 +5,6 @@ import btt_writer.shared.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
 
 class AndroidDirectoryProvider(
     private val context: Context
@@ -21,10 +20,19 @@ class AndroidDirectoryProvider(
     override val cacheDir: File
         get() = context.cacheDir
 
-    override suspend fun openAssetStream(path: String): InputStream {
+    override suspend fun getAssetAsFile(path: String): File {
         return withContext(Dispatchers.IO) {
-            val assetPath = Res.getUri(path).removePrefix("file:///android_asset/")
-            context.assets.open(assetPath)
+            val cacheFile = File(cacheDir, "assets/$path")
+            if (!cacheFile.exists()) {
+                cacheFile.parentFile?.mkdirs()
+                val assetPath = Res.getUri(path).removePrefix("file:///android_asset/")
+                context.assets.open(assetPath).use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+            cacheFile
         }
     }
 }

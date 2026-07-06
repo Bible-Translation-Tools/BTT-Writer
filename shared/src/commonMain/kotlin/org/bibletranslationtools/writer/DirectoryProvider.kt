@@ -189,7 +189,7 @@ interface DirectoryProvider {
             // delete old database first
             FileUtilities.deleteQuietly(databaseFile)
 
-            openAssetStream("files/index.sqlite").use { input ->
+            getAssetAsFile("files/index.sqlite").inputStream().use { input ->
                 databaseFile.outputStream().use { output ->
                     input.copyTo(output)
                 }
