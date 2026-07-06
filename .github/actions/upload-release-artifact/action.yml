@@ -12,6 +12,19 @@ inputs:
   platform-suffix:
     description: Platform suffix appended before the extension (e.g. macos, windows, linux, android).
     required: true
+outputs:
+  artifact-name:
+    description: The renamed file basename.
+    value: ${{ steps.rename.outputs.name }}
+  artifact-path:
+    description: Full path to the renamed file.
+    value: ${{ steps.rename.outputs.path }}
+  version-name:
+    description: app-version-name read from gradle/libs.versions.toml.
+    value: ${{ steps.rename.outputs.version-name }}
+  version-code:
+    description: app-version-code read from gradle/libs.versions.toml.
+    value: ${{ steps.rename.outputs.version-code }}
 runs:
   using: composite
   steps:
@@ -33,6 +46,8 @@ runs:
         mv "$src" "${{ inputs.source-dir }}/${newName}"
         echo "name=${newName}" >> "$GITHUB_OUTPUT"
         echo "path=${{ inputs.source-dir }}/${newName}" >> "$GITHUB_OUTPUT"
+        echo "version-name=${versionName}" >> "$GITHUB_OUTPUT"
+        echo "version-code=${versionCode}" >> "$GITHUB_OUTPUT"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
