@@ -23,6 +23,6 @@ appId: org.bibletranslationtools.writer
     maxRetries: 3
     commands:
       - extendedWaitUntil:
-          visible: "Please create or login to your account."
+          visible: "Create offline Account"
           timeout: 10000
 - takeScreenshot: "smoke-launch/profile-ready"

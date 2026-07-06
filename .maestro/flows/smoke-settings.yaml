@@ -14,6 +14,7 @@ appId: org.bibletranslationtools.writer
 - waitForAnimationToEnd
 - assertVisible: "Continue"
 - tapOn:
+    rightOf: "Cancel"
     text: "Continue"
     waitToSettleTimeoutMs: 200
 - tapOn:
