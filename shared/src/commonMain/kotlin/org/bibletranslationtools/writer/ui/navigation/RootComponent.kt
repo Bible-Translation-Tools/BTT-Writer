@@ -128,7 +128,8 @@ interface RootComponent {
 
 class DefaultRootComponent(
     componentContext: ComponentContext,
-    private val onExitApp: () -> Unit
+    private val onExitApp: () -> Unit,
+    initialConfiguration: Config = Config.Splash,
 ) : RootComponent, ComponentContext by componentContext,
     KoinComponent, ComponentScope {
 
@@ -148,7 +149,7 @@ class DefaultRootComponent(
     override val stack: Value<ChildStack<*, RootComponent.Child>> = childStack(
         source = navigation,
         serializer = Config.serializer(),
-        initialConfiguration = Config.Splash,
+        initialConfiguration = initialConfiguration,
         handleBackButton = true,
         childFactory = ::child,
     )

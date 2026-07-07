@@ -50,6 +50,14 @@ kotlin {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources { enable = true }
+        packaging {
+            resources {
+                pickFirsts.add("plugin.properties")
+                pickFirsts.add("META-INF/DEPENDENCIES")
+                pickFirsts.add("META-INF/LICENSE*")
+                pickFirsts.add("META-INF/NOTICE*")
+            }
+        }
     }
 
     jvm()
@@ -180,6 +188,9 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
 }
 
 tasks.named<Test>("jvmTest") {
+    // Integration tests deploy the bundled library (~158 MB); avoid parallel forks OOM on CI.
+    maxParallelForks = 1
+    jvmArgs("-Xmx4g")
     testLogging {
         events("passed", "skipped", "failed")
 

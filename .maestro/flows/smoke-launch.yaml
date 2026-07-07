@@ -1,0 +1,34 @@
+appId: org.bibletranslationtools.writer
+---
+- launchApp:
+    clearState: true
+- runFlow: dismiss-anr-if-visible.yaml
+- takeScreenshot: "smoke-launch/before-migrate-from-old-app-visible"            
+- retry:
+    maxRetries: 3
+    commands:
+    - runFlow: dismiss-anr-if-visible.yaml
+    - extendedWaitUntil:
+        visible: "Migrate from Old App"
+        timeout: 10000
+- takeScreenshot: "smoke-launch/migrate-from-old-app-visible"
+- tapOn:
+    text: "No"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    notVisible: "Migrate from Old App"
+    timeout: 1000
+- takeScreenshot:
+    path: smoke-launch/migration-dismissed
+    label: After migration dialog dismissed
+- evalScript: ${output.profileReadyStartMs = new Date().getTime()}
+- retry: # Wait for profile screen to be ready
+    maxRetries: 2
+    commands:
+      - runFlow: dismiss-anr-if-visible.yaml
+      - extendedWaitUntil:
+          visible: "Create offline Account"
+          timeout: 30000
+- evalScript: ${output.profileReadyElapsedMs = new Date().getTime() - output.profileReadyStartMs}
+- evalScript: ${console.log("App launch took " + output.profileReadyElapsedMs + " ms")}
+- takeScreenshot: "smoke-launch/profile-ready"
