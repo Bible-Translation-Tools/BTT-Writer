@@ -23,12 +23,12 @@ appId: org.bibletranslationtools.writer
     label: After migration dialog dismissed
 - evalScript: ${output.profileReadyStartMs = new Date().getTime()}
 - retry: # Wait for profile screen to be ready
-    maxRetries: 3
+    maxRetries: 2
     commands:
       - runFlow: dismiss-anr-if-visible.yaml
       - extendedWaitUntil:
           visible: "Create offline Account"
-          timeout: 20000
+          timeout: 30000
 - evalScript: ${output.profileReadyElapsedMs = new Date().getTime() - output.profileReadyStartMs}
 - evalScript: ${console.log("App launch took " + output.profileReadyElapsedMs + " ms")}
 - takeScreenshot: "smoke-launch/profile-ready"
