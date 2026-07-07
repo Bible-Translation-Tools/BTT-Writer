@@ -1,0 +1,43 @@
+appId: org.bibletranslationtools.writer
+---
+- assertVisible: "Create offline Account"
+- tapOn:
+    text: "Create offline Account"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "Your Name or Pseudonym"
+- tapOn:
+    text: "Your Name or Pseudonym"
+    waitToSettleTimeoutMs: 200
+- inputText: "Test User"
+- assertVisible: "Test User"
+- hideKeyboard:
+    optional: true
+- assertVisible: "Continue"
+- tapOn:
+    rightOf: "Cancel"
+    text: "Continue"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "Continue"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Terms of Use"
+    timeout: 5000
+- scroll
+- tapOn:
+    text: "I Agree"
+    rightOf: "No Thanks"
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 3000
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "Settings"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "General"
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "Your Translation Projects"

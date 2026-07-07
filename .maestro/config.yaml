@@ -1,0 +1,4 @@
+appId: org.bibletranslationtools.writer
+platform:
+  android:
+    disableAnimations: true
