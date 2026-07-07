@@ -91,6 +91,9 @@ class TargetTranslation private constructor(
             resourceSlug
         )
 
+    val projectTypeClass: ProjectTypeClass
+        get() = ProjectTypeClass.of(translationType)
+
     val targetLanguage: TargetLanguage
         get() = TargetLanguage(
             slug = targetLanguageId,

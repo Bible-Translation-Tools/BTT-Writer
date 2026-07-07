@@ -5,6 +5,7 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.data.Preference
 
@@ -77,11 +78,16 @@ class TranslationProgress(
     private fun getSourceTranslation(targetTranslation: TargetTranslation): Translation? {
         val selectedSourceId = preference.getSelectedSourceTranslationId(targetTranslation.id)
 
+        // word projects (tw) translate a dictionary, not a book
+        val sourceType = when (targetTranslation.projectTypeClass) {
+            ProjectTypeClass.EXTANT -> "dict"
+            else -> "book"
+        }
         val translations = catalogClient.library.findTranslations(
             null,
             targetTranslation.projectId,
             null,
-            "book",
+            sourceType,
             null,
             Platform.MIN_CHECKING_LEVEL,
             -1

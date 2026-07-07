@@ -47,6 +47,7 @@ import org.bibletranslationtools.writer.core.ContainerCache
 import org.bibletranslationtools.writer.core.Progress
 import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.TranslationViewMode
@@ -363,6 +364,11 @@ class DefaultTranslateComponent(
     }
 
     override fun openViewMode(viewMode: TranslationViewMode) {
+        // helps and word-list projects only support review mode
+        if (targetTranslation.projectTypeClass != ProjectTypeClass.STANDARD) {
+            openReviewMode()
+            return
+        }
         when (viewMode) {
             TranslationViewMode.CHUNK -> openChunkMode()
             TranslationViewMode.REVIEW -> openReviewMode()
@@ -371,6 +377,8 @@ class DefaultTranslateComponent(
     }
 
     override fun openReadMode() {
+        if (targetTranslation.projectTypeClass != ProjectTypeClass.STANDARD) return
+
         saveViewMode(TranslationViewMode.READ)
         updateMergeFilter(false)
 
@@ -380,6 +388,8 @@ class DefaultTranslateComponent(
     }
 
     override fun openChunkMode() {
+        if (targetTranslation.projectTypeClass != ProjectTypeClass.STANDARD) return
+
         saveViewMode(TranslationViewMode.CHUNK)
         updateMergeFilter(false)
 
@@ -492,6 +502,7 @@ class DefaultTranslateComponent(
     }
 
     private fun draftIsAvailable(): Boolean {
+        if (targetTranslation.projectTypeClass != ProjectTypeClass.STANDARD) return false
         return catalogClient.library.findTranslations(
             targetTranslation.targetLanguage.slug,
             targetTranslation.projectId,

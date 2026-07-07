@@ -9,6 +9,8 @@ import org.bibletranslationtools.writer.core.Frame
 import org.bibletranslationtools.writer.core.FrameTranslation
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.ProjectTranslation
+import org.bibletranslationtools.writer.core.ProjectTypeClass
+import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.ui.translate.review.TargetMode
 import org.bibletranslationtools.writer.usecases.ParseMergeConflicts
 
@@ -240,5 +242,16 @@ data class ReviewItem(
     override val ft: FrameTranslation,
     val helps: Map<String, Any> = emptyMap(),
     val targetMode: TargetMode,
-    val fileHistory: FileHistory? = null
-) : TranslateItem()
+    val fileHistory: FileHistory? = null,
+    val helpsContent: List<TranslationHelp> = emptyList(),
+    val bookTranslationText: String = "",
+    val renderedBookTranslationText: AnnotatedString = AnnotatedString(""),
+    val customSourceTitle: String? = null
+) : TranslateItem() {
+
+    val projectTypeClass: ProjectTypeClass
+        get() = chunk.target.projectTypeClass
+
+    override val sourceTitle: String
+        get() = customSourceTitle ?: super.sourceTitle
+}

@@ -1,10 +1,11 @@
 package org.bibletranslationtools.writer.ui.translate.review
 
 import androidx.compose.ui.text.AnnotatedString
+import kotlinx.coroutines.flow.StateFlow
+import org.bibletranslationtools.writer.core.TranslationHelp
+import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
 import org.bibletranslationtools.writer.ui.translate.Footnote
 import org.bibletranslationtools.writer.ui.translate.ModeComponent
-import kotlinx.coroutines.flow.StateFlow
-import org.bibletranslationtools.writer.rendering.spannables.USFMVerseSpan
 import org.bibletranslationtools.writer.ui.translate.ReviewItem
 import java.util.regex.Pattern
 
@@ -81,6 +82,7 @@ interface ReviewModeComponent : ModeComponent<ReviewItem> {
     val filteredItems: StateFlow<List<ReviewItem>>
 
     fun onItemTextChanged(item: ReviewItem, text: String)
+    fun onHelpsChanged(item: ReviewItem, helps: List<TranslationHelp>)
     fun openResources(value: Boolean)
     fun renderHelps(item: ReviewItem)
     fun openHelp(item: HelpItem)

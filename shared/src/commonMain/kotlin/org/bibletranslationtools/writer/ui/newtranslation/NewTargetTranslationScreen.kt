@@ -55,6 +55,7 @@ fun NewTargetTranslationScreen(
                         when (state.screenStep) {
                             ScreenStep.LANGUAGE -> component.navigateBack()
                             ScreenStep.PROJECT -> component.onCategoryBack()
+                            ScreenStep.TYPE -> component.onTypeBack()
                         }
                     }) {
                         Icon(
@@ -65,11 +66,13 @@ fun NewTargetTranslationScreen(
                     }
                 },
                 actions = {
-                    SearchBar(
-                        query = state.searchQuery,
-                        onQueryChanged = component::onSearch,
-                        placeholder = stringResource(Res.string.search_hint)
-                    )
+                    if (state.screenStep != ScreenStep.TYPE) {
+                        SearchBar(
+                            query = state.searchQuery,
+                            onQueryChanged = component::onSearch,
+                            placeholder = stringResource(Res.string.search_hint)
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
@@ -88,6 +91,7 @@ fun NewTargetTranslationScreen(
             val animationKey = when (state.screenStep) {
                 ScreenStep.LANGUAGE -> 0
                 ScreenStep.PROJECT -> state.categoryStack.size
+                ScreenStep.TYPE -> state.categoryStack.size + 1
             }
             val forward = state.navigatingForward
 
@@ -116,6 +120,13 @@ fun NewTargetTranslationScreen(
                             categories = state.filteredCategories,
                             onProjectSelected = component::onProjectSelected,
                             onCategorySelected = component::onCategorySelected,
+                            modifier = Modifier.width(800.dp)
+                        )
+                    }
+                    ScreenStep.TYPE -> {
+                        TypeList(
+                            options = state.typeOptions,
+                            onTypeSelected = component::onTypeSelected,
                             modifier = Modifier.width(800.dp)
                         )
                     }

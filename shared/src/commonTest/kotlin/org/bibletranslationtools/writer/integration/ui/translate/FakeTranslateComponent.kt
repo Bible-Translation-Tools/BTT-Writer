@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import org.bibletranslationtools.writer.core.Progress
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TranslationViewMode
 import org.bibletranslationtools.writer.ui.translate.TranslateComponent
@@ -46,7 +47,9 @@ class FakeTranslateComponent : TranslateComponent {
     override val eventSender: SendChannel<TranslateComponent.Event> = _event
 
     override val currentViewMode = MutableValue(TranslationViewMode.READ)
-    override val targetTranslation: TargetTranslation = mockk(relaxed = true)
+    override val targetTranslation: TargetTranslation = mockk(relaxed = true) {
+        every { projectTypeClass } returns ProjectTypeClass.STANDARD
+    }
 
     var openViewModeCalledWith: TranslationViewMode? = null
     var openReadModeCalled = false
