@@ -138,7 +138,7 @@ fun UsfmEditText(
             },
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .focusRequester(focusRequester)
                 .drawWithContent {
                     // Draw search highlights behind text

@@ -262,7 +262,7 @@ fun ReviewTargetCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         val highlightColor = MaterialTheme.colorScheme.primary
                         val onHighlightColor = MaterialTheme.colorScheme.onPrimary
