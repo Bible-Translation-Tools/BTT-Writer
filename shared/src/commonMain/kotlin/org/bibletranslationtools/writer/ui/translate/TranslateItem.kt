@@ -77,11 +77,12 @@ abstract class TranslateItem {
                 if (title.isEmpty()) {
                     title = removeConflicts(chunk.source.project.name).trim()
                 }
-                title += " " + chunk.chapterSlug.toInt()
+                // word slugs are not numeric, keep them as-is
+                title += " " + (chunk.chapterSlug.toIntOrNull() ?: chunk.chapterSlug)
 
                 val verseSpan = Frame.parseVerseTitle(sourceText, chunk.sourceTranslationFormat)
                 title += if (verseSpan.isEmpty()) {
-                    ":" + chunk.chunkSlug.toInt()
+                    ":" + (chunk.chunkSlug.toIntOrNull() ?: chunk.chunkSlug)
                 } else {
                     ":$verseSpan"
                 }
@@ -254,4 +255,10 @@ data class ReviewItem(
 
     override val sourceTitle: String
         get() = customSourceTitle ?: super.sourceTitle
+
+    override val targetTitle: String
+        get() = if (projectTypeClass == ProjectTypeClass.EXTANT) {
+            // words are titled by the word itself, not chapter:verse
+            "$sourceTitle - ${chunk.target.targetLanguage.name}"
+        } else super.targetTitle
 }

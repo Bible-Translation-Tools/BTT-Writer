@@ -41,6 +41,7 @@ import org.bibletranslationtools.writer.core.ComponentScope
 import org.bibletranslationtools.writer.core.ContainerCache
 import org.bibletranslationtools.writer.core.FileHistory
 import org.bibletranslationtools.writer.core.Frame
+import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
 import org.bibletranslationtools.writer.core.ProjectTypeClass
@@ -676,8 +677,14 @@ class DefaultReviewModeComponent(
         }
 
         val targetText = fetchTargetText(chunk.target, chunk.chapterSlug, chunk.chunkSlug)
-        val helps = TranslationHelp.fromJson(targetText).let { parsed ->
-            if (isWords && parsed.isEmpty()) listOf(TranslationHelp("", "")) else parsed
+        // conflicted text is not valid JSON; the merge conflict card is
+        // shown instead of the editor, so skip parsing entirely
+        val helps = if (MergeConflictsHandler.isMergeConflicted(targetText)) {
+            emptyList()
+        } else {
+            TranslationHelp.fromJson(targetText).let { parsed ->
+                if (isWords && parsed.isEmpty()) listOf(TranslationHelp("", "")) else parsed
+            }
         }
         val bookText = bookTranslation?.let {
             fetchTargetText(it, chunk.chapterSlug, chunk.chunkSlug)
