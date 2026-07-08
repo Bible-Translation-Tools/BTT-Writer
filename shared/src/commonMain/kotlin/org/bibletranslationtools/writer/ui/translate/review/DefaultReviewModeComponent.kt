@@ -184,14 +184,25 @@ class DefaultReviewModeComponent(
             return super<ModeComponent>.loadChunks(viewMode, sourceContainer, targetTranslation)
         }
         // tw projects translate every word of the source dictionary;
-        // words live under pseudo-chapter "01"
+        // words live under pseudo-chapter "01".
+        // Sort by word title, not slug — they differ (e.g. slug "falsegod" is titled "god")
         return withContext(Dispatchers.IO) {
             sourceContainer?.let { source ->
-                source.chapters().sorted().map { wordSlug ->
-                    Chunk(WORDS_CHAPTER, wordSlug, source, targetTranslation)
-                }
+                source.chapters()
+                    .map { wordSlug -> wordSlug to wordTitle(source, wordSlug) }
+                    .sortedBy { (_, title) -> title.lowercase() }
+                    .map { (wordSlug, _) ->
+                        Chunk(WORDS_CHAPTER, wordSlug, source, targetTranslation)
+                    }
             } ?: emptyList()
         }
+    }
+
+    private fun wordTitle(source: ResourceContainer, wordSlug: String): String {
+        val match = WORD_PATTERN.matcher(source.readChunk(wordSlug, "01"))
+        return if (match.find()) {
+            match.group(1)?.trim() ?: wordSlug
+        } else wordSlug
     }
 
     override suspend fun handleResourceChange(resourceContainer: ResourceContainer?) {
@@ -281,15 +292,13 @@ class DefaultReviewModeComponent(
         coroutineScope.launch {
             val words = withContext(Dispatchers.IO) {
                 getResourceContainer(rcSlug)?.let { rc ->
-                    val chapters = rc.chapters()
-                    val words = chapters.sorted()
                     val titlePattern = Pattern.compile("#(.*)")
 
-                    words.map { slug ->
+                    rc.chapters().map { slug ->
                         val match = titlePattern.matcher(rc.readChunk(slug, "01"))
-                        val title = if (match.find()) match.group(1) else slug
+                        val title = if (match.find()) match.group(1).trim() else slug
                         IndexWord(slug, title)
-                    }
+                    }.sortedBy { it.title.lowercase() }
                 } ?: emptyList()
             }
 
