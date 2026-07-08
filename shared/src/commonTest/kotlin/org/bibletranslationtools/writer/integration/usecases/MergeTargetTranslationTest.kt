@@ -54,7 +54,9 @@ class MergeTargetTranslationTest : BaseIntegrationTest() {
         )
 
         assertTrue("Merge should have succeeded", result.success)
-        assertEquals("Status should be MERGE_CONFLICTS", MergeTargetTranslation.Status.MERGE_CONFLICTS, result.status)
+        // the only conflicting files here are the manifest and license,
+        // which are auto-resolved and never surface as merge conflicts
+        assertEquals("Status should be SUCCESS", MergeTargetTranslation.Status.SUCCESS, result.status)
         assertEquals(
             "Source translation should match result",
             sourceTranslation,
@@ -86,7 +88,9 @@ class MergeTargetTranslationTest : BaseIntegrationTest() {
         )
 
         assertTrue("Merge should have succeeded", result.success)
-        assertEquals("Status should be MERGE_CONFLICTS", MergeTargetTranslation.Status.MERGE_CONFLICTS, result.status)
+        // the only conflicting files here are the manifest and license,
+        // which are auto-resolved and never surface as merge conflicts
+        assertEquals("Status should be SUCCESS", MergeTargetTranslation.Status.SUCCESS, result.status)
         assertEquals(
             "Source translation should match result",
             sourceTranslation,

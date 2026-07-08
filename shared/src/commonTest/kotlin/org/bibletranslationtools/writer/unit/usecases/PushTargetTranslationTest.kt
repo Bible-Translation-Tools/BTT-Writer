@@ -244,7 +244,7 @@ class PushTargetTranslationTest {
         val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
-            [${refUpdate.remoteName}] Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.
+            [${refUpdate.remoteName}] Remote ref update was rejected, because remote side doesn't support/allow deleting refs.
             Server: ${repository.sshUrl}
             
         """.trimIndent()
@@ -271,7 +271,7 @@ class PushTargetTranslationTest {
         val result = pushTargetTranslation.execute(targetTranslation, onProgress)
 
         val expectedMessage = """
-            [${refUpdate.remoteName}] Remote ref update was rejected,  because old object id on remote repository wasn\'t the same as defined expected old object.
+            [${refUpdate.remoteName}] Remote ref update was rejected,  because old object id on remote repository wasn't the same as defined expected old object.
             Server: ${repository.sshUrl}
             
         """.trimIndent()

@@ -510,7 +510,28 @@ class TargetTranslation private constructor(
         val mergedManifest = mergeManifests(importedManifest)
         manifestAccessor.save(mergedManifest)
 
-        return result.mergeStatus != MergeResult.MergeStatus.CONFLICTING
+        // the license is app-provided and must never merge; keep our version
+        try {
+            git.checkout()
+                .setStartPoint("backup-master")
+                .addPath(LICENSE_FILE)
+                .call()
+        } catch (e: Exception) {
+            Logger.w(TAG, "Could not restore $LICENSE_FILE after merge", e)
+        }
+
+        if (result.mergeStatus != MergeResult.MergeStatus.CONFLICTING) return true
+
+        // manifest and license conflicts are resolved above; only content
+        // conflicts should surface to the user
+        val unresolved = result.conflicts?.keys?.filter {
+            it != Manifest.MANIFEST_FILE && it != LICENSE_FILE
+        } ?: emptyList()
+        return if (unresolved.isEmpty()) {
+            // everything was auto-resolved; finalize the merge
+            commitSync()
+            true
+        } else false
     }
 
     fun changeTargetLanguage(targetLanguage: TargetLanguage) {

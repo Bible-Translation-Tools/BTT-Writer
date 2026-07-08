@@ -17,6 +17,7 @@ import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.ui.dialogs.import.DefaultImportComponent
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportComponent
@@ -50,6 +51,7 @@ class ImportComponentTest : BaseComponentTest() {
     private val directoryProvider: DirectoryProvider = mockk(relaxed = true)
     private val targetTranslationMigrator: TargetTranslationMigrator = mockk(relaxed = true)
     private val platform: Platform = mockk(relaxed = true)
+    private val preference: Preference = mockk(relaxed = true)
 
     private var resultReceived: ImportComponent.Result? = null
 
@@ -73,6 +75,7 @@ class ImportComponentTest : BaseComponentTest() {
         coEvery { getString(any(), *anyVararg()) } returns "Mock String"
 
         every { directoryProvider.backupsDir } returns mockBackupsDir
+        every { preference.getPref(any(), any(), any()) } answers { args[1]!! }
         coEvery { translator.getTargetTranslation(any()) } returns mockTarget
         every { catalogClient.library.getProject(any(), any(), any()) } returns mockProject
 
@@ -88,6 +91,7 @@ class ImportComponentTest : BaseComponentTest() {
                     single { directoryProvider }
                     single { targetTranslationMigrator }
                     single { platform }
+                    single { preference }
                 }
             )
         }

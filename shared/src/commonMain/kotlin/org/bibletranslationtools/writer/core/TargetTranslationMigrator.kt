@@ -273,11 +273,13 @@ class TargetTranslationMigrator(
         val manifestFile = File(path, Manifest.MANIFEST_FILE)
         val v7 = json.decodeFromString<ManifestV7>(manifestFile.readText())
 
-        val resourceName = v7.resource.name.ifEmpty { defaultResourceName(v7.resource.slug) }
+        // the final manifest shape requires a resource; helps/words get an empty one
+        val resource = v7.resource ?: Manifest.Resource("")
+        val resourceName = resource.name.ifEmpty { defaultResourceName(resource.slug) }
 
         val updated = v7.copy(
             packageVersion = 8,
-            resource = v7.resource.copy(name = resourceName),
+            resource = resource.copy(name = resourceName),
         )
         manifestFile.writeText(json.encodeToString(updated))
         return path
@@ -476,10 +478,10 @@ class TargetTranslationMigrator(
         val manifest = json.decodeFromString<ManifestV7>(
             File(path, Manifest.MANIFEST_FILE).readText()
         )
-        return if (ResourceType.get(manifest.type.slug) == ResourceType.TEXT) {
+        return if (ResourceType.get(manifest.type.slug) != null) {
             true
         } else {
-            Logger.w(TAG, "Only text translation types are supported")
+            Logger.w(TAG, "Unsupported translation type: ${manifest.type.slug}")
             false
         }
     }
@@ -589,7 +591,8 @@ data class ManifestV7(
     @SerialName("package_version") val packageVersion: Int = 7,
     val project: Manifest.Project,
     val type: Manifest.Type,
-    val resource: Manifest.Resource,
+    // helps/words manifests may omit the resource entirely
+    val resource: Manifest.Resource? = null,
     @SerialName("target_language") val targetLanguage: TargetLanguage,
     val translators: List<String> = emptyList(),
     @SerialName("finished_chunks") val finishedChunks: List<String> = emptyList(),
