@@ -111,7 +111,7 @@ fun HelpsEditorCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${item.sourceTitle} - $typeName",
+                    text = "${item.targetTitle} - $typeName",
                     style = titleStyle,
                     modifier = Modifier
                         .weight(1f)
