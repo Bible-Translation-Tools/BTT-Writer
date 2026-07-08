@@ -54,7 +54,8 @@ class ImportProjectsTest : BaseIntegrationTest() {
         assertNotNull("Result should not be null", result2)
         assertTrue("Import should be successful", result2!!.isSuccess)
         assertEquals("Imported slug should match", "aa_mrk_text_reg", result2.importedSlug)
-        assertTrue("There should be merge conflict", result2.mergeConflict)
+        // identical content only conflicts on manifest/license, which are auto-resolved
+        assertFalse("There should be no merge conflict", result2.mergeConflict)
         assertTrue("Project should already exist", result2.alreadyExists)
 
         // Import project again with overwrite flag

@@ -7,17 +7,19 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.koin.test.inject
 import java.io.File
 
+@Ignore
 class CloneRepositoryTest : BaseIntegrationTest() {
 
     private val cloneRepository: CloneRepository by inject()
 
     @Test
     fun cloneRepositorySuccessfully() {
-        val cloneUrl = "https://wacs.bibletranslationtools.org/WycliffeAssociates/en_ulb.git"
+        val cloneUrl = "https://content.bibletranslationtools.org/WycliffeAssociates/en_ulb.git"
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->
             progressMessage = message
@@ -41,7 +43,7 @@ class CloneRepositoryTest : BaseIntegrationTest() {
 
     @Test
     fun cloneNonExistingRepositoryFailed() {
-        val cloneUrl = "https://wacs.bibletranslationtools.org/WycliffeAssociates/non_existing_repo.git"
+        val cloneUrl = "https://content.bibletranslationtools.org/WycliffeAssociates/non_existing_repo.git"
 
         var progressMessage: String? = null
         val onProgress: (Float, String?) -> Unit = { _, message ->

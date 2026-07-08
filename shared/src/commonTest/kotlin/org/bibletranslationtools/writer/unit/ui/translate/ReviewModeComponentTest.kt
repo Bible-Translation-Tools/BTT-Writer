@@ -15,6 +15,7 @@ import org.bibletranslationtools.writer.core.ContainerCache
 import org.bibletranslationtools.writer.core.FileHistory
 import org.bibletranslationtools.writer.core.FrameTranslation
 import org.bibletranslationtools.writer.core.ProjectTranslation
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.data.Preference
@@ -85,6 +86,9 @@ class ReviewModeComponentTest : BaseComponentTest() {
         every { mockContainer.readChunk("01", "01") } returns "In the beginning"
         
         every { mockTarget.format } returns TranslationFormat.USFM
+        // relaxed mocks return an arbitrary enum; the type class drives
+        // which editor/validation path runs, so pin it explicitly
+        every { mockTarget.projectTypeClass } returns ProjectTypeClass.STANDARD
         every { mockTarget.projectTranslation } returns mockProjectTranslation
         every { mockTarget.getChapterTranslation("01") } returns mockChapterTranslation
         every { mockTarget.getFrameTranslation("01", "01", any()) } returns mockFrameTranslation
