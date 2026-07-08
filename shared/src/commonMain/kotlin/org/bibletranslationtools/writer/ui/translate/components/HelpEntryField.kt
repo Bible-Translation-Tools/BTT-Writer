@@ -93,7 +93,7 @@ fun HelpEntryField(
         textStyle = textStyle,
         cursorBrush = SolidColor(textStyle.color),
         decorator = { innerTextField ->
-            Box(contentAlignment = Alignment.CenterStart) {
+            Box(contentAlignment = Alignment.TopStart) {
                 if (textFieldState.text.isEmpty()) {
                     Text(
                         text = placeholder,
