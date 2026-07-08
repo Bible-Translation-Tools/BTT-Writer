@@ -10,13 +10,18 @@ data class TranslationItem(
     val progress: Float = 0f
 ) {
     val formattedProjectName: String
-        get() = when {
-            // helps and word projects have no resource slug; show the type
-            translation.translationType != ResourceType.TEXT ->
-                name + " (" + translation.translationType.title + ")"
-            // display the resource type if not a regular resource e.g. this is for a gateway language
-            translation.resourceSlug != Resource.REGULAR_SLUG && translation.resourceSlug != Resource.OBS_SLUG ->
-                name + " (" + translation.resourceSlug + ")"
-            else -> name
+        get() = name
+
+    // matches the desktop Type column: "Text", "Text ulb", "Notes", "Words", ...
+    val formattedTypeName: String
+        get() {
+            val type = translation.translationType.title
+            val slug = translation.resourceSlug
+            return if (
+                translation.translationType == ResourceType.TEXT &&
+                slug != Resource.REGULAR_SLUG &&
+                slug != Resource.OBS_SLUG &&
+                slug != null
+            ) "$type $slug" else type
         }
 }

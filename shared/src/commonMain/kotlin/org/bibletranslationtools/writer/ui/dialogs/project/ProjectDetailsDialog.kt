@@ -51,6 +51,7 @@ import btt_writer.shared.generated.resources.progress
 import btt_writer.shared.generated.resources.publish
 import btt_writer.shared.generated.resources.target_language
 import btt_writer.shared.generated.resources.translators
+import btt_writer.shared.generated.resources.type_label
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.NativeSpeaker
 import org.bibletranslationtools.writer.core.TextStyleType
@@ -194,6 +195,12 @@ fun ProjectDetailsDialog(
                                 )
                             }
                         }
+
+                        DetailRow(
+                            label = stringResource(Res.string.type_label),
+                            value = project.translation.resourceSlug?.uppercase()
+                                ?: project.translation.translationType.title
+                        )
 
                         DetailRow(
                             label = stringResource(Res.string.progress),

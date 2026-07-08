@@ -55,7 +55,8 @@ appId: org.bibletranslationtools.writer
 - extendedWaitUntil:
     visible: "Your Translation Projects"
     timeout: 5000
-- assertVisible: "John (ulb)"
+- assertVisible: "John"
+- assertVisible: "Text ulb"
 
 # --- create a notes project for the same book ---
 - tapOn:
@@ -78,7 +79,7 @@ appId: org.bibletranslationtools.writer
 - extendedWaitUntil:
     visible: "Your Translation Projects"
     timeout: 5000
-- assertVisible: "John (Notes)"
+- assertVisible: "Notes"
 
 # --- create a words project (only listed in GL mode) ---
 - tapOn:
@@ -94,10 +95,12 @@ appId: org.bibletranslationtools.writer
 - extendedWaitUntil:
     visible: "Your Translation Projects"
     timeout: 5000
-- assertVisible: "translationWords (Words)"
+- assertVisible: "translationWords"
+- assertVisible: "Words"
 
 # --- notes project opens review-only: no read/chunk mode buttons ---
-- tapOn: "John (Notes)"
+# the tn card is the only one with "Notes" in its Type column
+- tapOn: "Notes"
 - extendedWaitUntil:
     visible: "Edit Source"
     timeout: 5000

@@ -319,6 +319,7 @@
 
     <string name="duplicate_target_translation">You are already translating <xliff:g example="Genesis" id="project">%1$s</xliff:g> into <xliff:g example="English" id="target_language">%2$s</xliff:g></string>
     <string name="Project">Project</string>
+    <string name="type_label">Resource Type</string>
     <string name="language">Language</string>
     <string name="progress">Progress</string>
     <string name="choose_first_source_translation">Choose source translation(s) to begin reading and translating</string>
