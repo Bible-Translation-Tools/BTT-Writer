@@ -58,6 +58,7 @@ class Preference(private val settings: ObservableSettings) {
         const val KEY_PREF_TM_URL = "tm_url"
         const val KEY_PREF_CHECK_HARDWARE = "check_hardware_requirements"
         const val KEY_PREF_ENABLE_TM_LINKS = "enable_tm_links"
+        const val KEY_PREF_GL_MODE = "gl_mode"
         const val KEY_PREF_BACKUP_INTERVAL = "backup_interval"
         const val KEY_PREF_LOGGING_LEVEL = "logging_level"
         const val KEY_PREF_MIGRATE_OLD_APP = "migrate_old_app"

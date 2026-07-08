@@ -83,6 +83,7 @@ interface SettingsComponent {
     fun checkForLatestRelease()
     fun setCheckHardwareEnabled(enabled: Boolean)
     fun setTmLinksEnabled(enabled: Boolean)
+    fun setGlModeEnabled(enabled: Boolean)
     fun dismissUpdateResultDialog()
     fun updateColorTheme(newValue: String)
     fun updateTranslationTypeface(newFileName: String)
@@ -145,6 +146,7 @@ interface SettingsComponent {
         // Advanced Prefs
         val checkHardwareEnabled: Boolean = false,
         val tmLinksEnabled: Boolean = false,
+        val glModeEnabled: Boolean = false,
         val backupIntervalNames: List<String> = emptyList(),
         val backupIntervalValues: List<String> = emptyList(),
         val currentBackupIntervalValue: String = "-1",
@@ -304,6 +306,10 @@ class DefaultSettingsComponent(
                 Preference.KEY_PREF_ENABLE_TM_LINKS,
                 false
             )
+            val glModeEnabled = preference.getPref(
+                Preference.KEY_PREF_GL_MODE,
+                false
+            )
 
             val intervalNames = getStringArray(Res.array.pref_backup_interval_titles)
             val intervalValues = getStringArray(Res.array.backup_intervals_values_array)
@@ -350,6 +356,7 @@ class DefaultSettingsComponent(
                     tmLinksUrl = tmLinksUrl,
                     checkHardwareEnabled = checkHardwareEnabled,
                     tmLinksEnabled = tmLinksEnabled,
+                    glModeEnabled = glModeEnabled,
                     backupIntervalNames = intervalNames,
                     backupIntervalValues = intervalValues,
                     currentBackupIntervalValue = savedIntervalValue,
@@ -565,6 +572,11 @@ class DefaultSettingsComponent(
     override fun setTmLinksEnabled(enabled: Boolean) {
         preference.setPref(Preference.KEY_PREF_ENABLE_TM_LINKS, enabled)
         _state.update { it.copy(tmLinksEnabled = enabled) }
+    }
+
+    override fun setGlModeEnabled(enabled: Boolean) {
+        preference.setPref(Preference.KEY_PREF_GL_MODE, enabled)
+        _state.update { it.copy(glModeEnabled = enabled) }
     }
 
     override fun updateBackupInterval(newValue: String) {

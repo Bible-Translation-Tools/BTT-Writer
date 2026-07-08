@@ -36,6 +36,7 @@ import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.usecases.MergeTargetTranslation
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -119,6 +120,10 @@ class DefaultNewTranslationComponent(
 
     var selectedTargetLanguage: TargetLanguage? = null
         private set
+
+    // gateway language mode unlocks ulb/udb and helps/words translation types
+    private val glMode: Boolean
+        get() = preference.getPref(Preference.KEY_PREF_GL_MODE, false)
 
     private var selectedProjectId: String? = null
 
@@ -229,6 +234,26 @@ class DefaultNewTranslationComponent(
                 return@launch
             }
 
+            if (!glMode) {
+                // regular mode has a single type; skip the type step
+                if (projectId == Resource.OBS_SLUG) {
+                    createTranslation(
+                        projectId,
+                        ResourceType.TEXT,
+                        Resource.OBS_SLUG,
+                        TranslationFormat.MARKDOWN
+                    )
+                } else {
+                    createTranslation(
+                        projectId,
+                        ResourceType.TEXT,
+                        Resource.REGULAR_SLUG,
+                        TranslationFormat.USFM
+                    )
+                }
+                return@launch
+            }
+
             selectedProjectId = projectId
             val options = withContext(Dispatchers.IO) {
                 buildTypeOptions(projectId)
@@ -285,7 +310,8 @@ class DefaultNewTranslationComponent(
                 enabled = true
             )
         } else {
-            for (slug in listOf(Resource.REGULAR_SLUG, Resource.ULB_SLUG, Resource.UDB_SLUG)) {
+            // gateway languages translate the published resources, not reg
+            for (slug in listOf(Resource.ULB_SLUG, Resource.UDB_SLUG)) {
                 options += TranslationTypeOption(
                     resourceType = ResourceType.TEXT,
                     resourceSlug = slug,
@@ -498,11 +524,13 @@ class DefaultNewTranslationComponent(
     }
 
     private fun loadCategories(parentCategoryId: Long): List<CategoryEntry> {
-        // "%" matches both "all" and "gl" translate modes, so gateway-language
-        // resources (tW dictionaries, notes, questions) are included;
-        // translationAcademy manuals are not translatable in this app
+        // in gateway language mode "%" matches both "all" and "gl" translate
+        // modes, so gateway-language resources (tW dictionaries, notes,
+        // questions) are included; translationAcademy manuals are not
+        // translatable in this app
+        val translateMode = if (glMode) "%" else "all"
         return catalogClient.library.getProjectCategories(
-            parentCategoryId, platform.deviceLanguageCode, "%"
+            parentCategoryId, platform.deviceLanguageCode, translateMode
         ).filter { it.slug != "ta" }
     }
 

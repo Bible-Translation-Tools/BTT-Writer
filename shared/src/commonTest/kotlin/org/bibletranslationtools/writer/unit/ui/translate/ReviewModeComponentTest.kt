@@ -450,7 +450,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         assertEquals("tw", indexHelp.rcSlug)
         assertEquals(1, indexHelp.words.size)
         assertEquals("word1", indexHelp.words.first().slug)
-        assertEquals(" Title of word1", indexHelp.words.first().title)
+        assertEquals("Title of word1", indexHelp.words.first().title)
     }
 
     @Test

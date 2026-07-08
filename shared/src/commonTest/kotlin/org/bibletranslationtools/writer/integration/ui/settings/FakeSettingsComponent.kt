@@ -17,6 +17,7 @@ class FakeSettingsComponent : SettingsComponent {
     var checkForLatestReleaseCalled = false
     var setCheckHardwareEnabledCalledWith: Boolean? = null
     var setTmLinksEnabledCalledWith: Boolean? = null
+    var setGlModeEnabledCalledWith: Boolean? = null
     var dismissUpdateResultDialogCalled = false
     var updateColorThemeCalledWith: String? = null
     var updateTranslationTypefaceCalledWith: String? = null
@@ -53,6 +54,10 @@ class FakeSettingsComponent : SettingsComponent {
 
     override fun setTmLinksEnabled(enabled: Boolean) {
         setTmLinksEnabledCalledWith = enabled
+    }
+
+    override fun setGlModeEnabled(enabled: Boolean) {
+        setGlModeEnabledCalledWith = enabled
     }
 
     override fun dismissUpdateResultDialog() {
