@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -148,17 +149,22 @@ fun ScrollBindingEffect(
         coordinator.consumePending()
     }
 
-    LaunchedEffect(items) {
+    // Restore position only when the list structure changes (reload, filter),
+    // not when an item's content is updated in place — keying on ids keeps
+    // per-keystroke item updates from snapping the viewport.
+    val itemIds = items.map { it.id }
+    LaunchedEffect(itemIds) {
         val chapterToFind = lastViewedChapter
         val frameToFind = lastViewedFrame
-        if (hasDoneInitialLoad && chapterToFind != null && items.isNotEmpty()
+        val activeItems = currentItems
+        if (hasDoneInitialLoad && chapterToFind != null && activeItems.isNotEmpty()
             && coordinator.pendingScroll.value == null
         ) {
-            var newIndex = items.indexOfFirst {
+            var newIndex = activeItems.indexOfFirst {
                 it.chunk.chapterSlug == chapterToFind && it.chunk.chunkSlug == frameToFind
             }
             if (newIndex == -1) {
-                newIndex = items.indexOfFirst { it.chunk.chapterSlug == chapterToFind }
+                newIndex = activeItems.indexOfFirst { it.chunk.chapterSlug == chapterToFind }
             }
             if (newIndex != -1) {
                 coordinator.listState.scrollToItem(newIndex)
@@ -185,8 +191,7 @@ fun ScrollBindingEffect(
             val targetIndex = exactPosition.toInt().coerceIn(0, activeItems.size - 1)
             val fraction = exactPosition - targetIndex
 
-            val slug = activeItems[targetIndex].chunk.chapterSlug
-            coordinator.sliderChapterLabel = slug.toIntOrNull()?.toString() ?: slug
+            coordinator.sliderChapterLabel = sliderLabelFor(activeItems[targetIndex])
 
             val screenHeight = coordinator.listState.layoutInfo.viewportSize.height
             val estimatedOffsetPixels = (fraction * (screenHeight * 3)).toInt()
@@ -195,5 +200,17 @@ fun ScrollBindingEffect(
                 coordinator.listState.scrollToItem(targetIndex, estimatedOffsetPixels)
             }
         }
+    }
+}
+
+// word projects have a single pseudo-chapter, so the slider tooltip shows
+// the first letter of the word instead of the chapter number
+private fun sliderLabelFor(item: TranslateItem): String {
+    return if (item.chunk.target.projectTypeClass == ProjectTypeClass.EXTANT) {
+        val title = (item as? ReviewItem)?.sourceTitle ?: item.chunk.chunkSlug
+        title.trim().firstOrNull()?.uppercase() ?: ""
+    } else {
+        val slug = item.chunk.chapterSlug
+        slug.toIntOrNull()?.toString() ?: slug
     }
 }
