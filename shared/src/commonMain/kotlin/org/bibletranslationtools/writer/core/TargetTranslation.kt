@@ -427,20 +427,10 @@ class TargetTranslation private constructor(
     }
 
     @Throws(Exception::class)
-    fun commit() {
-        commit(".", null)
-    }
-
-    @Throws(Exception::class)
-    fun commit(listener: OnCommitListener?) {
-        commit(".", listener)
-    }
-
-    @Throws(Exception::class)
-    private fun commit(filePattern: String, listener: OnCommitListener?) {
+    fun commit(listener: OnCommitListener? = null) {
         thread {
             try {
-                val result = commitSync(filePattern)
+                val result = commitSync(".")
                 listener?.onCommit(result)
             } catch (_: Exception) {
                 listener?.onCommit(false)

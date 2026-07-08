@@ -39,6 +39,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class ImportComponentTest : BaseComponentTest() {
 
@@ -388,7 +389,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             component.registerKeys()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { registerSSHKeys.execute(true, any()) }
             coVerify { cloneRepository.execute(repoItem.url, any()) }
         }
@@ -477,7 +478,7 @@ class ImportComponentTest : BaseComponentTest() {
             val component = createComponent()
             component.importRepo(repoItem, accepted = true, overwrite = false)
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { registerSSHKeys.execute(false, any()) }
         }
     }
@@ -599,7 +600,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             conflict.onOverwrite()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { importProjects.importProject(mockFile, true, any()) }
         }
     }
@@ -629,7 +630,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             conflict.onCancel()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { mockTarget.resetToMasterBackup() }
         }
     }

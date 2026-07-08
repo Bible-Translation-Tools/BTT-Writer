@@ -42,6 +42,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class ReviewModeComponentTest : BaseComponentTest() {
 
@@ -169,7 +170,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         component.onDoneConfirmed(true)
 
         // Wait for async task to process commit/done action
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
 
         verify { mockTarget.finishFrame("01", "01") }
         assertNull(component.state.value.chunkToDone)
@@ -252,7 +253,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         component.saveFootnote(insertNote)
 
         // wait for async saveFootnote
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
         verify { mockTarget.applyFrameTranslation(any(), any()) }
 
         // Test replacing footnote (machineReadable is present)
@@ -265,7 +266,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
             action = FootnoteAction.EDIT
         )
         component.saveFootnote(replaceNote)
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
         verify(atLeast = 2) { mockTarget.applyFrameTranslation(any(), any()) }
     }
 
@@ -326,7 +327,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         component.onToggleDone(item)
 
         // wait for background reopen and commit
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
         verify { mockTarget.reopenFrame("01", "01") }
         verify { mockTarget.commit() }
     }
@@ -412,7 +413,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         component.selectConflict(item, 0)
 
         // wait for async save/refresh
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
         verify { mockTarget.applyFrameTranslation(any(), "Conflicted Option A\n") }
     }
 
@@ -491,7 +492,7 @@ class ReviewModeComponentTest : BaseComponentTest() {
         )
 
         // Wait for it to process
-        kotlinx.coroutines.delay(100)
+        kotlinx.coroutines.delay(100.milliseconds)
         verify { mockTarget.applyFrameTranslation(any(), any()) }
     }
 
