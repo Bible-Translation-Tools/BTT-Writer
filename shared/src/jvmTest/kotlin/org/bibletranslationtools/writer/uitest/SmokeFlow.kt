@@ -162,23 +162,10 @@ private fun ComposeUiTest.waitUntilVisible(text: String, timeoutMillis: Long) {
     val deadline = System.nanoTime() + timeoutMillis * 1_000_000L
     while (System.nanoTime() < deadline) {
         if (isTextVisible(text)) return
-        if (!scrollWhileWaiting(text)) {
-            waitForIdle()
-            mainClock.advanceTimeByFrame()
-        }
+        waitForIdle()
+        mainClock.advanceTimeByFrame()
     }
     throw AssertionError("Timed out after ${timeoutMillis}ms waiting for \"$text\"")
-}
-
-@OptIn(ExperimentalTestApi::class)
-private fun ComposeUiTest.scrollWhileWaiting(text: String): Boolean {
-    if (isTextVisible(text)) return true
-    return try {
-        onNode(hasScrollAction()).performTouchInput { swipeUp() }
-        true
-    } catch (_: AssertionError) {
-        false
-    }
 }
 
 @OptIn(ExperimentalTestApi::class)
