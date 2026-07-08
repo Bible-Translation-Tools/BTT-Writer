@@ -1,0 +1,163 @@
+appId: org.bibletranslationtools.writer
+---
+# Gateway Language mode:
+# - toggle the setting on, verify the type step offers ulb/udb (no reg) + helps
+# - create ulb text, notes and words projects
+# - notes project opens review-only (no read/chunk mode buttons)
+# - toggle the setting off, verify words project disappears from the list
+#
+# Assumes home has no projects (runs after smoke-project-menu deletes John).
+
+# --- enable GL mode in settings ---
+- assertVisible: "Your Translation Projects"
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "Settings"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "General"
+- scrollUntilVisible:
+    element: "Gateway Language Mode"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Gateway Language Mode"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "Your Translation Projects"
+
+# --- create a ulb text project: type step appears, reg is not offered ---
+- tapOn:
+    text: "Add"
+    waitToSettleTimeoutMs: 200
+- tapOn: "aaa"
+- tapOn: "bible-nt"
+- scrollUntilVisible:
+    element: "John"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn: "John"
+- extendedWaitUntil:
+    visible: "Choose a type"
+    timeout: 5000
+- assertVisible: "Unlocked Literal Bible"
+- assertVisible: "Unlocked Dynamic Bible"
+- assertVisible: "Notes"
+- assertVisible: "Questions"
+- assertNotVisible: "Regular"
+- tapOn:
+    text: "Unlocked Literal Bible"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 5000
+- assertVisible: "John (ulb)"
+
+# --- create a notes project for the same book ---
+- tapOn:
+    text: "Add"
+    waitToSettleTimeoutMs: 200
+- tapOn: "aaa"
+- tapOn: "bible-nt"
+- scrollUntilVisible:
+    element: "John"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn: "John"
+- extendedWaitUntil:
+    visible: "Choose a type"
+    timeout: 5000
+- tapOn:
+    text: "Notes"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 5000
+- assertVisible: "John (Notes)"
+
+# --- create a words project (only listed in GL mode) ---
+- tapOn:
+    text: "Add"
+    waitToSettleTimeoutMs: 200
+- tapOn: "aaa"
+- scrollUntilVisible:
+    element: "translationWords"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn: "translationWords"
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 5000
+- assertVisible: "translationWords (Words)"
+
+# --- notes project opens review-only: no read/chunk mode buttons ---
+- tapOn: "John (Notes)"
+- extendedWaitUntil:
+    visible: "Edit Source"
+    timeout: 5000
+- tapOn: "Edit Source"
+- waitForAnimationToEnd
+- assertVisible: "Choose source translations"
+- tapOn: "Choose source translations"
+- inputText: "English"
+- hideKeyboard:
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "English (en) - Unlocked Literal Bible"
+    waitToSettleTimeoutMs: 500
+- tapOn:
+    text: "Confirm"
+    waitToSettleTimeoutMs: 500
+- waitForAnimationToEnd
+- assertNotVisible: "Read Mode"
+- assertNotVisible: "Chunk Mode"
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 3000
+
+# --- disable GL mode again ---
+- tapOn:
+    text: "More Options"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "Settings"
+    waitToSettleTimeoutMs: 200
+- scrollUntilVisible:
+    element: "Gateway Language Mode"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    text: "Gateway Language Mode"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 200
+- assertVisible: "Your Translation Projects"
+
+# --- words project is hidden from the wizard without GL mode ---
+- tapOn:
+    text: "Add"
+    waitToSettleTimeoutMs: 200
+- tapOn: "aaa"
+- assertVisible: "bible-nt"
+- assertNotVisible: "translationWords"
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 200
+- tapOn:
+    text: "back"
+    waitToSettleTimeoutMs: 200
+- extendedWaitUntil:
+    visible: "Your Translation Projects"
+    timeout: 3000

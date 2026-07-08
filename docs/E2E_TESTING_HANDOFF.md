@@ -58,7 +58,18 @@ No `UiTestTags`, `testTag` wiring, or separate `uiTest` / `androidDeviceTest` so
     smoke-launch.yaml      # subflow: cold launch → dismiss dialogs → wait for profile
     smoke-settings.yaml    # subflow: profile → home → settings → home
     smoke-new-translation.yaml  # subflow: create John project for aaa
+    smoke-gl-mode.yaml     # subflow: GL mode toggle + ulb/notes/words projects
 ```
+
+**`smoke-gl-mode.yaml`** (runs last — assumes `smoke-project-menu.yaml` deleted the John project, so home is empty)
+
+- Settings → enable `Gateway Language Mode` (Advanced section, scroll to it)
+- New translation → `aaa` → `bible-nt` → `John` → type step `Choose a type`: asserts `Unlocked Literal Bible`/`Unlocked Dynamic Bible`/`Notes`/`Questions` visible, `Regular` absent → creates ulb → home shows `John (ulb)`
+- Same path again → `Notes` → home shows `John (Notes)` (enabled because the ulb text translation exists)
+- New translation → `aaa` → `translationWords` (project only listed in GL mode, creates directly, no type step) → home shows `translationWords (Words)`
+- Opens `John (Notes)`, picks the English ULB source, asserts `Read Mode`/`Chunk Mode` sidebar buttons are absent (helps projects are review-only)
+- Disables GL mode, re-opens the wizard, asserts `translationWords` is no longer listed
+- Leaves the three GL projects on home; GL setting is restored to off
 
 `appId`: `org.bibletranslationtools.writer`
 
