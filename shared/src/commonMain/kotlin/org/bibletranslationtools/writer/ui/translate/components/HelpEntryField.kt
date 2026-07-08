@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,14 +65,26 @@ fun HelpEntryField(
         return
     }
 
+    // Sync external value changes (reorder, delete, undo) into the field.
+    // Own edits echo back with value == lastEmittedText and are skipped,
+    // so the cursor is never disturbed while typing.
+    LaunchedEffect(value) {
+        if (value != lastEmittedText && value != textFieldState.text.toString()) {
+            lastEmittedText = value
+            textFieldState.setTextAndPlaceCursorAtEnd(value)
+        }
+    }
+
     // Observe TextFieldState changes and notify parent
     LaunchedEffect(Unit) {
         snapshotFlow { textFieldState.text.toString() }
             .distinctUntilChanged()
             .debounce(500L.milliseconds)
             .collect { newRaw ->
-                lastEmittedText = newRaw
-                currentOnTextChange(newRaw)
+                if (newRaw != lastEmittedText) {
+                    lastEmittedText = newRaw
+                    currentOnTextChange(newRaw)
+                }
             }
     }
 
