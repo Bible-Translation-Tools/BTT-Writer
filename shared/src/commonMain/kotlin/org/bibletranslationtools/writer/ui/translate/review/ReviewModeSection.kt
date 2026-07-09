@@ -261,6 +261,10 @@ fun ReviewModeSection(
             }
         }
 
+        val helpPanelFraction = if (
+            filteredItems.firstOrNull()?.projectTypeClass == ProjectTypeClass.HELPS
+        ) 1f / 4.08f else 1f / 3.08f
+
         HelpPanel(
             help = state.help,
             typography = typography,
@@ -270,7 +274,7 @@ fun ReviewModeSection(
             onOpenWord = component::openWord,
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(1f / 3.08f)
+                .fillMaxWidth(helpPanelFraction)
                 .align(Alignment.CenterEnd)
         )
     }

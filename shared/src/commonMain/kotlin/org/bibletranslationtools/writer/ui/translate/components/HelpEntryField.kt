@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.MaterialTheme
@@ -19,10 +20,20 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -47,10 +58,12 @@ fun HelpEntryField(
     val textFieldState = remember { TextFieldState(value) }
     var lastEmittedText by remember { mutableStateOf(value) }
     val currentOnTextChange by rememberUpdatedState(onValueChange)
+    val focusManager = LocalFocusManager.current
 
     val density = LocalDensity.current
     val lineHeightPx = with(density) { textStyle.lineHeight.toPx() }
     val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+    var textLayout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     if (readOnly) {
         if (value.isNotEmpty()) {
@@ -92,6 +105,9 @@ fun HelpEntryField(
         state = textFieldState,
         textStyle = textStyle,
         cursorBrush = SolidColor(textStyle.color),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        onKeyboardAction = { focusManager.moveFocus(FocusDirection.Next) },
+        onTextLayout = { getResult -> textLayout = getResult() },
         decorator = { innerTextField ->
             Box(contentAlignment = Alignment.TopStart) {
                 if (textFieldState.text.isEmpty()) {
@@ -105,21 +121,51 @@ fun HelpEntryField(
             }
         },
         modifier = modifier.fillMaxWidth()
+            // Tab / Shift+Tab move between fields instead of inserting \t
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.Tab) {
+                    if (event.isShiftPressed) {
+                        focusManager.moveFocus(FocusDirection.Previous)
+                        true
+                    } else {
+                        focusManager.moveFocus(FocusDirection.Next)
+                        true
+                    }
+                } else false
+            }
             .drawWithContent {
                 drawContent()
 
-                // Draw notebook lines
                 if (lines) {
                     val strokeWidth = 1.dp.toPx()
-                    var y = lineHeightPx
-                    while (y <= size.height + (lineHeightPx / 2)) {
-                        drawLine(
-                            color = lineColor,
-                            start = Offset(0f, y),
-                            end = Offset(size.width, y),
-                            strokeWidth = strokeWidth
-                        )
-                        y += lineHeightPx
+                    val topPadding = 8.dp.toPx()
+                    val layout = textLayout
+
+                    var y = topPadding
+                    var step = lineHeightPx
+                    if (layout != null && layout.lineCount > 0) {
+                        for (i in 0 until layout.lineCount) {
+                            y = topPadding + layout.getLineBottom(i)
+                            step = layout.getLineBottom(i) - layout.getLineTop(i)
+                            drawLine(
+                                color = lineColor,
+                                start = Offset(0f, y),
+                                end = Offset(size.width, y),
+                                strokeWidth = strokeWidth
+                            )
+                        }
+                    }
+                    if (step > 0f) {
+                        y += step
+                        while (y <= size.height) {
+                            drawLine(
+                                color = lineColor,
+                                start = Offset(0f, y),
+                                end = Offset(size.width, y),
+                                strokeWidth = strokeWidth
+                            )
+                            y += step
+                        }
                     }
                 }
             }

@@ -925,6 +925,8 @@ Do you want to enable SD card access?  If so then:
     <string name="has_warnings">'<xliff:g example="Chapter 1" id="title">%1$s</xliff:g>' has warnings:</string>
     <string name="title">Title</string>
     <string name="reference">Reference</string>
+    <string name="project_title">Project Title</string>
+    <string name="project_chapter_title"><xliff:g example="Genesis" id="book">%1$s</xliff:g> <xliff:g example="1" id="chapter">%2$s</xliff:g> Title</string>
     <string name="title_footnote">Footnote</string>
     <string name="access_not_root">Failed to enable access to SD card base.\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the "SD card" icon on the left, and then that the button you pressed on the bottom said "SELECT SD card".</string>
     <string name="merge_summary">The projects have been merged. There are (<xliff:g example="37" id="count">%1$d</xliff:g>) chunks that contain new conflicts that need your attention.</string>
