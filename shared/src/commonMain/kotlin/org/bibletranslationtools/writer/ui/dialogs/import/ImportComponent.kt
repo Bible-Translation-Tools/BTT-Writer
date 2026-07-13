@@ -51,6 +51,8 @@ import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
+import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.ui.home.RepositoryItem
 import org.bibletranslationtools.writer.usecases.AdvancedGogsRepoSearch
@@ -132,6 +134,7 @@ class DefaultImportComponent(
     private val directoryProvider: DirectoryProvider by inject()
     private val targetTranslationMigrator: TargetTranslationMigrator by inject()
     private val platform: Platform by inject()
+    private val preference: Preference by inject()
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -370,12 +373,21 @@ class DefaultImportComponent(
                 val resourceTypeSlug = TargetTranslation.getResourceTypeFromId(
                     targetTranslationSlug
                 )
+                val glMode = preference.getPref(Preference.KEY_PREF_GL_MODE, false)
+                var typeSuffix = ""
                 if (resourceTypeSlug != "text") {
-                    unsupportedTag = when (resourceTypeSlug) {
+                    val typeName = when (resourceTypeSlug) {
                         "tw" -> getString(Res.string.translation_words)
                         "tn" -> getString(Res.string.label_translation_notes)
                         "tq" -> getString(Res.string.translation_questions)
                         else -> getString(Res.string.unsupported)
+                    }
+                    val isGlType = resourceTypeSlug in setOf("tw", "tn", "tq")
+                    if (glMode && isGlType) {
+                        // gateway language mode imports helps/words directly
+                        typeSuffix = typeName
+                    } else {
+                        unsupportedTag = typeName
                     }
                 }
 
@@ -385,6 +397,9 @@ class DefaultImportComponent(
                     enableDefaultLanguage = true
                 )
                 projectName = project?.name ?: targetTranslationSlug
+                if (typeSuffix.isNotEmpty()) {
+                    projectName = "$projectName ($typeSuffix)"
+                }
                 val targetLanguage = catalogClient.library.getTargetLanguage(targetLanguageSlug)
                 if (targetLanguage != null) {
                     languageName = targetLanguage.name

@@ -52,7 +52,8 @@ fun rememberTranslateMenuItems(
     onFeedback: () -> Unit,
     onChunksDone: () -> Unit,
     onSettings: () -> Unit,
-    onSearchRequested: () -> Unit
+    onSearchRequested: () -> Unit,
+    isStandardProject: Boolean = true
 ): List<SidebarAction> {
     val translations = stringResource(Res.string.action_translations)
     val viewDrafts = stringResource(Res.string.view_available_drafts)
@@ -64,7 +65,7 @@ fun rememberTranslateMenuItems(
     val markDone = stringResource(Res.string.mark_chunks_done)
     val settings = stringResource(Res.string.action_settings)
 
-    return remember(viewMode, draftAvailable) {
+    return remember(viewMode, draftAvailable, isStandardProject) {
         buildList {
             add(
                 SidebarAction(translations, Icons.AutoMirrored.Filled.LibraryBooks, onHomeClick)
@@ -80,16 +81,20 @@ fun rememberTranslateMenuItems(
             add(
                 SidebarAction(uploadExport, Icons.Default.Upload, onUploadExport)
             )
-            add(
-                SidebarAction(print, Icons.Default.Print, onPrint)
-            )
+            if (isStandardProject) {
+                add(
+                    SidebarAction(print, Icons.Default.Print, onPrint)
+                )
+            }
             add(
                 SidebarAction(feedback, Icons.Default.Feedback, onFeedback)
             )
             if (viewMode == TranslationViewMode.REVIEW) {
-                add(
-                    SidebarAction(search, Icons.Default.Search, onSearchRequested)
-                )
+                if (isStandardProject) {
+                    add(
+                        SidebarAction(search, Icons.Default.Search, onSearchRequested)
+                    )
+                }
                 add(
                     SidebarAction(markDone, Icons.Default.Check, onChunksDone)
                 )

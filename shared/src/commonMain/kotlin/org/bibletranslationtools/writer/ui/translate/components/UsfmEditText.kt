@@ -44,6 +44,7 @@ import org.bibletranslationtools.writer.textOrNull
 import org.bibletranslationtools.writer.ui.translate.components.footnote.FootnoteOutputTransformation
 import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
 import org.bibletranslationtools.writer.ui.translate.components.footnote.visualToRaw
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -100,7 +101,7 @@ fun UsfmEditText(
     LaunchedEffect(Unit) {
         snapshotFlow { textFieldState.text.toString() }
             .distinctUntilChanged()
-            .debounce(500L)
+            .debounce(500L.milliseconds)
             .collect { newRaw ->
                 lastEmittedText = newRaw
                 currentOnTextChange(newRaw)
@@ -119,9 +120,9 @@ fun UsfmEditText(
     // Focus handling
     LaunchedEffect(shouldFocus) {
         if (shouldFocus) {
-            delay(300)
+            delay(300.milliseconds)
             focusRequester.requestFocus()
-            delay(100)
+            delay(100.milliseconds)
             onFocusConsumed()
         }
     }
@@ -137,7 +138,7 @@ fun UsfmEditText(
             },
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .focusRequester(focusRequester)
                 .drawWithContent {
                     // Draw search highlights behind text

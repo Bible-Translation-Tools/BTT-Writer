@@ -21,6 +21,7 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.resourcecontainer.Project
+import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.ComponentScope
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
@@ -35,6 +36,7 @@ import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
+import org.bibletranslationtools.writer.data.getPref
 import org.bibletranslationtools.writer.usecases.MergeTargetTranslation
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -43,8 +45,16 @@ import java.util.Locale
 
 enum class ScreenStep {
     LANGUAGE,
-    PROJECT
+    PROJECT,
+    TYPE
 }
+
+data class TranslationTypeOption(
+    val resourceType: ResourceType,
+    val resourceSlug: String,
+    val format: TranslationFormat,
+    val enabled: Boolean
+)
 
 data class MergeConflict(
     val sourceTranslation: TargetTranslation,
@@ -61,6 +71,8 @@ interface NewTranslationComponent {
     fun onProjectSelected(projectId: String)
     fun onCategorySelected(categoryId: Long)
     fun onCategoryBack()
+    fun onTypeSelected(option: TranslationTypeOption)
+    fun onTypeBack()
     fun onSearch(query: String)
     fun mergeTranslation(mergeConflict: MergeConflict)
     fun clearMergeConflict()
@@ -75,6 +87,7 @@ interface NewTranslationComponent {
         val disabledLanguages: List<String> = emptyList(),
         val categories: List<CategoryEntry> = emptyList(),
         val filteredCategories: List<CategoryEntry> = emptyList(),
+        val typeOptions: List<TranslationTypeOption> = emptyList(),
         val categoryStack: List<Long> = listOf(0L),
         val navigatingForward: Boolean = true,
         val mergeConflict: MergeConflict? = null
@@ -107,6 +120,12 @@ class DefaultNewTranslationComponent(
 
     var selectedTargetLanguage: TargetLanguage? = null
         private set
+
+    // gateway language mode unlocks ulb/udb and helps/words translation types
+    private val glMode: Boolean
+        get() = preference.getPref(Preference.KEY_PREF_GL_MODE, false)
+
+    private var selectedProjectId: String? = null
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -204,37 +223,164 @@ class DefaultNewTranslationComponent(
 
     override fun onProjectSelected(projectId: String) {
         coroutineScope.launch {
-            val resourceSlug = if (projectId == "obs") "obs" else "reg"
-            val existingTranslation = selectedTargetLanguage?.let { selected ->
-                getTargetTranslation(
-                    TargetTranslation.generateTargetTranslationId(
-                        selected.slug, projectId, ResourceType.TEXT, resourceSlug
-                    )
+            if (projectId in TW_PROJECTS) {
+                // translationWords projects have a single type; skip the type step
+                createTranslation(
+                    projectId,
+                    ResourceType.TRANSLATION_WORD,
+                    "",
+                    TranslationFormat.MARKDOWN
                 )
+                return@launch
             }
 
-            if (existingTranslation == null) {
-                val format = if (projectId == "obs") TranslationFormat.MARKDOWN else TranslationFormat.USFM
-                val targetTranslation = createTargetTranslation(
-                    projectId, ResourceType.TEXT, resourceSlug, format
-                )
-                if (targetTranslation != null) {
-                    onResult(NewTranslationComponent.Result.Success)
+            if (!glMode) {
+                // regular mode has a single type; skip the type step
+                if (projectId == Resource.OBS_SLUG) {
+                    createTranslation(
+                        projectId,
+                        ResourceType.TEXT,
+                        Resource.OBS_SLUG,
+                        TranslationFormat.MARKDOWN
+                    )
                 } else {
-                    val error = getString(Res.string.failed_to_create_target_translation)
-                    deleteTargetTranslation(projectId, resourceSlug)
-                    onResult(NewTranslationComponent.Result.Error(error))
+                    createTranslation(
+                        projectId,
+                        ResourceType.TEXT,
+                        Resource.REGULAR_SLUG,
+                        TranslationFormat.USFM
+                    )
                 }
-            } else {
-                onResult(NewTranslationComponent.Result.Duplicate(existingTranslation.id))
+                return@launch
+            }
+
+            selectedProjectId = projectId
+            val options = withContext(Dispatchers.IO) {
+                buildTypeOptions(projectId)
+            }
+            _state.update {
+                it.copy(
+                    screenStep = ScreenStep.TYPE,
+                    searchQuery = "",
+                    typeOptions = options,
+                    navigatingForward = true
+                )
             }
         }
     }
 
-    override fun onCategorySelected(categoryId: Long) {
-        val categories = catalogClient.library.getProjectCategories(
-            categoryId, platform.deviceLanguageCode, "all"
+    override fun onTypeSelected(option: TranslationTypeOption) {
+        if (!option.enabled) return
+        val projectId = selectedProjectId ?: return
+        coroutineScope.launch {
+            createTranslation(
+                projectId,
+                option.resourceType,
+                option.resourceSlug,
+                option.format
+            )
+        }
+    }
+
+    override fun onTypeBack() {
+        _state.update {
+            it.copy(
+                screenStep = ScreenStep.PROJECT,
+                typeOptions = emptyList(),
+                navigatingForward = false
+            )
+        }
+    }
+
+    private suspend fun buildTypeOptions(projectId: String): List<TranslationTypeOption> {
+        val language = selectedTargetLanguage ?: return emptyList()
+        val existing = translator.getTargetTranslations()
+        val textExists = existing.any {
+            it.projectId == projectId &&
+                    it.targetLanguageId == language.slug &&
+                    it.translationType == ResourceType.TEXT
+        }
+
+        val options = mutableListOf<TranslationTypeOption>()
+        if (projectId == Resource.OBS_SLUG) {
+            options += TranslationTypeOption(
+                resourceType = ResourceType.TEXT,
+                resourceSlug = Resource.OBS_SLUG,
+                format = TranslationFormat.MARKDOWN,
+                enabled = true
+            )
+        } else {
+            // gateway languages translate the published resources, not reg
+            for (slug in listOf(Resource.ULB_SLUG, Resource.UDB_SLUG)) {
+                options += TranslationTypeOption(
+                    resourceType = ResourceType.TEXT,
+                    resourceSlug = slug,
+                    format = TranslationFormat.USFM,
+                    enabled = true
+                )
+            }
+        }
+        // helps translations need an existing text translation to attach to
+        options += TranslationTypeOption(
+            resourceType = ResourceType.TRANSLATION_NOTE,
+            resourceSlug = "",
+            format = TranslationFormat.MARKDOWN,
+            enabled = textExists
         )
+        options += TranslationTypeOption(
+            resourceType = ResourceType.TRANSLATION_QUESTION,
+            resourceSlug = "",
+            format = TranslationFormat.MARKDOWN,
+            enabled = textExists
+        )
+
+        return options.map { option ->
+            val id = TargetTranslation.generateTargetTranslationId(
+                targetLanguageSlug = language.slug,
+                projectSlug = projectId,
+                resourceType = option.resourceType,
+                resourceSlug = option.resourceSlug.ifEmpty { null }
+            )
+            if (existing.any { it.id == id }) option.copy(enabled = false) else option
+        }
+    }
+
+    private suspend fun createTranslation(
+        projectId: String,
+        resourceType: ResourceType,
+        resourceSlug: String,
+        format: TranslationFormat
+    ) {
+        val selected = selectedTargetLanguage ?: return
+        val translationId = TargetTranslation.generateTargetTranslationId(
+            targetLanguageSlug = selected.slug,
+            projectSlug = projectId,
+            resourceType = resourceType,
+            resourceSlug = resourceSlug.ifEmpty { null }
+        )
+        val existingTranslation = getTargetTranslation(translationId)
+
+        if (existingTranslation == null) {
+            val targetTranslation = createTargetTranslation(
+                projectId = projectId,
+                resourceType = resourceType,
+                resourceSlug = resourceSlug,
+                format = format
+            )
+            if (targetTranslation != null) {
+                onResult(NewTranslationComponent.Result.Success)
+            } else {
+                val error = getString(Res.string.failed_to_create_target_translation)
+                translator.deleteTargetTranslation(translationId)
+                onResult(NewTranslationComponent.Result.Error(error))
+            }
+        } else {
+            onResult(NewTranslationComponent.Result.Duplicate(existingTranslation.id))
+        }
+    }
+
+    override fun onCategorySelected(categoryId: Long) {
+        val categories = loadCategories(categoryId)
         _state.value = _state.value.copy(
             searchQuery = "",
             categories = categories,
@@ -259,9 +405,7 @@ class DefaultNewTranslationComponent(
         }
         val newStack = stack.dropLast(1)
         val parentId = newStack.last()
-        val categories = catalogClient.library.getProjectCategories(
-            parentId, platform.deviceLanguageCode, "all"
-        )
+        val categories = loadCategories(parentId)
         _state.value = _state.value.copy(
             searchQuery = "",
             categories = categories,
@@ -276,6 +420,7 @@ class DefaultNewTranslationComponent(
         when (_state.value.screenStep) {
             ScreenStep.LANGUAGE -> filterLanguages(query)
             ScreenStep.PROJECT -> filterCategories(query)
+            ScreenStep.TYPE -> Unit
         }
     }
 
@@ -378,10 +523,19 @@ class DefaultNewTranslationComponent(
         _state.value = _state.value.copy(filteredCategories = filtered)
     }
 
+    private fun loadCategories(parentCategoryId: Long): List<CategoryEntry> {
+        // in gateway language mode "%" matches both "all" and "gl" translate
+        // modes, so gateway-language resources (tW dictionaries, notes,
+        // questions) are included; translationAcademy manuals are not
+        // translatable in this app
+        val translateMode = if (glMode) "%" else "all"
+        return catalogClient.library.getProjectCategories(
+            parentCategoryId, platform.deviceLanguageCode, translateMode
+        ).filter { it.slug != "ta" }
+    }
+
     private fun showProjectStep() {
-        val categories = catalogClient.library.getProjectCategories(
-            0L, platform.deviceLanguageCode, "all"
-        )
+        val categories = loadCategories(0L)
         _state.value = _state.value.copy(
             screenStep = ScreenStep.PROJECT,
             searchQuery = "",
@@ -444,13 +598,7 @@ class DefaultNewTranslationComponent(
         }
     }
 
-    private fun deleteTargetTranslation(projectId: String, resourceSlug: String) {
-        selectedTargetLanguage?.let { selected ->
-            translator.deleteTargetTranslation(
-                TargetTranslation.generateTargetTranslationId(
-                    selected.slug, projectId, ResourceType.TEXT, resourceSlug
-                )
-            )
-        }
+    companion object {
+        private val TW_PROJECTS = setOf("bible", "bible-obs")
     }
 }

@@ -9,6 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TranslationViewMode
 import org.bibletranslationtools.writer.core.Translator
@@ -35,6 +36,9 @@ class TranslateComponentTest : BaseComponentTest() {
     private var resultReceived: TranslateComponent.Result? = null
 
     private val mockTarget = mockk<TargetTranslation>(relaxed = true) {
+        // relaxed mocks return an arbitrary enum; the type class gates
+        // read/chunk modes, so pin it explicitly
+        every { projectTypeClass } returns ProjectTypeClass.STANDARD
         every { id } returns "target-1"
         every { targetLanguage.slug } returns "en"
         every { targetLanguageName } returns "English"

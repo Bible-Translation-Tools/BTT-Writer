@@ -43,8 +43,10 @@ import btt_writer.shared.generated.resources.license_pdf
 import btt_writer.shared.generated.resources.migrating_complete
 import btt_writer.shared.generated.resources.pref_description_check_hardware_requirements
 import btt_writer.shared.generated.resources.pref_description_enable_tm_links
+import btt_writer.shared.generated.resources.pref_description_gl_mode
 import btt_writer.shared.generated.resources.pref_title_check_hardware_requirements
 import btt_writer.shared.generated.resources.pref_title_enable_tm_links
+import btt_writer.shared.generated.resources.pref_title_gl_mode
 import btt_writer.shared.generated.resources.software_licenses
 import btt_writer.shared.generated.resources.statement_of_faith
 import btt_writer.shared.generated.resources.title_color_theme
@@ -168,6 +170,17 @@ fun SettingsScreen(
                     title = stringResource(Res.string.title_color_theme),
                     summary = state.currentThemeName,
                     onClick = { showThemeDialog = true }
+                )
+            }
+
+            item { HorizontalDivider() }
+
+            item {
+                CheckboxPreference(
+                    title = stringResource(Res.string.pref_title_gl_mode),
+                    summary = stringResource(Res.string.pref_description_gl_mode),
+                    checked = state.glModeEnabled,
+                    onCheckedChange = { component.setGlModeEnabled(it) }
                 )
             }
 

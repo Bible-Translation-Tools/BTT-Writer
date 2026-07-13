@@ -1,6 +1,7 @@
 package org.bibletranslationtools.writer.ui.home
 
 import org.bibletranslationtools.resourcecontainer.Resource
+import org.bibletranslationtools.writer.core.ResourceType
 import org.bibletranslationtools.writer.core.TargetTranslation
 
 data class TranslationItem(
@@ -9,8 +10,18 @@ data class TranslationItem(
     val progress: Float = 0f
 ) {
     val formattedProjectName: String
-        get() = if (translation.resourceSlug != Resource.REGULAR_SLUG && translation.resourceSlug != "obs") {
-            // display the resource type if not a regular resource e.g. this is for a gateway language
-            name + " (" + translation.resourceSlug + ")"
-        } else name
+        get() = name
+
+    // matches the desktop Type column: "Text", "Text ulb", "Notes", "Words", ...
+    val formattedTypeName: String
+        get() {
+            val type = translation.translationType.title
+            val slug = translation.resourceSlug
+            return if (
+                translation.translationType == ResourceType.TEXT &&
+                slug != Resource.REGULAR_SLUG &&
+                slug != Resource.OBS_SLUG &&
+                slug != null
+            ) "$type $slug" else type
+        }
 }

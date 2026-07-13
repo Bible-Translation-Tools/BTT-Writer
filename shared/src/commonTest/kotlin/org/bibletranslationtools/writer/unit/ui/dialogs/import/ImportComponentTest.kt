@@ -17,6 +17,7 @@ import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TargetTranslationMigrator
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.displayName
 import org.bibletranslationtools.writer.ui.dialogs.import.DefaultImportComponent
 import org.bibletranslationtools.writer.ui.dialogs.import.ImportComponent
@@ -38,6 +39,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class ImportComponentTest : BaseComponentTest() {
 
@@ -50,6 +52,7 @@ class ImportComponentTest : BaseComponentTest() {
     private val directoryProvider: DirectoryProvider = mockk(relaxed = true)
     private val targetTranslationMigrator: TargetTranslationMigrator = mockk(relaxed = true)
     private val platform: Platform = mockk(relaxed = true)
+    private val preference: Preference = mockk(relaxed = true)
 
     private var resultReceived: ImportComponent.Result? = null
 
@@ -73,6 +76,7 @@ class ImportComponentTest : BaseComponentTest() {
         coEvery { getString(any(), *anyVararg()) } returns "Mock String"
 
         every { directoryProvider.backupsDir } returns mockBackupsDir
+        every { preference.getPref(any(), any(), any()) } answers { args[1]!! }
         coEvery { translator.getTargetTranslation(any()) } returns mockTarget
         every { catalogClient.library.getProject(any(), any(), any()) } returns mockProject
 
@@ -88,6 +92,7 @@ class ImportComponentTest : BaseComponentTest() {
                     single { directoryProvider }
                     single { targetTranslationMigrator }
                     single { platform }
+                    single { preference }
                 }
             )
         }
@@ -384,7 +389,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             component.registerKeys()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { registerSSHKeys.execute(true, any()) }
             coVerify { cloneRepository.execute(repoItem.url, any()) }
         }
@@ -473,7 +478,7 @@ class ImportComponentTest : BaseComponentTest() {
             val component = createComponent()
             component.importRepo(repoItem, accepted = true, overwrite = false)
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { registerSSHKeys.execute(false, any()) }
         }
     }
@@ -595,7 +600,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             conflict.onOverwrite()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { importProjects.importProject(mockFile, true, any()) }
         }
     }
@@ -625,7 +630,7 @@ class ImportComponentTest : BaseComponentTest() {
 
             conflict.onCancel()
 
-            delay(300)
+            delay(300.milliseconds)
             coVerify { mockTarget.resetToMasterBackup() }
         }
     }

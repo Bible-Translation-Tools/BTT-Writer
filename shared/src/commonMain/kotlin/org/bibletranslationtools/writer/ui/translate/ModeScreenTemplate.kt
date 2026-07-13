@@ -4,10 +4,9 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -53,20 +52,13 @@ fun <ITEM : TranslateItem> ModeScreenTemplate(
                 LazyColumn(
                     state = listState,
                     verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
                     items(items = items, key = { it.id }) { item ->
                         key(settingsVersion) {
                             itemContent(item)
                         }
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }

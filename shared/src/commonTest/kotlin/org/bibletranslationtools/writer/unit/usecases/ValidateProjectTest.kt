@@ -19,6 +19,7 @@ import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.core.ChapterTranslation
 import org.bibletranslationtools.writer.core.FrameTranslation
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Validation
@@ -54,6 +55,10 @@ class ValidateProjectTest {
             .returns(sourceTranslation)
         coEvery { translator.getTargetTranslation(targetTranslationId) }
             .returns(targetTranslation)
+
+        // relaxed mocks return an arbitrary enum constant otherwise
+        every { sourceTranslation.projectTypeClass }.returns(ProjectTypeClass.STANDARD)
+        every { targetTranslation.projectTypeClass }.returns(ProjectTypeClass.STANDARD)
 
         every { sourceLanguage.slug }.returns("en")
         every { sourceLanguage.name }.returns("mrk")

@@ -2,6 +2,10 @@ package org.bibletranslationtools.writer.ui.translate
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
+import btt_writer.shared.generated.resources.Res
+import btt_writer.shared.generated.resources.project_chapter_title
+import btt_writer.shared.generated.resources.project_title
+import btt_writer.shared.generated.resources.reference
 import org.bibletranslationtools.writer.core.ChapterTranslation
 import org.bibletranslationtools.writer.core.Chunk
 import org.bibletranslationtools.writer.core.FileHistory
@@ -9,8 +13,11 @@ import org.bibletranslationtools.writer.core.Frame
 import org.bibletranslationtools.writer.core.FrameTranslation
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.ProjectTranslation
+import org.bibletranslationtools.writer.core.ProjectTypeClass
+import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.ui.translate.review.TargetMode
 import org.bibletranslationtools.writer.usecases.ParseMergeConflicts
+import org.bibletranslationtools.writer.utils.getStringBlocking
 
 
 interface Swipable {
@@ -58,32 +65,28 @@ abstract class TranslateItem {
             }
         }
 
+    // row labels are always derived from the source (desktop style:
+    // "Project Title", "<book> <ch> Title", "<book> <ch>:<verses>") —
+    // never from pt/ct content, which for helps projects holds JSON
     open val targetTitle: String
         get() {
-            if (chunk.isProjectTitle) {
-                return removeConflicts(chunk.target.targetLanguage.name)
-            } else if (chunk.isChapter) {
-                val ptTitle = removeConflicts(pt.title).trim()
-                return if (ptTitle.isNotEmpty()) {
-                    ptTitle + " - " + chunk.target.targetLanguage.name
-                } else {
-                    removeConflicts(chunk.source.project.name).trim() + " - " + chunk.target.targetLanguage.name
+            val language = chunk.target.targetLanguage.name
+            val book = chunk.source.project.name.trim()
+            val chapter = chunk.chapterSlug.toIntOrNull() ?: chunk.chapterSlug
+            return when {
+                chunk.isProjectTitle ->
+                    "${getStringBlocking(Res.string.project_title)} - $language"
+                chunk.isChapterTitle ->
+                    "${getStringBlocking(Res.string.project_chapter_title, book, chapter)} - $language"
+                chunk.isChapterReference ->
+                    "$book $chapter ${getStringBlocking(Res.string.reference)} - $language"
+                else -> {
+                    val verseSpan = Frame.parseVerseTitle(sourceText, chunk.sourceTranslationFormat)
+                    val span = verseSpan.ifEmpty {
+                        (chunk.chunkSlug.toIntOrNull() ?: chunk.chunkSlug).toString()
+                    }
+                    "$book $chapter:$span - $language"
                 }
-            } else {
-                // use project title
-                var title = removeConflicts(pt.title).trim()
-                if (title.isEmpty()) {
-                    title = removeConflicts(chunk.source.project.name).trim()
-                }
-                title += " " + chunk.chapterSlug.toInt()
-
-                val verseSpan = Frame.parseVerseTitle(sourceText, chunk.sourceTranslationFormat)
-                title += if (verseSpan.isEmpty()) {
-                    ":" + chunk.chunkSlug.toInt()
-                } else {
-                    ":$verseSpan"
-                }
-                return title + " - " + chunk.target.targetLanguage.name
             }
         }
 
@@ -126,16 +129,6 @@ abstract class TranslateItem {
         }
     }
 
-    private fun removeConflicts(text: String): String {
-        if (MergeConflictsHandler.isMergeConflicted(text)) {
-            var unConflictedText = MergeConflictsHandler.getMergeConflictItemsHead(text)
-            if (unConflictedText == null) {
-                unConflictedText = ""
-            }
-            return unConflictedText.toString()
-        }
-        return text
-    }
 }
 
 data class ReadItem(
@@ -170,44 +163,7 @@ data class ReadItem(
         }
 
     override val targetTitle: String
-        get() {
-            var title: String
-            val chapterTranslation = chunk.target
-                .getChapterTranslation(chunk.chapterSlug)
-            title = chapterTranslation.title.trim()
-
-            // if no target chapter title translation, fall back to source chapter title
-            if (title.isEmpty() && sourceTitle.trim().isNotEmpty()) {
-                title = sourceTitle.trim()
-            }
-
-            // if no chapter titles, fall back to project title, try translated title first
-            if (title.isEmpty()) {
-                val projTrans = chunk.target.projectTranslation
-                if (projTrans.title.trim().isNotEmpty()) {
-                    title = try {
-                        "${projTrans.title.trim()} ${chunk.chapterSlug.toInt()}"
-                    } catch (_: Exception) {
-                        "${projTrans.title.trim()} ${chunk.chapterSlug}"
-                    }
-                }
-            }
-
-            // fall back to project source title
-            if (title.isEmpty()) {
-                title = chunk.source.readChunk("front", "title")
-                    .trim()
-                if (chunk.chapterSlug != "front") {
-                    title += try {
-                        " ${chunk.chapterSlug.toInt()}"
-                    } catch (_: Exception) {
-                        " ${chunk.chapterSlug}"
-                    }
-                }
-            }
-
-            return "$title - ${chunk.target.targetLanguage.name}"
-        }
+        get() = "${sourceTitle.trim()} - ${chunk.target.targetLanguage.name}"
 }
 
 data class ChunkItem(
@@ -240,5 +196,22 @@ data class ReviewItem(
     override val ft: FrameTranslation,
     val helps: Map<String, Any> = emptyMap(),
     val targetMode: TargetMode,
-    val fileHistory: FileHistory? = null
-) : TranslateItem()
+    val fileHistory: FileHistory? = null,
+    val helpsContent: List<TranslationHelp> = emptyList(),
+    val bookTranslationText: String = "",
+    val renderedBookTranslationText: AnnotatedString = AnnotatedString(""),
+    val customSourceTitle: String? = null
+) : TranslateItem() {
+
+    val projectTypeClass: ProjectTypeClass
+        get() = chunk.target.projectTypeClass
+
+    override val sourceTitle: String
+        get() = customSourceTitle ?: super.sourceTitle
+
+    override val targetTitle: String
+        get() = if (projectTypeClass == ProjectTypeClass.EXTANT) {
+            // words are titled by the word itself, not chapter:verse
+            "$sourceTitle - ${chunk.target.targetLanguage.name}"
+        } else super.targetTitle
+}

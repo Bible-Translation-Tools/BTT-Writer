@@ -30,6 +30,7 @@ import btt_writer.shared.generated.resources.project_checklist_body
 import btt_writer.shared.generated.resources.project_checklist_title
 import btt_writer.shared.generated.resources.result
 import org.bibletranslationtools.resourcecontainer.Language
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
@@ -180,48 +181,89 @@ fun ReviewModeSection(
                     }
                 }
             ) { item ->
-                ReviewCard(
-                    item = item,
-                    sourceTabs = sharedState.sourceTabs,
-                    typography = typography,
-                    resourcesOpen = state.resourcesOpen,
-                    onSourceTabClick = parentComponent::selectSource,
-                    onAddNewSourceClick = onSourceDialogOpen,
-                    onRemoveSourceClick = parentComponent::removeSource,
-                    onTextChange = { component.onItemTextChanged(item, it) },
-                    onExpandedChange = { expanded ->
-                        component.openResources(expanded)
-                        if (!expanded) component.clearHelp()
-                    },
-                    onRenderHelps = { component.renderHelps(item) },
-                    onHelpClick = component::openHelp,
-                    onEditToggle = { component.toggleEdit(item) },
-                    onDoneToggle = { component.onToggleDone(item) },
-                    onUndoClick = { component.undo(item) },
-                    onRedoClick = { component.redo(item) },
-                    onAddNoteClick = { caretPos ->
-                        component.onAddNote(item, caretPos)
-                    },
-                    onDragDropVerse = { machineReadable, verseRawStart, verseRawEnd, targetRawPosition ->
-                        component.onDragDropVerse(
-                            item, machineReadable, verseRawStart, verseRawEnd, targetRawPosition
-                        )
-                    },
-                    onConflictSelected = { component.selectConflict(item, it) },
-                    sourceSearchQuery = state.search?.let { search ->
-                        if (search.query.length >= 2 && search.subject == SearchSubject.SOURCE) {
-                            search.query
-                        } else null
-                    },
-                    targetSearchQuery = state.search?.let { search ->
-                        if (search.query.length >= 2 && search.subject == SearchSubject.TARGET) {
-                            search.query
-                        } else null
-                    },
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                when (item.projectTypeClass) {
+                    ProjectTypeClass.HELPS -> HelpsReviewCard(
+                        item = item,
+                        sourceTabs = sharedState.sourceTabs,
+                        typography = typography,
+                        resourcesOpen = state.resourcesOpen,
+                        onSourceTabClick = parentComponent::selectSource,
+                        onAddNewSourceClick = onSourceDialogOpen,
+                        onRemoveSourceClick = parentComponent::removeSource,
+                        onHelpsChanged = { component.onHelpsChanged(item, it) },
+                        onDoneToggle = { component.onToggleDone(item) },
+                        onExpandedChange = { expanded ->
+                            component.openResources(expanded)
+                            if (!expanded) component.clearHelp()
+                        },
+                        onRenderHelps = { component.renderHelps(item) },
+                        onHelpClick = component::openHelp,
+                        onUndoClick = { component.undo(item) },
+                        onRedoClick = { component.redo(item) },
+                        onConflictSelected = { component.selectConflict(item, it) },
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                    ProjectTypeClass.EXTANT -> WordsReviewCard(
+                        item = item,
+                        sourceTabs = sharedState.sourceTabs,
+                        typography = typography,
+                        onSourceTabClick = parentComponent::selectSource,
+                        onAddNewSourceClick = onSourceDialogOpen,
+                        onRemoveSourceClick = parentComponent::removeSource,
+                        onHelpsChanged = { component.onHelpsChanged(item, it) },
+                        onDoneToggle = { component.onToggleDone(item) },
+                        onUndoClick = { component.undo(item) },
+                        onRedoClick = { component.redo(item) },
+                        onConflictSelected = { component.selectConflict(item, it) },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    ProjectTypeClass.STANDARD -> ReviewCard(
+                        item = item,
+                        sourceTabs = sharedState.sourceTabs,
+                        typography = typography,
+                        resourcesOpen = state.resourcesOpen,
+                        onSourceTabClick = parentComponent::selectSource,
+                        onAddNewSourceClick = onSourceDialogOpen,
+                        onRemoveSourceClick = parentComponent::removeSource,
+                        onTextChange = { component.onItemTextChanged(item, it) },
+                        onExpandedChange = { expanded ->
+                            component.openResources(expanded)
+                            if (!expanded) component.clearHelp()
+                        },
+                        onRenderHelps = { component.renderHelps(item) },
+                        onHelpClick = component::openHelp,
+                        onEditToggle = { component.toggleEdit(item) },
+                        onDoneToggle = { component.onToggleDone(item) },
+                        onUndoClick = { component.undo(item) },
+                        onRedoClick = { component.redo(item) },
+                        onAddNoteClick = { caretPos ->
+                            component.onAddNote(item, caretPos)
+                        },
+                        onDragDropVerse = { machineReadable, verseRawStart, verseRawEnd, targetRawPosition ->
+                            component.onDragDropVerse(
+                                item, machineReadable, verseRawStart, verseRawEnd, targetRawPosition
+                            )
+                        },
+                        onConflictSelected = { component.selectConflict(item, it) },
+                        sourceSearchQuery = state.search?.let { search ->
+                            if (search.query.length >= 2 && search.subject == SearchSubject.SOURCE) {
+                                search.query
+                            } else null
+                        },
+                        targetSearchQuery = state.search?.let { search ->
+                            if (search.query.length >= 2 && search.subject == SearchSubject.TARGET) {
+                                search.query
+                            } else null
+                        },
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                }
             }
         }
+
+        val helpPanelFraction = if (
+            filteredItems.firstOrNull()?.projectTypeClass == ProjectTypeClass.HELPS
+        ) 1f / 4.08f else 1f / 3.08f
 
         HelpPanel(
             help = state.help,
@@ -232,7 +274,7 @@ fun ReviewModeSection(
             onOpenWord = component::openWord,
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(1f / 3.08f)
+                .fillMaxWidth(helpPanelFraction)
                 .align(Alignment.CenterEnd)
         )
     }

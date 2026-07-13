@@ -24,6 +24,7 @@ import btt_writer.shared.generated.resources.draft_translation_exists
 import btt_writer.shared.generated.resources.preview
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import kotlinx.coroutines.launch
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.ui.components.LocalSnackbarHostState
 import org.bibletranslationtools.writer.ui.components.rememberTranslateMenuItems
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
@@ -55,9 +56,13 @@ fun TargetTranslationScreen(
 
     val scrollCoordinator = rememberScrollCoordinator()
 
+    val isStandardProject =
+        component.targetTranslation.projectTypeClass == ProjectTypeClass.STANDARD
+
     val menuItems = rememberTranslateMenuItems(
         viewMode = currentViewMode,
         draftAvailable = state.draftAvailable,
+        isStandardProject = isStandardProject,
         onHomeClick = { component.openHome() },
         onNavigateToDraft = {
             component.openDraft(component.targetTranslation.id)
@@ -118,6 +123,7 @@ fun TargetTranslationScreen(
                     currentViewMode = currentViewMode,
                     showMergeConflict = hasMergeConflicts,
                     conflictFilterOn = state.conflictFilterOn,
+                    showModeButtons = isStandardProject,
                     onReadClick = component::openReadMode,
                     onChunkClick = component::openChunkMode,
                     onReviewClick = {

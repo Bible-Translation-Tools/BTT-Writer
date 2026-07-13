@@ -66,6 +66,7 @@ import btt_writer.shared.generated.resources.yes
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
@@ -190,7 +191,10 @@ fun ExportDialog(
 
             HorizontalDivider()
 
-            if (!component.targetTranslation.isObsProject) {
+            val isStandardProject =
+                component.targetTranslation.projectTypeClass == ProjectTypeClass.STANDARD
+
+            if (isStandardProject && !component.targetTranslation.isObsProject) {
                 ExportOptionRow(
                     title = stringResource(Res.string.export_to_usfm),
                     tip = stringResource(Res.string.tip_export_to_usfm),
@@ -206,14 +210,16 @@ fun ExportDialog(
                 HorizontalDivider()
             }
 
-            ExportOptionRow(
-                title = stringResource(Res.string.export_to_pdf),
-                tip = stringResource(Res.string.tip_export_to_pdf),
-                icon = Icons.Default.SdCard,
-                onClick = { showPrintDialog = true }
-            )
+            if (isStandardProject) {
+                ExportOptionRow(
+                    title = stringResource(Res.string.export_to_pdf),
+                    tip = stringResource(Res.string.tip_export_to_pdf),
+                    icon = Icons.Default.SdCard,
+                    onClick = { showPrintDialog = true }
+                )
 
-            HorizontalDivider()
+                HorizontalDivider()
+            }
 
             ExportOptionRow(
                 title = stringResource(Res.string.backup_to_sd),

@@ -48,6 +48,7 @@ fun TranslateSidebar(
     sliderValue: Float = 0f,
     chapterLabel: String? = null,
     conflictFilterOn: Boolean = false,
+    showModeButtons: Boolean = true,
     actions: List<SidebarAction>
 ) {
     var showMenu by remember { mutableStateOf(false) }
@@ -63,25 +64,27 @@ fun TranslateSidebar(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            SidebarIconButton(
-                isSelected = currentViewMode == TranslationViewMode.READ,
-                icon = Icons.AutoMirrored.Filled.Subject,
-                contentDescription = "Read Mode",
-                onClick = onReadClick
-            )
-            SidebarIconButton(
-                isSelected = currentViewMode == TranslationViewMode.CHUNK,
-                icon = Icons.Default.ContentCopy,
-                contentDescription = "Chunk Mode",
-                onClick = onChunkClick
-            )
-            SidebarIconButton(
-                isSelected = currentViewMode == TranslationViewMode.REVIEW
-                        && !conflictFilterOn,
-                icon = Icons.Default.ViewWeek,
-                contentDescription = "Review Mode",
-                onClick = onReviewClick
-            )
+            if (showModeButtons) {
+                SidebarIconButton(
+                    isSelected = currentViewMode == TranslationViewMode.READ,
+                    icon = Icons.AutoMirrored.Filled.Subject,
+                    contentDescription = "Read Mode",
+                    onClick = onReadClick
+                )
+                SidebarIconButton(
+                    isSelected = currentViewMode == TranslationViewMode.CHUNK,
+                    icon = Icons.Default.ContentCopy,
+                    contentDescription = "Chunk Mode",
+                    onClick = onChunkClick
+                )
+                SidebarIconButton(
+                    isSelected = currentViewMode == TranslationViewMode.REVIEW
+                            && !conflictFilterOn,
+                    icon = Icons.Default.ViewWeek,
+                    contentDescription = "Review Mode",
+                    onClick = onReviewClick
+                )
+            }
             if (showMergeConflict) {
                 SidebarIconButton(
                     isSelected = conflictFilterOn,

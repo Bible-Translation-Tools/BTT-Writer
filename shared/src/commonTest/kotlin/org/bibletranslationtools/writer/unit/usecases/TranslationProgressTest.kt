@@ -12,6 +12,7 @@ import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.Language
 import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.usecases.TranslationProgress
@@ -34,6 +35,7 @@ class TranslationProgressTest {
         every { catalogClient.library } returns index
         every { targetTranslation.projectId }.returns("mrk")
         every { targetTranslation.id }.returns("aa_mrk_text_ulb")
+        every { targetTranslation.projectTypeClass }.returns(ProjectTypeClass.STANDARD)
 
         mockSourceTranslations()
     }

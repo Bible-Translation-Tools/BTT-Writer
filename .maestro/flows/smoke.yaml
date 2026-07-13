@@ -8,4 +8,5 @@ appId: org.bibletranslationtools.writer
 - runFlow: smoke-new-translation.yaml
 - runFlow: smoke-draft-chunk.yaml
 - runFlow: smoke-project-menu.yaml
+- runFlow: smoke-gl-mode.yaml
 - stopRecording

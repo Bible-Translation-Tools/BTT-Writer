@@ -11,12 +11,15 @@ import org.bibletranslationtools.resourcecatalog.library.models.CategoryEntry
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.writer.Platform
 import org.bibletranslationtools.writer.core.Profile
+import org.bibletranslationtools.writer.core.ResourceType
 import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.ui.newtranslation.DefaultNewTranslationComponent
 import org.bibletranslationtools.writer.ui.newtranslation.NewTranslationComponent
 import org.bibletranslationtools.writer.ui.newtranslation.ScreenStep
+import org.bibletranslationtools.writer.ui.newtranslation.TranslationTypeOption
 import org.bibletranslationtools.writer.unit.ui.BaseComponentTest
 import org.bibletranslationtools.writer.unit.ui.awaitState
 import org.bibletranslationtools.writer.usecases.MergeTargetTranslation
@@ -25,6 +28,7 @@ import org.junit.Test
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 
 class NewTranslationComponentTest : BaseComponentTest() {
 
@@ -86,6 +90,12 @@ class NewTranslationComponentTest : BaseComponentTest() {
         )
     }
 
+    private fun enableGlMode() {
+        every {
+            preference.getPref(Preference.KEY_PREF_GL_MODE, any(), Boolean::class)
+        } returns true
+    }
+
     @Test
     fun testInitializationLoadsLanguages() {
         runBlocking {
@@ -117,7 +127,35 @@ class NewTranslationComponentTest : BaseComponentTest() {
     }
 
     @Test
-    fun testOnProjectSelectedSuccess() {
+    fun testOnProjectSelectedShowsTypeStepInGlMode() {
+        runBlocking {
+            enableGlMode()
+            val component = createComponent()
+            component.state.awaitState { it.languages.isNotEmpty() }
+
+            component.onLanguageSelected(mockLangEn)
+
+            coEvery { translator.getTargetTranslations() } returns emptyList()
+
+            component.onProjectSelected("gen")
+            component.state.awaitState { it.screenStep == ScreenStep.TYPE }
+
+            val options = component.state.value.typeOptions
+            // gateway language mode offers only published resources, not reg
+            assertEquals(
+                listOf("ulb", "udb"),
+                options.filter { it.resourceType == ResourceType.TEXT }.map { it.resourceSlug }
+            )
+            // helps types are disabled until a text translation exists
+            assertEquals(
+                listOf(false, false),
+                options.filter { it.resourceType != ResourceType.TEXT }.map { it.enabled }
+            )
+        }
+    }
+
+    @Test
+    fun testOnProjectSelectedCreatesRegDirectlyWhenGlModeOff() {
         runBlocking {
             val component = createComponent()
             component.state.awaitState { it.languages.isNotEmpty() }
@@ -132,32 +170,160 @@ class NewTranslationComponentTest : BaseComponentTest() {
 
             component.onProjectSelected("gen")
 
-            // Wait for onResult
             delayYield()
 
+            // no type step; a reg text translation is created right away
+            assertEquals(ScreenStep.PROJECT, component.state.value.screenStep)
             assertEquals(NewTranslationComponent.Result.Success, resultReceived)
-            coVerify { translator.createTargetTranslation(any(), mockLangEn, "gen", any(), any(), any()) }
+            coVerify {
+                translator.createTargetTranslation(
+                    any(), mockLangEn, "gen", ResourceType.TEXT, "reg", TranslationFormat.USFM
+                )
+            }
         }
     }
 
     @Test
-    fun testOnProjectSelectedDuplicate() {
+    fun testHelpsTypesEnabledWhenTextTranslationExists() {
         runBlocking {
+            enableGlMode()
+            val component = createComponent()
+            component.state.awaitState { it.languages.isNotEmpty() }
+
+            component.onLanguageSelected(mockLangEn)
+
+            val existingText = mockk<TargetTranslation>(relaxed = true) {
+                every { id } returns "en_gen_text_reg"
+                every { projectId } returns "gen"
+                every { targetLanguageId } returns "en"
+                every { translationType } returns ResourceType.TEXT
+            }
+            coEvery { translator.getTargetTranslations() } returns listOf(existingText)
+
+            component.onProjectSelected("gen")
+            component.state.awaitState { it.screenStep == ScreenStep.TYPE }
+
+            val options = component.state.value.typeOptions
+            assertEquals(
+                listOf(true, true),
+                options.filter { it.resourceType != ResourceType.TEXT }.map { it.enabled }
+            )
+        }
+    }
+
+    @Test
+    fun testOnTypeSelectedSuccess() {
+        runBlocking {
+            enableGlMode()
             val component = createComponent()
             component.state.awaitState { it.languages.isNotEmpty() }
 
             component.onLanguageSelected(mockLangEn)
 
             val mockTarget = mockk<TargetTranslation>(relaxed = true) {
-                every { id } returns "en_gen_text_reg"
+                every { id } returns "en_gen_text_ulb"
             }
-            coEvery { translator.getTargetTranslation("en_gen_text_reg") } returns mockTarget
+            coEvery { translator.getTargetTranslations() } returns emptyList()
+            coEvery { translator.getTargetTranslation(any()) } returns null
+            coEvery { translator.createTargetTranslation(any(), any(), any(), any(), any(), any()) } returns mockTarget
 
             component.onProjectSelected("gen")
+            component.state.awaitState { it.screenStep == ScreenStep.TYPE }
+
+            component.onTypeSelected(
+                component.state.value.typeOptions.first { it.resourceSlug == "ulb" }
+            )
 
             delayYield()
 
-            assertEquals(NewTranslationComponent.Result.Duplicate("en_gen_text_reg"), resultReceived)
+            assertEquals(NewTranslationComponent.Result.Success, resultReceived)
+            coVerify {
+                translator.createTargetTranslation(
+                    any(), mockLangEn, "gen", ResourceType.TEXT, "ulb", TranslationFormat.USFM
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testOnTypeSelectedDuplicate() {
+        runBlocking {
+            enableGlMode()
+            val component = createComponent()
+            component.state.awaitState { it.languages.isNotEmpty() }
+
+            component.onLanguageSelected(mockLangEn)
+
+            val mockTarget = mockk<TargetTranslation>(relaxed = true) {
+                every { id } returns "en_gen_text_ulb"
+            }
+            coEvery { translator.getTargetTranslations() } returns emptyList()
+            coEvery { translator.getTargetTranslation("en_gen_text_ulb") } returns mockTarget
+
+            component.onProjectSelected("gen")
+            component.state.awaitState { it.screenStep == ScreenStep.TYPE }
+
+            component.onTypeSelected(
+                TranslationTypeOption(ResourceType.TEXT, "ulb", TranslationFormat.USFM, true)
+            )
+
+            delayYield()
+
+            assertEquals(NewTranslationComponent.Result.Duplicate("en_gen_text_ulb"), resultReceived)
+        }
+    }
+
+    @Test
+    fun testOnProjectSelectedTwCreatesDirectly() {
+        runBlocking {
+            enableGlMode()
+            val component = createComponent()
+            component.state.awaitState { it.languages.isNotEmpty() }
+
+            component.onLanguageSelected(mockLangEn)
+
+            val mockTarget = mockk<TargetTranslation>(relaxed = true) {
+                every { id } returns "en_bible_tw"
+            }
+            coEvery { translator.getTargetTranslation(any()) } returns null
+            coEvery { translator.createTargetTranslation(any(), any(), any(), any(), any(), any()) } returns mockTarget
+
+            component.onProjectSelected("bible")
+
+            delayYield()
+
+            assertEquals(NewTranslationComponent.Result.Success, resultReceived)
+            coVerify {
+                translator.createTargetTranslation(
+                    any(),
+                    mockLangEn,
+                    "bible",
+                    ResourceType.TRANSLATION_WORD,
+                    "",
+                    TranslationFormat.MARKDOWN
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testOnTypeBackReturnsToProjectStep() {
+        runBlocking {
+            enableGlMode()
+            val component = createComponent()
+            component.state.awaitState { it.languages.isNotEmpty() }
+
+            component.onLanguageSelected(mockLangEn)
+
+            coEvery { translator.getTargetTranslations() } returns emptyList()
+
+            component.onProjectSelected("gen")
+            component.state.awaitState { it.screenStep == ScreenStep.TYPE }
+
+            component.onTypeBack()
+
+            assertEquals(ScreenStep.PROJECT, component.state.value.screenStep)
+            assertEquals(emptyList(), component.state.value.typeOptions)
         }
     }
 
@@ -200,6 +366,6 @@ class NewTranslationComponentTest : BaseComponentTest() {
     }
 
     private suspend fun delayYield() {
-        delay(50)
+        delay(50.milliseconds)
     }
 }

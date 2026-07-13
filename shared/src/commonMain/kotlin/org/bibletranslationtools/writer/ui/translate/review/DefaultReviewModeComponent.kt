@@ -30,22 +30,28 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
+import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.core.Chunk
 import org.bibletranslationtools.writer.core.ComponentScope
 import org.bibletranslationtools.writer.core.ContainerCache
 import org.bibletranslationtools.writer.core.FileHistory
 import org.bibletranslationtools.writer.core.Frame
+import org.bibletranslationtools.writer.core.MergeConflictsHandler
 import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.ProjectTypeClass
+import org.bibletranslationtools.writer.core.ResourceType
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.TranslationViewMode
+import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
@@ -88,12 +94,15 @@ class DefaultReviewModeComponent(
 
     companion object {
         private const val TAG = "ReviewModeComponent"
+        private const val WORDS_CHAPTER = "01"
+        private val WORD_PATTERN: Pattern = Pattern.compile("#+([^\\n]+)\\n+([\\s\\S]*)")
     }
 
     private val preference: Preference by inject()
     private val renderHelps: RenderHelps by inject()
     private val renderingProvider: RenderingProvider by inject()
     private val catalogClient: ResourceCatalogClient by inject()
+    private val translator: Translator by inject()
 
     override val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -105,6 +114,31 @@ class DefaultReviewModeComponent(
 
     private val sourceContainer: ResourceContainer?
         get() = sharedState.value.resourceContainer
+
+    private val typeClass: ProjectTypeClass
+        get() = targetTranslation.projectTypeClass
+
+    // the user's own text translation of the same book, shown alongside the
+    // helps editor (ulb/obs preferred, then udb/reg)
+    private val bookTranslation: TargetTranslation? by lazy {
+        if (typeClass != ProjectTypeClass.HELPS) {
+            null
+        } else {
+            listOf(Resource.ULB_SLUG, Resource.OBS_SLUG, Resource.UDB_SLUG, Resource.REGULAR_SLUG)
+                .firstNotNullOfOrNull { slug ->
+                    runBlocking {
+                        translator.getTargetTranslation(
+                            TargetTranslation.generateTargetTranslationId(
+                                targetTranslation.targetLanguageId,
+                                targetTranslation.projectId,
+                                ResourceType.TEXT,
+                                slug
+                            )
+                        )
+                    }
+                }
+        }
+    }
 
     private val _items = MutableStateFlow<List<ReviewItem>>(emptyList())
     override val items: StateFlow<List<ReviewItem>> = _items
@@ -140,6 +174,36 @@ class DefaultReviewModeComponent(
         lifecycle.doOnDestroy {
             coroutineScope.cancel()
         }
+    }
+
+    override suspend fun loadChunks(
+        viewMode: TranslationViewMode,
+        sourceContainer: ResourceContainer?,
+        targetTranslation: TargetTranslation
+    ): List<Chunk> {
+        if (typeClass != ProjectTypeClass.EXTANT) {
+            return super<ModeComponent>.loadChunks(viewMode, sourceContainer, targetTranslation)
+        }
+        // tw projects translate every word of the source dictionary;
+        // words live under pseudo-chapter "01".
+        // Sort by word title, not slug — they differ (e.g. slug "falsegod" is titled "god")
+        return withContext(Dispatchers.IO) {
+            sourceContainer?.let { source ->
+                source.chapters()
+                    .map { wordSlug -> wordSlug to wordTitle(source, wordSlug) }
+                    .sortedBy { (_, title) -> title.lowercase() }
+                    .map { (wordSlug, _) ->
+                        Chunk(WORDS_CHAPTER, wordSlug, source, targetTranslation)
+                    }
+            } ?: emptyList()
+        }
+    }
+
+    private fun wordTitle(source: ResourceContainer, wordSlug: String): String {
+        val match = WORD_PATTERN.matcher(source.readChunk(wordSlug, "01"))
+        return if (match.find()) {
+            match.group(1)?.trim() ?: wordSlug
+        } else wordSlug
     }
 
     override suspend fun handleResourceChange(resourceContainer: ResourceContainer?) {
@@ -180,6 +244,28 @@ class DefaultReviewModeComponent(
         }
     }
 
+    override fun onHelpsChanged(item: ReviewItem, helps: List<TranslationHelp>) {
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                // a lone blank entry on a word project means "no content yet";
+                // saving an empty string deletes the frame file like desktop does
+                val effective = if (typeClass == ProjectTypeClass.EXTANT &&
+                    helps.all { it.title.isBlank() && it.body.isBlank() }
+                ) {
+                    emptyList()
+                } else helps
+
+                item.saveTranslation(TranslationHelp.toJson(effective))
+            }
+            updateItem(
+                item.copy(
+                    targetText = TranslationHelp.toJson(helps),
+                    helpsContent = helps
+                )
+            )
+        }
+    }
+
     override fun openResources(value: Boolean) {
         _state.update { it.copy(resourcesOpen = value) }
     }
@@ -207,15 +293,13 @@ class DefaultReviewModeComponent(
         coroutineScope.launch {
             val words = withContext(Dispatchers.IO) {
                 getResourceContainer(rcSlug)?.let { rc ->
-                    val chapters = rc.chapters()
-                    val words = chapters.sorted()
                     val titlePattern = Pattern.compile("#(.*)")
 
-                    words.map { slug ->
+                    rc.chapters().map { slug ->
                         val match = titlePattern.matcher(rc.readChunk(slug, "01"))
-                        val title = if (match.find()) match.group(1) else slug
+                        val title = if (match.find()) match.group(1).trim() else slug
                         IndexWord(slug, title)
-                    }
+                    }.sortedBy { it.title.lowercase() }
                 } ?: emptyList()
             }
 
@@ -509,6 +593,9 @@ class DefaultReviewModeComponent(
         targetMode: TargetMode = TargetMode.MARKER,
         loadHistory: Boolean = false
     ): ReviewItem {
+        if (typeClass != ProjectTypeClass.STANDARD) {
+            return prepareHelpsItem(chunk, targetMode)
+        }
         val chunkId = "${chunk.chapterSlug}-${chunk.chunkSlug}"
         val (pt, ct, ft) = prepareTranslations(chunk)
         val (sourceText, renderedSourceText) = prepareSource(
@@ -560,6 +647,76 @@ class DefaultReviewModeComponent(
         )
 
         return prepared
+    }
+
+    private fun prepareHelpsItem(chunk: Chunk, targetMode: TargetMode): ReviewItem {
+        val chunkId = "${chunk.chapterSlug}-${chunk.chunkSlug}"
+        val (pt, ct, ft) = prepareTranslations(chunk)
+        val isWords = typeClass == ProjectTypeClass.EXTANT
+
+        var customTitle: String? = null
+        val sourceText: String
+        val renderedSourceText: AnnotatedString
+        if (isWords) {
+            // word entries live at <wordSlug>/01 in the source dictionary
+            val raw = chunk.source.readChunk(chunk.chunkSlug, "01")
+            var body = raw
+            val match = WORD_PATTERN.matcher(raw)
+            if (match.find()) {
+                customTitle = match.group(1)?.trim()
+                body = match.group(2) ?: ""
+            }
+            customTitle = customTitle ?: chunk.chunkSlug
+            sourceText = raw
+            renderedSourceText = renderHelpContents(body)
+        } else {
+            sourceText = chunk.source.readChunk(chunk.chapterSlug, chunk.chunkSlug)
+            renderedSourceText = renderSourceText(
+                chunkId, chunk.sourceTranslationFormat, sourceText
+            )
+        }
+
+        val targetText = fetchTargetText(chunk.target, chunk.chapterSlug, chunk.chunkSlug)
+        // conflicted text is not valid JSON; the merge conflict card is
+        // shown instead of the editor, so skip parsing entirely
+        val helps = if (MergeConflictsHandler.isMergeConflicted(targetText)) {
+            emptyList()
+        } else {
+            TranslationHelp.fromJson(targetText).let { parsed ->
+                if (isWords && parsed.isEmpty()) listOf(TranslationHelp("", "")) else parsed
+            }
+        }
+        val bookText = bookTranslation?.let {
+            fetchTargetText(it, chunk.chapterSlug, chunk.chunkSlug)
+        } ?: ""
+        // render like complete mode so raw verse markers become verse numbers
+        val renderedBookText = bookTranslation?.let {
+            renderTargetText(
+                chunkId = chunkId,
+                translationFormat = it.format,
+                targetText = bookText,
+                verseDisplay = VerseDisplay.NUMBER,
+                footnoteAction = FootnoteAction.VIEW
+            )
+        } ?: AnnotatedString("")
+
+        val item = ReviewItem(
+            id = chunkId,
+            chunk = chunk,
+            sourceText = sourceText,
+            targetText = targetText,
+            renderedSourceText = renderedSourceText,
+            renderedTargetText = AnnotatedString(targetText),
+            pt = pt,
+            ct = ct,
+            ft = ft,
+            targetMode = targetMode,
+            helpsContent = helps,
+            bookTranslationText = bookText,
+            renderedBookTranslationText = renderedBookText,
+            customSourceTitle = customTitle
+        )
+        return if (item.isComplete) item.copy(targetMode = TargetMode.COMPLETE) else item
     }
 
     private fun prepareSource(
@@ -865,6 +1022,11 @@ class DefaultReviewModeComponent(
     }
 
     private suspend fun markChunkCompleted(item: ReviewItem) {
+        if (typeClass != ProjectTypeClass.STANDARD) {
+            markHelpsChunkCompleted(item)
+            return
+        }
+
         // Check for empty translation.
         if (item.targetText.isEmpty()) {
             throw IllegalStateException(getString(Res.string.translate_first))
@@ -966,6 +1128,24 @@ class DefaultReviewModeComponent(
         val success = item.chunk.close()
 
         if (!success) {
+            throw IllegalStateException(getString(Res.string.failed_to_commit_chunk))
+        }
+    }
+
+    private suspend fun markHelpsChunkCompleted(item: ReviewItem) {
+        val helps = item.helpsContent
+        // words need content; notes/questions may legitimately have none for
+        // a chunk, but no entry may be half-filled
+        val invalid = when (typeClass) {
+            ProjectTypeClass.EXTANT ->
+                helps.isEmpty() || helps.any { it.title.isBlank() || it.body.isBlank() }
+            else -> helps.any { it.title.isBlank() || it.body.isBlank() }
+        }
+        if (invalid) {
+            throw IllegalStateException(getString(Res.string.translate_first))
+        }
+
+        if (!item.chunk.close()) {
             throw IllegalStateException(getString(Res.string.failed_to_commit_chunk))
         }
     }

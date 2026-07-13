@@ -5,6 +5,7 @@ import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.writer.core.Progress
 import org.bibletranslationtools.writer.ui.newtranslation.MergeConflict
 import org.bibletranslationtools.writer.ui.newtranslation.NewTranslationComponent
+import org.bibletranslationtools.writer.ui.newtranslation.TranslationTypeOption
 
 class FakeNewTranslationComponent : NewTranslationComponent {
     override val state = MutableStateFlow(NewTranslationComponent.State())
@@ -14,6 +15,8 @@ class FakeNewTranslationComponent : NewTranslationComponent {
     var onProjectSelectedCalledWith: String? = null
     var onCategorySelectedCalledWith: Long? = null
     var onCategoryBackCalled = false
+    var onTypeSelectedCalledWith: TranslationTypeOption? = null
+    var onTypeBackCalled = false
     var onSearchCalledWith: String? = null
     var mergeTranslationCalledWith: MergeConflict? = null
     var clearMergeConflictCalled = false
@@ -33,6 +36,14 @@ class FakeNewTranslationComponent : NewTranslationComponent {
 
     override fun onCategoryBack() {
         onCategoryBackCalled = true
+    }
+
+    override fun onTypeSelected(option: TranslationTypeOption) {
+        onTypeSelectedCalledWith = option
+    }
+
+    override fun onTypeBack() {
+        onTypeBackCalled = true
     }
 
     override fun onSearch(query: String) {

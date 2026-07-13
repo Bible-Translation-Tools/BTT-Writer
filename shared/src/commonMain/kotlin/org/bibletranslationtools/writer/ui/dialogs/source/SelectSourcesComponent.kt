@@ -29,6 +29,7 @@ import org.bibletranslationtools.writer.core.ContainerCache
 import org.bibletranslationtools.writer.core.Progress
 import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.Translator
@@ -221,11 +222,17 @@ class DefaultSelectSourcesComponent(
                     }
                 }
 
+                // word projects translate from a dictionary container;
+                // everything else uses book sources
+                val sourceType = when (targetTranslation.projectTypeClass) {
+                    ProjectTypeClass.EXTANT -> "dict"
+                    else -> "book"
+                }
                 val availableTranslations = catalogClient.library.findTranslations(
                     null,
                     targetTranslation.projectId,
                     null,
-                    "book",
+                    sourceType,
                     null,
                     Platform.MIN_CHECKING_LEVEL,
                     -1

@@ -91,6 +91,9 @@ class TargetTranslation private constructor(
             resourceSlug
         )
 
+    val projectTypeClass: ProjectTypeClass
+        get() = ProjectTypeClass.of(translationType)
+
     val targetLanguage: TargetLanguage
         get() = TargetLanguage(
             slug = targetLanguageId,
@@ -424,20 +427,10 @@ class TargetTranslation private constructor(
     }
 
     @Throws(Exception::class)
-    fun commit() {
-        commit(".", null)
-    }
-
-    @Throws(Exception::class)
-    fun commit(listener: OnCommitListener?) {
-        commit(".", listener)
-    }
-
-    @Throws(Exception::class)
-    private fun commit(filePattern: String, listener: OnCommitListener?) {
+    fun commit(listener: OnCommitListener? = null) {
         thread {
             try {
-                val result = commitSync(filePattern)
+                val result = commitSync(".")
                 listener?.onCommit(result)
             } catch (_: Exception) {
                 listener?.onCommit(false)
@@ -507,7 +500,28 @@ class TargetTranslation private constructor(
         val mergedManifest = mergeManifests(importedManifest)
         manifestAccessor.save(mergedManifest)
 
-        return result.mergeStatus != MergeResult.MergeStatus.CONFLICTING
+        // the license is app-provided and must never merge; keep our version
+        try {
+            git.checkout()
+                .setStartPoint("backup-master")
+                .addPath(LICENSE_FILE)
+                .call()
+        } catch (e: Exception) {
+            Logger.w(TAG, "Could not restore $LICENSE_FILE after merge", e)
+        }
+
+        if (result.mergeStatus != MergeResult.MergeStatus.CONFLICTING) return true
+
+        // manifest and license conflicts are resolved above; only content
+        // conflicts should surface to the user
+        val unresolved = result.conflicts?.keys?.filter {
+            it != Manifest.MANIFEST_FILE && it != LICENSE_FILE
+        } ?: emptyList()
+        return if (unresolved.isEmpty()) {
+            // everything was auto-resolved; finalize the merge
+            commitSync()
+            true
+        } else false
     }
 
     fun changeTargetLanguage(targetLanguage: TargetLanguage) {

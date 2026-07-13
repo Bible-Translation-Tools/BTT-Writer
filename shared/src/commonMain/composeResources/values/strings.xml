@@ -60,7 +60,7 @@
     <string name="upload_wizard_overview">Upload Review</string>
     <string name="label_project_details">Project details</string>
     <!-- Indicates how the project is being translated. e.g. Open Bible Stories is being translated from the English language into the Deutsch language -->
-    <string name="project_details"><xliff:g example="Open Bible Stories" id="project">\"%1$s\"</xliff:g> is being translated from the <xliff:g example="English" id="source_language">\"%2$s\"</xliff:g> language into the <xliff:g example="Deutsch" id="target_language">\"%3$s\"</xliff:g> language.</string>
+    <string name="project_details"><xliff:g example="Open Bible Stories" id="project">"%1$s"</xliff:g> is being translated from the <xliff:g example="English" id="source_language">"%2$s"</xliff:g> language into the <xliff:g example="Deutsch" id="target_language">"%3$s"</xliff:g> language.</string>
     <string name="click_for_details">Click for details</string>
     <string name="title_project_settings">Project Languages</string>
     <string name="error_target_and_source_are_same">Source and target languages must not match</string>
@@ -94,11 +94,11 @@
     <string name="git_non_existing" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref didn't exist.</string>
     <string name="git_not_attempted" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Push process hasn't yet attempted to update this ref.</string>
     <string name="git_ok" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Success push to remote ref.</string>
-    <string name="git_rejected_nondelete" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because remote side doesn\'t support/allow deleting refs.</string>
+    <string name="git_rejected_nondelete" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because remote side doesn't support/allow deleting refs.</string>
     <string name="git_rejected_nonfastforward" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, as it would cause non fast-forward update.</string>
     <string name="git_rejected_other_reason" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected.</string>
     <string name="git_rejected_other_reason_detailed" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected, because <xliff:g example="error message" id="error">%2$s.</xliff:g></string>
-    <string name="git_rejected_remote_changed" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected,  because old object id on remote repository wasn\'t the same as defined expected old object.</string>
+    <string name="git_rejected_remote_changed" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] Remote ref update was rejected,  because old object id on remote repository wasn't the same as defined expected old object.</string>
     <string name="git_uptodate" translatable="false">[<xliff:g example="refs/heads/master" id="remote">%1$s</xliff:g>] remote ref is up to date</string>
     <string name="git_server_details" translatable="false">Server: <xliff:g example="gitolite3@ts.door43.org:tS/46983314849sd54s6d/uw-obs-de" id="server">%1$s</xliff:g></string>
     <string name="content_server">Content Server</string>
@@ -135,6 +135,22 @@
     <string name="translation_check_notice">We will now perform a few checks to ensure your translation is ready.</string>
     <string name="preparing_upload">Preparing upload</string>
     <string name="choose_a_project">Please open a project</string>
+    <string name="choose_type">Choose a type</string>
+    <string name="text_type">Text</string>
+    <string name="reg_type">Regular</string>
+    <string name="ulb_type">Unlocked Literal Bible</string>
+    <string name="udb_type">Unlocked Dynamic Bible</string>
+    <string name="obs_type">Open Bible Stories</string>
+    <string name="tn_type">Notes</string>
+    <string name="tq_type">Questions</string>
+    <string name="tw_type">Words</string>
+    <string name="click_to_add_resource">Click to add %1$s</string>
+    <string name="add_question_here">Add Question Here</string>
+    <string name="add_answer_here">Add Answer Here</string>
+    <string name="reference_text">Reference Text</string>
+    <string name="note_text">Note Text</string>
+    <string name="translate_word_here">Translate word here</string>
+    <string name="translate_definition_here">Translate definition here</string>
     <string name="choose_a_chapter">Please open a chapter</string>
     <string name="title_activity_crash_reporter">Error Report</string>
     <string name="title_activity_bug_reporter">Bug Report</string>
@@ -303,6 +319,7 @@
 
     <string name="duplicate_target_translation">You are already translating <xliff:g example="Genesis" id="project">%1$s</xliff:g> into <xliff:g example="English" id="target_language">%2$s</xliff:g></string>
     <string name="Project">Project</string>
+    <string name="type_label">Resource Type</string>
     <string name="language">Language</string>
     <string name="progress">Progress</string>
     <string name="choose_first_source_translation">Choose source translation(s) to begin reading and translating</string>
@@ -569,17 +586,17 @@ Attribution of artwork: All images used in these stories are © Sweet Publishing
 <![CDATA[
 Do you want to enable SD card access?  If so then:
 \n
-\n\u00A0\u00A0 1. Tap \'Confirm\' at bottom of this message. This message will close and a new window will open.
+\n\u00A0\u00A0 1. Tap "Confirm" at bottom of this message. This message will close and a new window will open.
 \n
-\n\u00A0\u00A0 2. If you do not see the \'SD card\' icon in the left column then tap on the 3-dot icon at the top right of the window, then tap on \'Show SD card.\'
+\n\u00A0\u00A0 2. If you do not see the "SD card" icon in the left column then tap on the 3-dot icon at the top right of the window, then tap on "Show SD card."
 \n
-\n\u00A0\u00A0 3. If the \'SD card\' icon is in the left column then tap on the icon. The files on the SD card are then shown.  Tap on the words \'SELECT \"SD card\"\' at the bottom of the window.
+\n\u00A0\u00A0 3. If the "SD card" icon is in the left column then tap on the icon. The files on the SD card are then shown.  Tap on the words "SELECT SD card" at the bottom of the window.
 \n
 \nIf you tap on SKIP below, then Import/Export will use internal memory.
 ]]>
     </string>
     <string name="access_title">Access Attempt</string>
-    <string name="access_failed">Failed on access request to:\n\'%1$s\'\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the \'SD card\' icon on the left, and then that the button you pressed on the bottom said \'SELECT \"SD card\"\'.</string>
+    <string name="access_failed">Failed on access request to:\n"%1$s"\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the "SD card" icon on the left, and then that the button you pressed on the bottom said "SELECT SD card".</string>
     <string name="access_granted_sd_card">Success! Access Allowed.\n\nAfter tapping OK, choose the folder and then the file name for your import/export.</string>
     <string name="access_skipped">Access Request Cancelled</string>
     <string name="label_skip">Skip</string>
@@ -631,7 +648,7 @@ Do you want to enable SD card access?  If so then:
     <string name="answers_missing_continue">Answers are missing for questions.\nContinue anyway?</string>
     <string name="previous">Previous</string>
     <string name="title_activity_new_language">New Language Request</string>
-    <string name="new_language_confirmation">Your new language code is \"<xliff:g example="zz-zzz" id="temp_language_code">%1$s</xliff:g>\" for \"<xliff:g example="Greek" id="language_name">%2$s</xliff:g>\".</string>
+    <string name="new_language_confirmation">Your new language code is "<xliff:g example="zz-zzz" id="temp_language_code">%1$s</xliff:g>" for "<xliff:g example="Greek" id="language_name">%2$s</xliff:g>".</string>
     <string name="error_importing_unsupported_target_translation">The  translation of <xliff:g example="Open Bible Stories" id="project_name">%1$s</xliff:g> into <xliff:g example="Afaraf" id="language_name">%2$s</xliff:g> was created by a different version of <xliff:g example="BTT Writer or translationStudio" id="app_name">%3$s</xliff:g> and cannot be opened. Please update your app and try again.</string>
     <string name="version">Version</string>
     <string name="username">login name</string>
@@ -671,7 +688,7 @@ Do you want to enable SD card access?  If so then:
     <string name="label_import_usfm">Import USFM</string>
     <string name="import_usfm_success">USFM file Import Success</string>
     <string name="import_usfm_failed">USFM file Import Failed</string>
-    <string name="title_import_usfm_error_book">Error Importing USFM book \'%1$s\'</string>
+    <string name="title_import_usfm_error_book">Error Importing USFM book "%1$s"</string>
     <string name="title_import_usfm_error">Error Importing USFM</string>
     <string name="title_processing_usfm_summary">USFM Processing Summary</string>
     <string name="title_import_usfm_results">USFM Import Results</string>
@@ -679,7 +696,7 @@ Do you want to enable SD card access?  If so then:
     <string name="file_read_error">Error reading File</string>
     <string name="file_write_error">Error writing File</string>
     <string name="file_write_for_verse">Error writing verse %1$s</string>
-    <string name="file_read_error_detail">Error reading File \'%1$s\'</string>
+    <string name="file_read_error_detail">Error reading File "%1$s"</string>
     <string name="missing_book_short_name">Missing book short name (\\id or \\toc3)</string>
     <string name="missing_book_name">Missing book name (\\toc1)</string>
     <string name="missing_language">Missing language</string>
@@ -695,7 +712,7 @@ Do you want to enable SD card access?  If so then:
     <string name="could_not_parse_chapter">Could not parse chapter: %1$s</string>
     <string name="missing_chapter_n">Missing chapter %1$s - will try to recover</string>
     <string name="duplicate_chapter">Duplicate chapter: %1$s</string>
-    <string name="chapter_out_of_order">Chapter out of order: \'<xliff:g example="4" id="found">%1$s</xliff:g>\' after \'<xliff:g example="2" id="previous">%1$s</xliff:g>\'</string>
+    <string name="chapter_out_of_order">Chapter out of order: "<xliff:g example="4" id="found">%1$s</xliff:g>" after "<xliff:g example="2" id="previous">%1$s</xliff:g>"</string>
     <string name="missing_verses_in_section">No Verses in Section</string>
     <string name="error_prefix">Error: %1$s</string>
     <string name="no_error">No errors found</string>
@@ -710,10 +727,10 @@ Do you want to enable SD card access?  If so then:
     <string name="reading_usfm">Reading USFM</string>
     <string name="importing_usfm">Importing USFM</string>
     <string name="import_usfm_file">Import USFM File</string>
-    <string name="invalid_book_name_prompt">\'<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>\'\nhas invalid book name: \'<xliff:g example="marc" id="book_name">%2$s</xliff:g>\'\nDo you wish to select a book name?</string>
-    <string name="missing_book_name_prompt">\'<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>\'\nis missing book name\nDo you wish to select a book name?</string>
-    <string name="could_not_parse">Could not parse \'<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>\'</string>
-    <string name="no_chunk_list">No chunk list found for \'<xliff:g example="marc" id="book_name">%1$s</xliff:g>\'</string>
+    <string name="invalid_book_name_prompt">"<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>"\nhas invalid book name: "<xliff:g example="marc" id="book_name">%2$s</xliff:g>"\nDo you wish to select a book name?</string>
+    <string name="missing_book_name_prompt">"<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>"\nis missing book name\nDo you wish to select a book name?</string>
+    <string name="could_not_parse">Could not parse "<xliff:g example="Mark.usfm" id="file_name">%1$s</xliff:g>"</string>
+    <string name="no_chunk_list">No chunk list found for "<xliff:g example="marc" id="book_name">%1$s</xliff:g>"</string>
     <string name="chapter_count_invalid">Expected <xliff:g example="16" id="chunk_count">%1$s</xliff:g> chapters, but last chapter was <xliff:g example="15" id="chapter_count">%2$s</xliff:g></string>
     <string name="no_chapter">No chapter found</string>
     <string name="label_restore">Restore</string>
@@ -770,7 +787,7 @@ Do you want to enable SD card access?  If so then:
     <string name="read_on_web">Read on Web</string>
     <string name="change_detected">Project Change Detected</string>
     <string name="upload_push_failure">There are changes to this translation on your server account. You must import those changes before uploading.</string>
-    <string name="merge_request">There are changes to your translation of \'<xliff:g example="Hebrews" id="book">%1$s</xliff:g>\' in \'<xliff:g example="English" id="language">%2$s</xliff:g>\' on your server account. Would you like to import those changes now?</string>
+    <string name="merge_request">There are changes to your translation of "<xliff:g example="Hebrews" id="book">%1$s</xliff:g>" in "<xliff:g example="English" id="language">%2$s</xliff:g>" on your server account. Would you like to import those changes now?</string>
     <string name="import_failed_title">Import failed</string>
     <string name="push_rejected">Upload failed because of changes on Server. Do you want to review conflicts?</string>
     <string name="backup_rejected">Backup failed because of changes on Server. Do you want to review conflicts?</string>
@@ -796,7 +813,7 @@ Do you want to enable SD card access?  If so then:
     <string name="tip_backup_to_sd">Creates a copy of your project file</string>
     <string name="draft_translation">Draft Level <xliff:g example="3" id="checking_level">%1$d</xliff:g>: <xliff:g example="Pig Latin" id="language">%2$s</xliff:g></string>
     <string name="title_download_source_language">Download from Online</string>
-    <string name="download_source_language">Download \'<xliff:g example="Pig Latin" id="language">%1$s</xliff:g>\' now? This requires an Internet Connection?</string>
+    <string name="download_source_language">Download "<xliff:g example="Pig Latin" id="language">%1$s</xliff:g>" now? This requires an Internet Connection?</string>
     <string name="downloading_source">Downloading source <xliff:g example="en" id="source_language">%1$s</xliff:g></string>
     <string name="title_export_usfm">Export to USFM</string>
     <string name="export_usfm_by_chapter">Do you want the USFM output separated into chapters or do you want the whole book as a single file?</string>
@@ -805,7 +822,7 @@ Do you want to enable SD card access?  If so then:
     <string name="export_to_usfm">Export to USFM file</string>
     <string name="export_failed">Export failed!</string>
     <string name="export_success">Export successful!\n\nExported file is at:\n<xliff:g example="/sd_card/downloads" id="file_path">%1$s</xliff:g></string>
-    <string name="update_source_language">Do you want to update \'<xliff:g example="Pig Latin" id="language">%1$s</xliff:g>\' from Online (requires internet)?</string>
+    <string name="update_source_language">Do you want to update "<xliff:g example="Pig Latin" id="language">%1$s</xliff:g>" from Online (requires internet)?</string>
     <string name="conflict_exists">CONFLICT EXISTS!</string>
     <string name="resolve_confict_instructions">Conflict: Click on the version to keep</string>
     <string name="merge_conflict_title">Project Already Exists</string>
@@ -897,7 +914,7 @@ Do you want to enable SD card access?  If so then:
     <string name="project_output_filename_title_prompt">Enter Project output file name:</string>
     <string name="translation_questions">Questions</string>
     <string name="unsupported">Unsupported</string>
-    <string name="import_warning">The project \'<xliff:g example="MysteryProject" id="project_name">%1$s</xliff:g>\' may not be supported in this app.  Currently, BTT Writer only supports Scripture and Open Bible Stories projects. If this is not one of those types of projects it will not be imported into BTT Writer.\n\nDo you want to try to import it anyway?</string>
+    <string name="import_warning">The project "<xliff:g example="MysteryProject" id="project_name">%1$s</xliff:g>" may not be supported in this app.  Currently, BTT Writer only supports Scripture and Open Bible Stories projects. If this is not one of those types of projects it will not be imported into BTT Writer.\n\nDo you want to try to import it anyway?</string>
     <string name="overwrite_file_title">Overwrite File?</string>
     <string name="overwrite_file_warning">The same filename already exists.  Do you want to overwrite\n\<xliff:g example="project.usfm" id="project_name">%1$s</xliff:g>?\n\nSize: <xliff:g example="3.5 KB" id="size">%2$s</xliff:g>\t\nModified: <xliff:g example="2/23/2017" id="date">%3$s</xliff:g></string>
     <string name="overwrite_label">Overwrite</string>
@@ -908,19 +925,23 @@ Do you want to enable SD card access?  If so then:
     <string name="has_warnings">'<xliff:g example="Chapter 1" id="title">%1$s</xliff:g>' has warnings:</string>
     <string name="title">Title</string>
     <string name="reference">Reference</string>
+    <string name="project_title">Project Title</string>
+    <string name="project_chapter_title"><xliff:g example="Genesis" id="book">%1$s</xliff:g> <xliff:g example="1" id="chapter">%2$s</xliff:g> Title</string>
     <string name="title_footnote">Footnote</string>
-    <string name="access_not_root">Failed to enable access to SD card base.\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the \'SD card\' icon on the left, and then that the button you pressed on the bottom said \'SELECT \"SD card\"\'.</string>
+    <string name="access_not_root">Failed to enable access to SD card base.\nYou may have selected a folder other than the SD CARD base.\nMake sure you pressed the "SD card" icon on the left, and then that the button you pressed on the bottom said "SELECT SD card".</string>
     <string name="merge_summary">The projects have been merged. There are (<xliff:g example="37" id="count">%1$d</xliff:g>) chunks that contain new conflicts that need your attention.</string>
     <string name="merge_complete_title">Merge Complete</string>
     <string name="access_success_title">Enable SD Card Access</string>
     <string name="interrupting_download">Trying to interrupt download</string>
     <string name="slow_device">Slow Device</string>
     <string name="min_hardware_req_not_met">This device does not meet the minimum hardware requirements and may function poorly. You may also experience problems on some phones and other very small devices.</string>
-    <string name="do_not_show_again">Don\'t show again</string>
+    <string name="do_not_show_again">Don't show again</string>
     <string name="pref_title_check_hardware_requirements">Check Hardware Requirements</string>
     <string name="pref_title_enable_tm_links">Enable TM Links</string>
     <string name="pref_description_check_hardware_requirements">Check for suggested hardware when starting the app</string>
     <string name="pref_description_enable_tm_links">Open Translation Manual links in browser (requires internet)</string>
+    <string name="pref_title_gl_mode">Gateway Language Mode</string>
+    <string name="pref_description_gl_mode">Display additional translation options for gateway languages</string>
     <string name="import_project_already_exists">This project (<xliff:g example="en_ulb_reg" id="translation">%1$s</xliff:g>) already exists locally. How would you like to proceed?</string>
     <string name="searching_repositories">Searching repositories</string>
     <string name="failed_search_repositories">Failed to find repositories. Check the logs for more details</string>

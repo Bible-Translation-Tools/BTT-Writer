@@ -9,12 +9,15 @@ import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.core.Frame
 import org.bibletranslationtools.writer.core.MergeConflictsHandler
+import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TranslationFormat
+import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Validation
 import org.bibletranslationtools.writer.utils.StringUtilities
 import org.bibletranslationtools.writer.utils.sortedNumerically
 import org.jetbrains.compose.resources.getString
+import java.util.regex.Pattern
 
 class ValidateProject(
     private val catalogClient: ResourceCatalogClient,
@@ -54,7 +57,13 @@ class ValidateProject(
             val sourceLanguage = catalogClient.library.getSourceLanguage(
                 container.language.slug
             ) ?: return validations
-            val chapters = container.chapters().sortedNumerically()
+            val isExtant = targetTranslation.projectTypeClass == ProjectTypeClass.EXTANT
+            val isHelps = targetTranslation.projectTypeClass == ProjectTypeClass.HELPS
+            val chapters = if (isExtant) {
+                container.chapters().sortedBy { wordTitle(container, it).lowercase() }
+            } else {
+                container.chapters().sortedNumerically()
+            }
 
             // validate chapters
             var lastValidChapterIndex = -1
@@ -84,7 +93,11 @@ class ValidateProject(
                                 getString(Res.string.title)
                             ),
                             titleLanguage = sourceLanguage,
-                            body = chapterTranslation.title,
+                            body = if (isHelps) {
+                                firstHelpTitle(chapterTranslation.title)
+                            } else {
+                                chapterTranslation.title
+                            },
                             bodyLanguage = targetLanguage,
                             bodyFormat = TranslationFormat.DEFAULT,
                             targetTranslationId = targetTranslationId,
@@ -108,7 +121,11 @@ class ValidateProject(
                                 getString(Res.string.reference)
                             ),
                             titleLanguage = sourceLanguage,
-                            body = chapterTranslation.reference,
+                            body = if (isHelps) {
+                                firstHelpTitle(chapterTranslation.reference)
+                            } else {
+                                chapterTranslation.reference
+                            },
                             bodyLanguage = targetLanguage,
                             bodyFormat = TranslationFormat.DEFAULT,
                             targetTranslationId = targetTranslationId,
@@ -125,13 +142,20 @@ class ValidateProject(
                         continue
                     }
 
-                    val frameTranslation = targetTranslation.getFrameTranslation(
-                        chapterSlug,
-                        chunkSlug,
-                        TranslationFormat.DEFAULT
-                    )
+                    val frameTranslation = if (isExtant) {
+                        targetTranslation.getFrameTranslation(
+                            WORDS_CHAPTER,
+                            chapterSlug,
+                            TranslationFormat.DEFAULT
+                        )
+                    } else {
+                        targetTranslation.getFrameTranslation(
+                            chapterSlug,
+                            chunkSlug,
+                            TranslationFormat.DEFAULT
+                        )
+                    }
                     val chunkText = container.readChunk(chapterSlug, chunkSlug)
-                    // TODO: also validate the checking questions
                     val finishedOrEmpty = frameTranslation.finished || chunkText.isEmpty()
                     val mergeConflicted = MergeConflictsHandler.isMergeConflicted(
                         frameTranslation.body
@@ -215,32 +239,44 @@ class ValidateProject(
                         // add invalid frame
                         if (!finishedOrEmpty) {
                             chapterIsValid = false
-                            val formattedChapter = StringUtilities.formatNumber(chapterSlug)
-                            var frameTitle = "$projectTitle $formattedChapter"
-                            val frameStartVerse = Frame.getStartVerse(
-                                chunkText,
-                                sourceFormat
-                            )
-                            val frameEndVerse = Frame.getEndVerse(
-                                chunkText,
-                                sourceFormat
-                            )
-                            frameTitle += ":$frameStartVerse"
+                            val frameTitle: String
+                            if (isExtant) {
+                                frameTitle = wordTitle(container, chapterSlug)
+                            } else {
+                                val formattedChapter = StringUtilities.formatNumber(chapterSlug)
+                                var title = "$projectTitle $formattedChapter"
+                                val frameStartVerse = Frame.getStartVerse(
+                                    chunkText,
+                                    sourceFormat
+                                )
+                                val frameEndVerse = Frame.getEndVerse(
+                                    chunkText,
+                                    sourceFormat
+                                )
+                                title += ":$frameStartVerse"
 
-                            if (frameStartVerse != frameEndVerse) {
-                                frameTitle += "-$frameEndVerse"
+                                if (frameStartVerse != frameEndVerse) {
+                                    title += "-$frameEndVerse"
+                                }
+                                frameTitle = title
+                            }
+
+                            val frameBody = if (isExtant || isHelps) {
+                                firstHelpTitle(frameTranslation.body)
+                            } else {
+                                frameTranslation.body
                             }
 
                             frameValidations.add(
                                 Validation.InvalidFrame(
                                     title = frameTitle,
                                     titleLanguage = sourceLanguage,
-                                    body = frameTranslation.body,
+                                    body = frameBody,
                                     bodyLanguage = targetLanguage,
                                     bodyFormat = frameTranslation.format,
                                     targetTranslationId = targetTranslationId,
-                                    chapterId = chapterSlug,
-                                    frameId = chunkSlug
+                                    chapterId = if (isExtant) WORDS_CHAPTER else chapterSlug,
+                                    frameId = if (isExtant) chapterSlug else chunkSlug
                                 )
                             )
                         }
@@ -260,12 +296,16 @@ class ValidateProject(
                             // range
                             val previousChapterSlug = chapters[previousChapterIndex]
                             val lastValidChapterSlug = chapters[lastValidChapterIndex]
-                            val lastChapter = StringUtilities.formatNumber(
-                                lastValidChapterSlug
-                            )
-                            val prevChapter = StringUtilities.formatNumber(
-                                previousChapterSlug
-                            )
+                            val lastChapter = if (isExtant) {
+                                wordTitle(container, lastValidChapterSlug)
+                            } else {
+                                StringUtilities.formatNumber(lastValidChapterSlug)
+                            }
+                            val prevChapter = if (isExtant) {
+                                wordTitle(container, previousChapterSlug)
+                            } else {
+                                StringUtilities.formatNumber(previousChapterSlug)
+                            }
                             val chapterTitle = "$projectTitle $lastChapter-$prevChapter"
 
                             chapterValidations.add(
@@ -277,7 +317,11 @@ class ValidateProject(
                             )
                         } else {
                             val lastValidChapter = chapters[lastValidChapterIndex]
-                            val lastChapter = StringUtilities.formatNumber(lastValidChapter)
+                            val lastChapter = if (isExtant) {
+                                wordTitle(container, lastValidChapter)
+                            } else {
+                                StringUtilities.formatNumber(lastValidChapter)
+                            }
                             val chapterTitle = "$projectTitle $lastChapter"
 
                             chapterValidations.add(
@@ -294,7 +338,11 @@ class ValidateProject(
                     // add invalid chapter
                     if (!chapterIsValid) {
                         var chapterTitle: String
-                        chapterTitle = container.readChunk(chapterSlug, "title")
+                        chapterTitle = if (isExtant) {
+                            wordTitle(container, chapterSlug)
+                        } else {
+                            container.readChunk(chapterSlug, "title")
+                        }
                         if (chapterTitle.isEmpty()) {
                             val formattedChapter = StringUtilities.formatNumber(chapterSlug)
                             chapterTitle = "$projectTitle $formattedChapter"
@@ -334,6 +382,19 @@ class ValidateProject(
         return validations
     }
 
+    private fun firstHelpTitle(body: String): String {
+        // conflicted text is not valid JSON; keep it raw so the warning stays visible
+        if (MergeConflictsHandler.isMergeConflicted(body)) return body
+        return TranslationHelp.fromJson(body).firstOrNull()?.title ?: ""
+    }
+
+    private fun wordTitle(container: ResourceContainer, wordSlug: String): String {
+        val match = WORD_PATTERN.matcher(container.readChunk(wordSlug, "01"))
+        return if (match.find()) {
+            match.group(1)?.trim() ?: wordSlug
+        } else wordSlug
+    }
+
     /**
      * get the text from the source for title and add the chunk type as a tip
      * @param container
@@ -349,5 +410,10 @@ class ValidateProject(
     ): String {
         val title = container.readChunk(chapterSlug, chunkSlug)
         return title.trim() + " - " + type
+    }
+
+    companion object {
+        private const val WORDS_CHAPTER = "01"
+        private val WORD_PATTERN: Pattern = Pattern.compile("#+([^\\n]+)\\n+([\\s\\S]*)")
     }
 }

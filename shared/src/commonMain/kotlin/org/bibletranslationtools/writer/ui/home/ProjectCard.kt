@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,7 +51,7 @@ fun ProjectCard(
     )
 
     Card(
-        modifier = modifier.padding(horizontal = 8.dp),
+        modifier = modifier,
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -64,13 +63,14 @@ fun ProjectCard(
             modifier = modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .padding(32.dp),
+                .padding(top = 24.dp, bottom = 24.dp, start = 24.dp, end = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(32.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(0.4f)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.LibraryBooks,
@@ -87,36 +87,37 @@ fun ProjectCard(
                 )
             }
 
+            Text(
+                text = item.formattedTypeName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(0.1f)
+            )
+
+            Text(
+                text = item.translation.targetLanguageName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = languageStyle,
+                modifier = Modifier.weight(0.35f)
+            )
+
             Row(
-                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.End),
+                modifier = Modifier.weight(0.15f)
             ) {
-                Text(
-                    text = item.translation.targetLanguageName,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = languageStyle,
-                    modifier = Modifier.weight(1f)
+                PieProgressBar(
+                    progress = item.progress,
+                    modifier = Modifier.size(36.dp)
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.End)
-                ) {
-                    PieProgressBar(
-                        progress = item.progress,
-                        modifier = Modifier.size(36.dp)
+                IconButton(onClick = onInfoClick) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Info"
                     )
-
-                    IconButton(onClick = onInfoClick) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "Info"
-                        )
-                    }
                 }
             }
         }
