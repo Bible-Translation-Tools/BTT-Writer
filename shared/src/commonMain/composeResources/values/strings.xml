@@ -140,6 +140,7 @@
     <string name="reg_type">Regular</string>
     <string name="ulb_type">Unlocked Literal Bible</string>
     <string name="udb_type">Unlocked Dynamic Bible</string>
+    <string name="resource_options">Resource Options</string>
     <string name="obs_type">Open Bible Stories</string>
     <string name="tn_type">Notes</string>
     <string name="tq_type">Questions</string>

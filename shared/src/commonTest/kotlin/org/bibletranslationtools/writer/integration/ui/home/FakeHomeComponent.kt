@@ -34,6 +34,9 @@ class FakeHomeComponent : HomeComponent {
 
     override suspend fun getLastOpened(): TargetTranslation? = null
     override fun deleteProject(project: TranslationItem) {}
+    override fun changeResourceType(project: TranslationItem, resourceSlug: String) {}
+    override fun confirmResourceMerge() {}
+    override fun dismissResourceMerge() {}
     override fun changeProjectSort(sort: ProjectSort) {}
     override fun changeBookSort(sort: BookSort) {}
     override fun showProjectInfo(item: TranslationItem) {}

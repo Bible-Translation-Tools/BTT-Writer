@@ -50,7 +50,6 @@ class ChunkModeSectionTest : ScreenTestBase() {
         val mockChunkItem = mockk<ChunkItem>(relaxed = true) {
             every { id } returns "chunk_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("")
             every { sourceOnTop } returns false
@@ -106,7 +105,6 @@ class ChunkModeSectionTest : ScreenTestBase() {
         val mockChunkItem = mockk<ChunkItem>(relaxed = true) {
             every { id } returns "chunk_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("")
             every { sourceOnTop } returns false

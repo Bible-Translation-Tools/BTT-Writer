@@ -47,7 +47,6 @@ class ReadModeSectionTest : ScreenTestBase() {
         val mockReadItem = mockk<ReadItem>(relaxed = true) {
             every { id } returns "read_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("") // blank to trigger begin translating button
             every { sourceOnTop } returns false
@@ -75,7 +74,7 @@ class ReadModeSectionTest : ScreenTestBase() {
             )
         }
 
-        onNodeWithText("Mock Target Title", substring = true).assertIsDisplayed()
+        onNodeWithText("Mock Source Title", substring = true).assertIsDisplayed()
 
         onNodeWithText(getStringBlocking(Res.string.begin_translating)).performClick()
         assertEquals("3", beginTranslationCalledWith)
@@ -93,7 +92,6 @@ class ReadModeSectionTest : ScreenTestBase() {
         val mockReadItem = mockk<ReadItem>(relaxed = true) {
             every { id } returns "read_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("Existing translation text")
             every { sourceOnTop } returns false

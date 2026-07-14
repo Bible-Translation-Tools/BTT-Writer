@@ -532,6 +532,16 @@ class TargetTranslation private constructor(
         targetLanguageName = targetLanguage.name
     }
 
+    fun changeResourceType(resourceSlug: String) {
+        if (translationType != ResourceType.TEXT) return
+        val resourceName = getResourceName(resourceSlug)
+        manifestAccessor.save(
+            manifest.copy(resource = Manifest.Resource(resourceSlug, resourceName))
+        )
+        this.resourceSlug = resourceSlug
+        this.resourceName = resourceName
+    }
+
     fun unlockRepo(): Boolean {
         var cleaned = false
         val gitDir = File(path.absolutePath, ".git")
