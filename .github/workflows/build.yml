@@ -84,10 +84,18 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
+      - name: Start Xvfb
+        run: Xvfb :99 -screen 0 1024x768x24 &
+
       - name: Run tests
-        run: |
-          Xvfb :99 -screen 0 1024x768x24 &
-          DISPLAY=:99 ./gradlew :shared:jvmTest
+        env:
+          DISPLAY: ":99"
+        run: ./gradlew :shared:jvmTest
+
+      - name: Run desktop smoke tests
+        env:
+          DISPLAY: ":99"
+        run: ./gradlew :shared:jvmSmokeTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4

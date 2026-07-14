@@ -192,9 +192,36 @@ tasks.named<Test>("jvmTest") {
     // Integration tests deploy the bundled library (~158 MB); avoid parallel forks OOM on CI.
     maxParallelForks = 1
     jvmArgs("-Xmx4g")
+    // Desktop Compose E2E smoke lives in :jvmSmokeTest instead.
+    filter {
+        excludeTestsMatching("org.bibletranslationtools.writer.uitest.*")
+    }
     testLogging {
         events("passed", "skipped", "failed")
 
+        displayGranularity = 2
+        showExceptions = true
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
+
+tasks.register<Test>("jvmSmokeTest") {
+    group = "verification"
+    description = "Desktop headless Compose UI smoke tests (full Maestro-parity flow)."
+
+    val jvmTestTask = tasks.named<Test>("jvmTest")
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
+    dependsOn(tasks.named("jvmTestClasses"))
+
+    filter {
+        includeTestsMatching("org.bibletranslationtools.writer.uitest.*")
+    }
+
+    maxParallelForks = 1
+    jvmArgs("-Xmx4g")
+    testLogging {
+        events("passed", "skipped", "failed")
         displayGranularity = 2
         showExceptions = true
         exceptionFormat = TestExceptionFormat.SHORT
