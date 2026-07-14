@@ -92,17 +92,51 @@ jobs:
           DISPLAY: ":99"
         run: ./gradlew :shared:jvmTest
 
-      - name: Run desktop smoke tests
-        env:
-          DISPLAY: ":99"
-        run: ./gradlew :shared:jvmSmokeTest
-
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-reports
-          path: "**/build/reports/tests/"
+          path: "**/build/reports/tests/jvmTest/"
+
+  test-desktop-smoke:
+    name: Desktop smoke
+    runs-on: ubuntu-latest
+    # Own runner so HOME/config/temp are not shared with jvmTest or Maestro.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gradle setup
+        uses: ./.github/actions/gradle-setup
+
+      - name: Start Xvfb
+        run: Xvfb :99 -screen 0 1024x768x24 &
+
+      - name: Prepare isolated smoke storage
+        run: |
+          mkdir -p \
+            "${{ runner.temp }}/btt-writer-smoke/home" \
+            "${{ runner.temp }}/btt-writer-smoke/config" \
+            "${{ runner.temp }}/btt-writer-smoke/tmp"
+
+      - name: Run desktop smoke tests
+        env:
+          DISPLAY: ":99"
+          HOME: ${{ runner.temp }}/btt-writer-smoke/home
+          XDG_CONFIG_HOME: ${{ runner.temp }}/btt-writer-smoke/config
+          TMPDIR: ${{ runner.temp }}/btt-writer-smoke/tmp
+          TMP: ${{ runner.temp }}/btt-writer-smoke/tmp
+          TEMP: ${{ runner.temp }}/btt-writer-smoke/tmp
+        run: ./gradlew :shared:jvmSmokeTest
+
+      - name: Upload smoke test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-reports
+          path: "**/build/reports/tests/jvmSmokeTest/"
+          if-no-files-found: ignore
 
   build-android:
     name: Build Android
@@ -143,7 +177,7 @@ jobs:
   build-desktop-macos:
     name: Build Desktop macOS
     runs-on: macos-latest
-    needs: test
+    needs: [test, test-desktop-smoke]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -164,7 +198,7 @@ jobs:
   build-desktop-windows:
     name: Build Desktop Windows
     runs-on: windows-latest
-    needs: test
+    needs: [test, test-desktop-smoke]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -185,7 +219,7 @@ jobs:
   build-desktop-linux:
     name: Build Desktop Linux
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, test-desktop-smoke]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
