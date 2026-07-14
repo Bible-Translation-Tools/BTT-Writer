@@ -3,12 +3,15 @@ package org.bibletranslationtools.writer.uitest
 import androidx.compose.ui.test.ExperimentalTestApi
 import kotlin.test.Test
 
-class SmokeProfileTest {
+class SmokeTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun smoke_profile_to_settings() = runWriterUiTest {
+    fun smoke_full_flow() = runWriterUiTest {
         completeSmokeLaunch()
-        completeSmokeProfileToSettings()
+        completeSmokeSettings()
+        completeSmokeNewTranslation()
+        completeSmokeDraftChunk()
+        completeSmokeProjectMenu()
     }
 }
