@@ -46,8 +46,20 @@ fun ComposeUiTest.completeSmokeSettings() {
     onNodeWithText("Settings").performClick()
 
     onNodeWithText("General").assertIsDisplayed()
+    takeSmokeScreenshot("settings-01-general")
     onNodeWithContentDescription("back").performClick()
-    waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
+    takeSmokeScreenshot("settings-02-after-back")
+    try {
+        waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
+        takeSmokeScreenshot("settings-03-home")
+    } catch (error: AssertionError) {
+        try {
+            takeSmokeScreenshot("settings-03-home-timeout")
+        } catch (_: Throwable) {
+            // Best-effort capture for CI artifacts.
+        }
+        throw error
+    }
 }
 
 @OptIn(ExperimentalTestApi::class)

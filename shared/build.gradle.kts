@@ -221,13 +221,18 @@ tasks.register<Test>("jvmSmokeTest") {
 
     // Isolated work/home/temp so smoke never reuses prefs/library from jvmTest or prior runs.
     val smokeRoot = layout.buildDirectory.dir("jvmSmokeTest-env")
+    val smokeScreenshots = layout.buildDirectory.dir("reports/smoke-screenshots")
     doFirst {
         val root = smokeRoot.get().asFile
         root.deleteRecursively()
         listOf("home", "config", "tmp", "work").forEach { File(root, it).mkdirs() }
+        val screenshots = smokeScreenshots.get().asFile
+        screenshots.deleteRecursively()
+        screenshots.mkdirs()
     }
     workingDir = smokeRoot.map { it.dir("work") }.get().asFile
     systemProperty("java.io.tmpdir", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())
+    systemProperty("smoke.screenshot.dir", smokeScreenshots.map { it.asFile.absolutePath }.get())
     environment("HOME", smokeRoot.map { it.dir("home").asFile.absolutePath }.get())
     environment("XDG_CONFIG_HOME", smokeRoot.map { it.dir("config").asFile.absolutePath }.get())
     environment("TMPDIR", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())

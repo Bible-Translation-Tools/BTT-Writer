@@ -110,9 +110,6 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
-      - name: Start Xvfb
-        run: Xvfb :99 -screen 0 1024x768x24 &
-
       - name: Prepare isolated smoke storage
         run: |
           mkdir -p \
@@ -122,13 +119,14 @@ jobs:
 
       - name: Run desktop smoke tests
         env:
-          DISPLAY: ":99"
           HOME: ${{ runner.temp }}/btt-writer-smoke/home
           XDG_CONFIG_HOME: ${{ runner.temp }}/btt-writer-smoke/config
           TMPDIR: ${{ runner.temp }}/btt-writer-smoke/tmp
           TMP: ${{ runner.temp }}/btt-writer-smoke/tmp
           TEMP: ${{ runner.temp }}/btt-writer-smoke/tmp
-        run: ./gradlew :shared:jvmSmokeTest
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 &
+          DISPLAY=:99 ./gradlew :shared:jvmSmokeTest
 
       - name: Upload smoke test reports
         uses: actions/upload-artifact@v4
@@ -136,6 +134,14 @@ jobs:
         with:
           name: smoke-test-reports
           path: "**/build/reports/tests/jvmSmokeTest/"
+          if-no-files-found: ignore
+
+      - name: Upload smoke screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-screenshots
+          path: shared/build/reports/smoke-screenshots/
           if-no-files-found: ignore
 
   build-android:
