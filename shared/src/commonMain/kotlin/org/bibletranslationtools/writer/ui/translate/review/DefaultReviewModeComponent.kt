@@ -52,6 +52,8 @@ import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.TranslationViewMode
 import org.bibletranslationtools.writer.core.Translator
+import org.bibletranslationtools.writer.core.WORDS_CHAPTER
+import org.bibletranslationtools.writer.core.WORD_PATTERN
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
@@ -94,8 +96,6 @@ class DefaultReviewModeComponent(
 
     companion object {
         private const val TAG = "ReviewModeComponent"
-        private const val WORDS_CHAPTER = "01"
-        private val WORD_PATTERN: Pattern = Pattern.compile("#+([^\\n]+)\\n+([\\s\\S]*)")
     }
 
     private val preference: Preference by inject()
