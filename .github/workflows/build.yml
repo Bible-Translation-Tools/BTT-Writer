@@ -136,6 +136,15 @@ jobs:
           path: "**/build/reports/tests/jvmSmokeTest/"
           if-no-files-found: ignore
 
+      - name: Upload smoke test screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-screenshots
+          path: "**/build/jvmSmokeTest-screenshots/"
+          if-no-files-found: ignore
+          retention-days: 7
+
   build-android:
     name: Build Android
     runs-on: ubuntu-latest

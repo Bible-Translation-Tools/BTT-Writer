@@ -41,13 +41,16 @@ fun ComposeUiTest.completeSmokeSettings() {
     onNodeWithText("I Agree").performClick()
 
     waitUntilVisible("Your Translation Projects", timeoutMillis = 3_000)
+    takeSmokeScreenshot("smoke-settings/projects-home")
 
     onNodeWithContentDescription("More Options").performClick()
     onNodeWithText("Settings").performClick()
 
     onNodeWithText("General").assertIsDisplayed()
+    takeSmokeScreenshot("smoke-settings/settings-general")
     onNodeWithContentDescription("back").performClick()
     waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
+    takeSmokeScreenshot("smoke-settings/projects-home-after-settings")
 }
 
 @OptIn(ExperimentalTestApi::class)
