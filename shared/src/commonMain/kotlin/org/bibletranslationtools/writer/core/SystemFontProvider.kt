@@ -32,4 +32,11 @@ interface SystemFontProvider {
      * file is missing or cannot be parsed.
      */
     fun loadFontFamily(path: String): FontFamily?
+
+    /**
+     * Display name of the single font file at [path], without scanning the
+     * system font directories. Returns null when the file is missing or
+     * cannot be parsed.
+     */
+    fun fontDisplayName(path: String): String?
 }

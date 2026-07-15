@@ -12,6 +12,7 @@ import btt_writer.shared.generated.resources.content_server_names_array
 import btt_writer.shared.generated.resources.content_server_reader_server_values_array
 import btt_writer.shared.generated.resources.content_server_values_array
 import btt_writer.shared.generated.resources.font_size_values_array
+import btt_writer.shared.generated.resources.loading
 import btt_writer.shared.generated.resources.log_out
 import btt_writer.shared.generated.resources.migrating_translations
 import btt_writer.shared.generated.resources.pref_backup_interval_titles
@@ -86,6 +87,7 @@ interface SettingsComponent {
     fun setGlModeEnabled(enabled: Boolean)
     fun dismissUpdateResultDialog()
     fun updateColorTheme(newValue: String)
+    fun loadTypefaces()
     fun updateTranslationTypeface(newFileName: String)
     fun updateTranslationFontSize(newValue: String)
     fun updateSourceTypeface(newValue: String)
@@ -206,7 +208,6 @@ class DefaultSettingsComponent(
 
     init {
         loadInitialPreferences()
-        loadTypefaces()
 
         lifecycle.doOnDestroy {
             coroutineScope.cancel()
@@ -238,6 +239,10 @@ class DefaultSettingsComponent(
                 Preference.KEY_PREF_SOURCE_TYPEFACE,
                 getString(Res.string.pref_default_translation_typeface)
             )
+
+            val typefaceTitles = getStringArray(Res.array.pref_typeface_titles)
+            val targetFontName = resolveFontDisplayName(targetFontValue, typefaceTitles)
+            val sourceFontName = resolveFontDisplayName(sourceFontValue, typefaceTitles)
 
             val sizeNames = getStringArray(Res.array.pref_typeface_size_titles)
             val sizeValues = getStringArray(Res.array.font_size_values_array)
@@ -338,9 +343,11 @@ class DefaultSettingsComponent(
                     fontSizeNames = sizeNames,
                     fontSizeValues = sizeValues,
                     currentTranslationFontValue = targetFontValue,
+                    currentTranslationFontName = targetFontName,
                     currentTranslationFontSizeValue = translationSizeValue,
                     currentTranslationFontSizeName = translationSizeName,
                     currentSourceFontValue = sourceFontValue,
+                    currentSourceFontName = sourceFontName,
                     currentSourceFontSizeValue = sourceSizeValue,
                     currentSourceFontSizeName = sourceSizeName,
                     contentServerNames = serverNames,
@@ -370,10 +377,25 @@ class DefaultSettingsComponent(
         }
     }
 
-    private fun loadTypefaces() {
-        launchWithProgress {
+    override fun loadTypefaces() {
+        if (_state.value.availableFonts.isNotEmpty()) return
+
+        launchWithProgress(Res.string.loading) {
             refreshTypefaces()
         }
+    }
+
+    private suspend fun resolveFontDisplayName(
+        value: String,
+        bundledTitles: List<String>
+    ): String {
+        val bundledIndex = typography.getBundledFontNames().indexOf(value)
+        if (bundledIndex >= 0) return bundledTitles.getOrNull(bundledIndex) ?: value
+
+        val systemName = withContext(Dispatchers.IO) {
+            typography.getSystemFontDisplayName(value)
+        }
+        return systemName?.takeIf { it.isNotBlank() } ?: value
     }
 
     private suspend fun refreshTypefaces() {

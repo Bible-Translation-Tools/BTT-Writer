@@ -47,7 +47,7 @@ fun ComposeUiTest.completeSmokeSettings() {
 
     onNodeWithText("General").assertIsDisplayed()
     onNodeWithContentDescription("back").performClick()
-    waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
+    waitUntilVisible("Your Translation Projects", timeoutMillis = 3_000)
 }
 
 @OptIn(ExperimentalTestApi::class)
