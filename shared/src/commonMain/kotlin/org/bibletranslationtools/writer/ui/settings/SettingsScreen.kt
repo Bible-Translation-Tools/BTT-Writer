@@ -160,7 +160,7 @@ fun SettingsScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(contentPadding = paddingValues) {
+        LazyColumn(modifier = Modifier.padding(paddingValues)) {
             
             // --- GENERAL PREFERENCES ---
             item { PreferenceCategoryHeader(stringResource(Res.string.header_general)) }

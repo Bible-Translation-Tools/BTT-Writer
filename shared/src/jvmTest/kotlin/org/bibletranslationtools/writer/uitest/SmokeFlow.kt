@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.uitest
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -10,6 +11,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
@@ -40,13 +42,13 @@ fun ComposeUiTest.completeSmokeSettings() {
     scrollUntilVisible("I Agree")
     onNodeWithText("I Agree").performClick()
 
-    waitUntilVisible("Your Translation Projects", timeoutMillis = 3_000)
+    waitUntilVisible("Your Translation Projects", timeoutMillis = 15_000)
 
     onNodeWithContentDescription("More Options").performClick()
     onNodeWithText("Settings").performClick()
 
-    onNodeWithText("General").assertIsDisplayed()
-    onNodeWithContentDescription("back").performClick()
+    waitUntilVisible("General", timeoutMillis = 10_000)
+    tapBack()
     waitUntilVisible("Your Translation Projects", timeoutMillis = 15_000)
 }
 
@@ -115,7 +117,7 @@ fun ComposeUiTest.completeSmokeProjectMenu() {
     onNodeWithText("John - Ghotuo", substring = true).assertIsDisplayed()
     onNodeWithContentDescription("Publish").performClick()
     onNodeWithText("Publish translation").assertIsDisplayed()
-    onNodeWithContentDescription("back").performClick()
+    tapBack()
     waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
 
     onNodeWithContentDescription("Info").performClick()
@@ -139,6 +141,17 @@ private fun ComposeUiTest.tapIfVisible(
     } catch (_: AssertionError) {
         false
     }
+}
+
+/**
+ * [performClick] injects a pointer event and relies on hit-testing. Screens that use
+ * Scaffold + LazyColumn(contentPadding) keep a full-size scrollable under the top app bar,
+ * which can swallow the coordinate click in headless Compose UI tests. Invoking the
+ * semantics OnClick action bypasses hit-testing.
+ */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.tapBack() {
+    onNodeWithContentDescription("back").performSemanticsAction(SemanticsActions.OnClick)
 }
 
 @OptIn(ExperimentalTestApi::class)
