@@ -68,6 +68,11 @@ class FakeSettingsComponent : SettingsComponent {
         updateColorThemeCalledWith = newValue
     }
 
+    var loadTypefacesIfNeededCalled = false
+    override fun loadTypefaces() {
+        loadTypefacesIfNeededCalled = true
+    }
+
     override fun updateTranslationTypeface(newFileName: String) {
         updateTranslationTypefaceCalledWith = newFileName
     }

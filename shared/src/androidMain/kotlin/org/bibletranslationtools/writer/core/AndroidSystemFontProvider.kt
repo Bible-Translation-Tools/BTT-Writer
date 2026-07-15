@@ -44,6 +44,11 @@ class AndroidSystemFontProvider(
         null
     }
 
+    override fun fontDisplayName(path: String): String? = runCatching {
+        val file = File(path)
+        if (!file.exists()) null else displayName(file)
+    }.getOrNull()
+
     /** Real font name from the file's `name` table, falling back to a prettified filename. */
     private fun displayName(file: File): String =
         runCatching { FontNameReader.readDisplayName(file.readBytes()) }.getOrNull()
