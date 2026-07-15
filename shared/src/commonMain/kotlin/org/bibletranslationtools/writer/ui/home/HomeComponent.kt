@@ -377,7 +377,11 @@ class DefaultHomeComponent(
                 _state.update {
                     it.copy(
                         projectInfo = null,
-                        resourceMerge = HomeComponent.ResourceMerge(project, existing, message)
+                        resourceMerge = HomeComponent.ResourceMerge(
+                            project = project,
+                            destination = existing,
+                            message = message
+                        )
                     )
                 }
             } else {
@@ -385,7 +389,10 @@ class DefaultHomeComponent(
                     val oldId = translation.id
                     translation.changeResourceType(resourceSlug)
                     translation.normalizePath()
-                    moveTargetTranslationAppSettings(oldId, translation.id)
+                    preference.moveTargetTranslationAppSettings(
+                        targetTranslationId = oldId,
+                        newTargetTranslationId = translation.id
+                    )
                 }
                 hideProjectInfo()
                 loadProjects()
@@ -421,28 +428,6 @@ class DefaultHomeComponent(
 
     override fun dismissResourceMerge() {
         _state.update { it.copy(resourceMerge = null) }
-    }
-
-    private fun moveTargetTranslationAppSettings(
-        targetTranslationId: String,
-        newTargetTranslationId: String
-    ) {
-        val sources = preference.getOpenSourceTranslations(targetTranslationId)
-        for (source in sources) {
-            preference.addOpenSourceTranslation(newTargetTranslationId, source)
-        }
-
-        val source = preference.getSelectedSourceTranslationId(targetTranslationId)
-        preference.setSelectedSourceTranslation(newTargetTranslationId, source)
-
-        val lastFocusChapterId = preference.getLastFocusChapterId(targetTranslationId)
-        val lastFocusFrameId = preference.getLastFocusFrameId(targetTranslationId)
-        preference.setLastFocus(newTargetTranslationId, lastFocusChapterId, lastFocusFrameId)
-
-        val lastViewMode = preference.getLastViewMode(targetTranslationId)
-        preference.setLastViewMode(newTargetTranslationId, lastViewMode)
-
-        preference.clearTargetTranslationSettings(targetTranslationId)
     }
 
     override fun changeProjectSort(sort: ProjectSort) {

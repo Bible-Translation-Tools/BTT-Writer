@@ -363,6 +363,28 @@ class Preference(private val settings: ObservableSettings) {
         )
     }
 
+    fun moveTargetTranslationAppSettings(
+        targetTranslationId: String,
+        newTargetTranslationId: String
+    ) {
+        val sources = getOpenSourceTranslations(targetTranslationId)
+        for (source in sources) {
+            addOpenSourceTranslation(newTargetTranslationId, source)
+        }
+
+        val source = getSelectedSourceTranslationId(targetTranslationId)
+        setSelectedSourceTranslation(newTargetTranslationId, source)
+
+        val lastFocusChapterId = getLastFocusChapterId(targetTranslationId)
+        val lastFocusFrameId = getLastFocusFrameId(targetTranslationId)
+        setLastFocus(newTargetTranslationId, lastFocusChapterId, lastFocusFrameId)
+
+        val lastViewMode = getLastViewMode(targetTranslationId)
+        setLastViewMode(newTargetTranslationId, lastViewMode)
+
+        clearTargetTranslationSettings(targetTranslationId)
+    }
+
     /**
      * Removes all settings for a target translation
      * @param targetTranslationId

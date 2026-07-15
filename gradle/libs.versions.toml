@@ -18,7 +18,7 @@ iconsExtended = "1.7.3"
 koin = "4.2.2"
 
 jgit = "5.13.5.202508271544-r"
-bcprovJdk18on = "1.84"
+bcprovJdk18on = "1.85"
 jmx = "1.2.1"
 
 kotlinx-io = "0.9.1"
@@ -31,7 +31,7 @@ preferences-core = "1.2.1"
 filekit = "0.14.2"
 htmlconverter = "1.1.1"
 foundation = "1.11.4"
-oshi-core = "7.3.2"
+oshi-core = "7.4.0"
 
 logger = "3.0.3"
 foreground = "0.1.0"
