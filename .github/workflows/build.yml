@@ -11,6 +11,7 @@ jobs:
     name: Android E2E (Maestro)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    needs: test
     steps:
       - name: Free disk space
         uses: jlumbroso/free-disk-space@v1.3.1
@@ -76,7 +77,6 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
-    needs: test-android-e2e
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -103,6 +103,7 @@ jobs:
     name: Desktop smoke
     runs-on: ubuntu-latest
     # Own runner so HOME/config/temp are not shared with jvmTest or Maestro.
+    needs: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,7 +140,7 @@ jobs:
   build-android:
     name: Build Android
     runs-on: ubuntu-latest
-    needs: test
+    needs: test-android-e2e
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -175,7 +176,7 @@ jobs:
   build-desktop-macos:
     name: Build Desktop macOS
     runs-on: macos-latest
-    needs: [test, test-desktop-smoke]
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -196,7 +197,7 @@ jobs:
   build-desktop-windows:
     name: Build Desktop Windows
     runs-on: windows-latest
-    needs: [test, test-desktop-smoke]
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -217,7 +218,7 @@ jobs:
   build-desktop-linux:
     name: Build Desktop Linux
     runs-on: ubuntu-latest
-    needs: [test, test-desktop-smoke]
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
