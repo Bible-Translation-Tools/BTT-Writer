@@ -1,3 +1,4 @@
+import java.io.File
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -192,9 +193,51 @@ tasks.named<Test>("jvmTest") {
     // Integration tests deploy the bundled library (~158 MB); avoid parallel forks OOM on CI.
     maxParallelForks = 1
     jvmArgs("-Xmx4g")
+    // Desktop Compose E2E smoke lives in :jvmSmokeTest instead.
+    filter {
+        excludeTestsMatching("org.bibletranslationtools.writer.uitest.*")
+    }
     testLogging {
         events("passed", "skipped", "failed")
 
+        displayGranularity = 2
+        showExceptions = true
+        exceptionFormat = TestExceptionFormat.SHORT
+    }
+}
+
+tasks.register<Test>("jvmSmokeTest") {
+    group = "verification"
+    description = "Desktop headless Compose UI smoke tests (full Maestro-parity flow)."
+
+    val jvmTestTask = tasks.named<Test>("jvmTest")
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
+    dependsOn(tasks.named("jvmTestClasses"))
+
+    filter {
+        includeTestsMatching("org.bibletranslationtools.writer.uitest.*")
+    }
+
+    // Isolated work/home/temp so smoke never reuses prefs/library from jvmTest or prior runs.
+    val smokeRoot = layout.buildDirectory.dir("jvmSmokeTest-env")
+    doFirst {
+        val root = smokeRoot.get().asFile
+        root.deleteRecursively()
+        listOf("home", "config", "tmp", "work").forEach { File(root, it).mkdirs() }
+    }
+    workingDir = smokeRoot.map { it.dir("work") }.get().asFile
+    systemProperty("java.io.tmpdir", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())
+    environment("HOME", smokeRoot.map { it.dir("home").asFile.absolutePath }.get())
+    environment("XDG_CONFIG_HOME", smokeRoot.map { it.dir("config").asFile.absolutePath }.get())
+    environment("TMPDIR", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())
+    environment("TMP", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())
+    environment("TEMP", smokeRoot.map { it.dir("tmp").asFile.absolutePath }.get())
+
+    maxParallelForks = 1
+    jvmArgs("-Xmx4g")
+    testLogging {
+        events("passed", "skipped", "failed")
         displayGranularity = 2
         showExceptions = true
         exceptionFormat = TestExceptionFormat.SHORT
