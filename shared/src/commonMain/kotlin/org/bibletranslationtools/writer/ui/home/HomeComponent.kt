@@ -2,9 +2,11 @@ package org.bibletranslationtools.writer.ui.home
 
 import btt_writer.shared.generated.resources.Res
 import btt_writer.shared.generated.resources.duplicate_target_translation
+import btt_writer.shared.generated.resources.error
 import btt_writer.shared.generated.resources.exporting
 import btt_writer.shared.generated.resources.loading
 import btt_writer.shared.generated.resources.log_out
+import btt_writer.shared.generated.resources.warn_existing_target_translation
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.router.slot.SlotNavigation
@@ -42,6 +44,7 @@ import org.bibletranslationtools.writer.core.Profile
 import org.bibletranslationtools.writer.core.Progress
 import org.bibletranslationtools.writer.core.ProgressManager
 import org.bibletranslationtools.writer.core.ProgressOwner
+import org.bibletranslationtools.writer.core.ResourceType
 import org.bibletranslationtools.writer.core.TargetTranslation
 import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.Translator
@@ -64,6 +67,7 @@ import org.bibletranslationtools.writer.ui.dialogs.update.UpdateLibraryComponent
 import org.bibletranslationtools.writer.ui.navigation.RootComponent
 import org.bibletranslationtools.writer.usecases.BackupRC
 import org.bibletranslationtools.writer.usecases.GogsLogout
+import org.bibletranslationtools.writer.usecases.MergeTargetTranslation
 import org.bibletranslationtools.writer.usecases.TranslationProgress
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
@@ -109,6 +113,9 @@ interface HomeComponent {
     suspend fun getLastOpened(): TargetTranslation?
 
     fun deleteProject(project: TranslationItem)
+    fun changeResourceType(project: TranslationItem, resourceSlug: String)
+    fun confirmResourceMerge()
+    fun dismissResourceMerge()
     fun changeProjectSort(sort: ProjectSort)
     fun changeBookSort(sort: BookSort)
     fun showProjectInfo(item: TranslationItem)
@@ -144,11 +151,18 @@ interface HomeComponent {
         val translations: List<TranslationItem>
     )
 
+    data class ResourceMerge(
+        val project: TranslationItem,
+        val destination: TargetTranslation,
+        val message: String
+    )
+
     data class HomeState(
         val translations: List<TranslationItem> = emptyList(),
         val projectSort: ProjectSort = ProjectSort.ProjectThenLanguage,
         val bookSort: BookSort = BookSort.BibleOrder,
         val projectInfo: TranslationItem? = null,
+        val resourceMerge: ResourceMerge? = null,
         val scrollToTopTrigger: Int = 0
     )
 
@@ -219,6 +233,7 @@ class DefaultHomeComponent(
     private val profile: Profile by inject()
     private val gogsLogout: GogsLogout by inject()
     private val backupRC: BackupRC by inject()
+    private val mergeTargetTranslation: MergeTargetTranslation by inject()
     private val catalogClient: ResourceCatalogClient by inject()
     private val platform: Platform by inject()
 
@@ -338,6 +353,81 @@ class DefaultHomeComponent(
                 )
             }
         }
+    }
+
+    override fun changeResourceType(project: TranslationItem, resourceSlug: String) {
+        launchWithProgress {
+            val translation = project.translation
+            if (translation.resourceSlug == resourceSlug) return@launchWithProgress
+
+            val newId = TargetTranslation.generateTargetTranslationId(
+                translation.targetLanguageId,
+                translation.projectId,
+                ResourceType.TEXT,
+                resourceSlug
+            )
+            val existing = withContext(Dispatchers.IO) { getTargetTranslation(newId) }
+
+            if (existing != null) {
+                val message = getString(
+                    Res.string.warn_existing_target_translation,
+                    project.name,
+                    translation.targetLanguageName
+                )
+                _state.update {
+                    it.copy(
+                        projectInfo = null,
+                        resourceMerge = HomeComponent.ResourceMerge(
+                            project = project,
+                            destination = existing,
+                            message = message
+                        )
+                    )
+                }
+            } else {
+                withContext(Dispatchers.IO) {
+                    val oldId = translation.id
+                    translation.changeResourceType(resourceSlug)
+                    translation.normalizePath()
+                    preference.moveTargetTranslationAppSettings(
+                        targetTranslationId = oldId,
+                        newTargetTranslationId = translation.id
+                    )
+                }
+                hideProjectInfo()
+                loadProjects()
+            }
+        }
+    }
+
+    override fun confirmResourceMerge() {
+        val merge = _state.value.resourceMerge ?: return
+        launchWithProgress {
+            _state.update { it.copy(resourceMerge = null) }
+            val result = withContext(Dispatchers.IO) {
+                mergeTargetTranslation.execute(
+                    merge.destination,
+                    merge.project.translation,
+                    true
+                )
+            }
+
+            when (result.status) {
+                MergeTargetTranslation.Status.MERGE_CONFLICTS -> {
+                    loadProjects()
+                    openProject(merge.destination.id, true)
+                }
+                MergeTargetTranslation.Status.SUCCESS -> loadProjects()
+                else -> {
+                    val error = getString(Res.string.error)
+                    _event.send(HomeComponent.Event.SnackbarMessage(error))
+                }
+            }
+        }
+    }
+
+    override fun dismissResourceMerge() {
+        _state.update { it.copy(resourceMerge = null) }
     }
 
     override fun changeProjectSort(sort: ProjectSort) {

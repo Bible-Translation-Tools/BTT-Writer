@@ -58,7 +58,6 @@ class ReviewModeSectionTest : ScreenTestBase() {
         val mockReviewItem = mockk<ReviewItem>(relaxed = true) {
             every { id } returns "review_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("Mock Target Text")
             every { targetMode } returns TargetMode.MARKER
@@ -93,7 +92,7 @@ class ReviewModeSectionTest : ScreenTestBase() {
             )
         }
 
-        onNodeWithText("Mock Target Title", substring = true).assertIsDisplayed()
+        onNodeWithText("Mock Source Title", substring = true).assertIsDisplayed()
 
         onNodeWithContentDescription("toggle edit").performClick()
         assertTrue(toggleEditCalled)
@@ -118,7 +117,6 @@ class ReviewModeSectionTest : ScreenTestBase() {
         val mockReviewItem = mockk<ReviewItem>(relaxed = true) {
             every { id } returns "review_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("Mock Target Text")
             every { targetMode } returns TargetMode.EDIT
@@ -177,7 +175,6 @@ class ReviewModeSectionTest : ScreenTestBase() {
         val mockReviewItem = mockk<ReviewItem>(relaxed = true) {
             every { id } returns "review_item_1"
             every { sourceTitle } returns "Mock Source Title"
-            every { targetTitle } returns "Mock Target Title"
             every { renderedSourceText } returns AnnotatedString("Mock Source Text")
             every { renderedTargetText } returns AnnotatedString("Mock Target Text")
             every { targetMode } returns TargetMode.MARKER

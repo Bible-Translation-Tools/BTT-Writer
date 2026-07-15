@@ -47,8 +47,10 @@ import btt_writer.shared.generated.resources.sort_progress_then_project
 import btt_writer.shared.generated.resources.sort_project_then_language
 import btt_writer.shared.generated.resources.sort_projects
 import btt_writer.shared.generated.resources.type_label
+import btt_writer.shared.generated.resources.warn_existing_target_translation_label
 import org.bibletranslationtools.writer.core.Typography
 import org.bibletranslationtools.writer.ui.components.PlatformPullToRefresh
+import org.bibletranslationtools.writer.ui.dialogs.ConfirmDialog
 import org.bibletranslationtools.writer.ui.dialogs.project.ProjectDetailsDialog
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -178,6 +180,9 @@ fun TranslationListScreen(
                 component.hideProjectInfo()
                 onChangeLanguage(project)
             },
+            onChangeResourceType = { resourceSlug ->
+                component.changeResourceType(project, resourceSlug)
+            },
             onDelete = {
                 component.deleteProject(project)
             },
@@ -189,6 +194,15 @@ fun TranslationListScreen(
                 component.hideProjectInfo()
                 component.showExportDialog(project.translation.id, it)
             }
+        )
+    }
+
+    state.resourceMerge?.let { merge ->
+        ConfirmDialog(
+            title = stringResource(Res.string.warn_existing_target_translation_label),
+            message = merge.message,
+            onConfirm = component::confirmResourceMerge,
+            onDismiss = component::dismissResourceMerge
         )
     }
 }

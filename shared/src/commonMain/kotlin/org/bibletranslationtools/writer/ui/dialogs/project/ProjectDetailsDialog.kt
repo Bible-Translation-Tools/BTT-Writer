@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.ui.dialogs.project
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,11 +50,18 @@ import btt_writer.shared.generated.resources.label_unknown
 import btt_writer.shared.generated.resources.print
 import btt_writer.shared.generated.resources.progress
 import btt_writer.shared.generated.resources.publish
+import btt_writer.shared.generated.resources.reg_type
+import btt_writer.shared.generated.resources.resource_options
 import btt_writer.shared.generated.resources.target_language
+import btt_writer.shared.generated.resources.title_cancel
 import btt_writer.shared.generated.resources.translators
 import btt_writer.shared.generated.resources.type_label
+import btt_writer.shared.generated.resources.udb_type
+import btt_writer.shared.generated.resources.ulb_type
+import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.core.NativeSpeaker
+import org.bibletranslationtools.writer.core.ResourceType
 import org.bibletranslationtools.writer.core.TextStyleType
 import org.bibletranslationtools.writer.core.TranslationType
 import org.bibletranslationtools.writer.core.Typography
@@ -74,6 +82,7 @@ fun ProjectDetailsDialog(
     project: TranslationItem,
     onDismiss: () -> Unit,
     onChangeLanguage: () -> Unit,
+    onChangeResourceType: (String) -> Unit,
     onDelete: () -> Unit,
     onPublish: () -> Unit,
     onExport: (Boolean) -> Unit
@@ -141,6 +150,10 @@ fun ProjectDetailsDialog(
     }
     var showContributorsDialog by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showResourceOptions by rememberSaveable { mutableStateOf(false) }
+
+    val canChangeResourceType = project.translation.translationType == ResourceType.TEXT &&
+            project.translation.resourceSlug != Resource.OBS_SLUG
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -196,11 +209,31 @@ fun ProjectDetailsDialog(
                             }
                         }
 
-                        DetailRow(
-                            label = stringResource(Res.string.type_label),
-                            value = project.translation.resourceSlug?.uppercase()
-                                ?: project.translation.translationType.title
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.type_label),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Text(
+                                text = project.translation.resourceSlug?.uppercase()
+                                    ?: project.translation.translationType.title,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            if (canChangeResourceType) {
+                                TextButton(onClick = { showResourceOptions = true }) {
+                                    Text(
+                                        text = stringResource(Res.string.label_change),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
 
                         DetailRow(
                             label = stringResource(Res.string.progress),
@@ -304,6 +337,85 @@ fun ProjectDetailsDialog(
             },
             onDismiss = { showDeleteDialog = false }
         )
+    }
+
+    if (showResourceOptions) {
+        ResourceOptionsDialog(
+            currentResourceSlug = project.translation.resourceSlug,
+            onSelect = { slug ->
+                showResourceOptions = false
+                onChangeResourceType(slug)
+            },
+            onDismiss = { showResourceOptions = false }
+        )
+    }
+}
+
+@Composable
+private fun ResourceOptionsDialog(
+    currentResourceSlug: String?,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val options = listOf(
+        Resource.ULB_SLUG to stringResource(Res.string.ulb_type),
+        Resource.UDB_SLUG to stringResource(Res.string.udb_type),
+        Resource.REGULAR_SLUG to stringResource(Res.string.reg_type)
+    )
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.8f)
+                .padding(32.dp),
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(Res.string.resource_options),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(24.dp)
+                )
+
+                options.forEach { (slug, name) ->
+                    val isCurrent = slug == currentResourceSlug
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (isCurrent) {
+                                    Modifier.background(
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                } else {
+                                    Modifier.clickable { onSelect(slug) }
+                                }
+                            )
+                    ) {
+                        Text(
+                            text = name,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(
+                                horizontal = 24.dp,
+                                vertical = 16.dp
+                            )
+                        )
+                        HorizontalDivider()
+                    }
+                }
+
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(8.dp)
+                ) {
+                    Text(stringResource(Res.string.title_cancel))
+                }
+            }
+        }
     }
 }
 
