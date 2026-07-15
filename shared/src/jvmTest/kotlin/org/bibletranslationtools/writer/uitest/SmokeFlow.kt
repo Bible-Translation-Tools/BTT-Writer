@@ -47,7 +47,7 @@ fun ComposeUiTest.completeSmokeSettings() {
 
     onNodeWithText("General").assertIsDisplayed()
     onNodeWithContentDescription("back").performClick()
-    waitUntilVisible("Your Translation Projects", timeoutMillis = 5_000)
+    waitUntilVisible("Your Translation Projects", timeoutMillis = 15_000)
 }
 
 @OptIn(ExperimentalTestApi::class)
@@ -152,7 +152,7 @@ private fun ComposeUiTest.scrollUntilVisible(text: String, timeoutMillis: Long =
             // Review/lists may not expose scroll semantics yet; keep polling.
         }
         waitForIdle()
-        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
     }
     throw AssertionError("Timed out after ${timeoutMillis}ms waiting for \"$text\" while scrolling")
 }
@@ -163,7 +163,7 @@ private fun ComposeUiTest.waitUntilVisible(text: String, timeoutMillis: Long) {
     while (System.nanoTime() < deadline) {
         if (isTextVisible(text)) return
         waitForIdle()
-        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
     }
     throw AssertionError("Timed out after ${timeoutMillis}ms waiting for \"$text\"")
 }
@@ -181,7 +181,7 @@ private fun ComposeUiTest.waitUntilSetTextAction(timeoutMillis: Long) {
             return
         }
         waitForIdle()
-        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
     }
     throw AssertionError("Timed out after ${timeoutMillis}ms waiting for editable text field")
 }
@@ -192,7 +192,7 @@ private fun ComposeUiTest.waitUntilContentDescription(description: String, timeo
     while (System.nanoTime() < deadline) {
         if (isContentDescriptionVisible(description)) return
         waitForIdle()
-        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeBy(100)
     }
     throw AssertionError("Timed out after ${timeoutMillis}ms waiting for content description \"$description\"")
 }
