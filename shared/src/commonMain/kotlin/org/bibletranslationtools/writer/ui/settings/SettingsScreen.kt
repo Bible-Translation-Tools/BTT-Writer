@@ -190,7 +190,10 @@ fun SettingsScreen(
                 ClickablePreference(
                     title = stringResource(Res.string.title_translation_typeface),
                     summary = state.currentTranslationFontName,
-                    onClick = { showTranslationFontDialog = true }
+                    onClick = {
+                        component.loadTypefaces()
+                        showTranslationFontDialog = true
+                    }
                 )
             }
 
@@ -210,7 +213,10 @@ fun SettingsScreen(
                 ClickablePreference(
                     title = stringResource(Res.string.title_source_typeface),
                     summary = state.currentSourceFontName,
-                    onClick = { showSourceFontDialog = true }
+                    onClick = {
+                        component.loadTypefaces()
+                        showSourceFontDialog = true
+                    }
                 )
             }
 

@@ -126,8 +126,18 @@ class Typography(
         return fontResources.keys.toList() + getSystemFonts().map { it.path }
     }
 
+    /** Keys of the fonts bundled with the app, in the same order as the picker titles. */
+    fun getBundledFontNames(): List<String> = fontResources.keys.toList()
+
     /** Fonts installed on the host OS, discovered through [SystemFontProvider]. */
     fun getSystemFonts(): List<SystemFont> = systemFontProvider.listSystemFonts()
+
+    /**
+     * Display name of a single font file, without scanning the OS font directories.
+     * Null when the file is missing or cannot be parsed.
+     */
+    fun getSystemFontDisplayName(path: String): String? =
+        systemFontProvider.fontDisplayName(path)
 
     /** True when [fontKey] refers to a font bundled with the app (not a system font). */
     fun isBundledFont(fontKey: String): Boolean =

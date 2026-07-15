@@ -40,6 +40,11 @@ class DesktopSystemFontProvider(
         null
     }
 
+    override fun fontDisplayName(path: String): String? = runCatching {
+        val file = File(path)
+        if (!file.exists()) null else displayName(file)
+    }.getOrNull()
+
     private fun fontDirectories(): List<File> {
         val osName = System.getProperty("os.name").orEmpty().lowercase()
         val home = System.getProperty("user.home").orEmpty()

@@ -155,6 +155,7 @@ class SettingsComponentTest : BaseComponentTest() {
     fun testUpdateTranslationTypeface() {
         runBlocking {
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.isNotEmpty() }
 
             component.updateTranslationTypeface("font1.ttf")
@@ -172,6 +173,7 @@ class SettingsComponentTest : BaseComponentTest() {
             )
 
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.size > 1 }
 
             val fonts = component.state.value.availableFonts
@@ -191,6 +193,7 @@ class SettingsComponentTest : BaseComponentTest() {
             )
 
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.size > 2 }
 
             assertEquals(
@@ -218,6 +221,7 @@ class SettingsComponentTest : BaseComponentTest() {
             )
 
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.isNotEmpty() }
 
             component.importFont(file)
@@ -244,6 +248,7 @@ class SettingsComponentTest : BaseComponentTest() {
             )
 
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.isNotEmpty() }
 
             component.importFont(file)
@@ -264,6 +269,7 @@ class SettingsComponentTest : BaseComponentTest() {
             )
 
             val component = createComponent()
+            component.loadTypefaces()
             component.state.awaitState { it.availableFonts.size > 1 }
 
             component.updateTranslationTypeface("/sys/Arial.ttf")
