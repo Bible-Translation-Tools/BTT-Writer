@@ -190,7 +190,10 @@ class DefaultNewTranslationComponent(
                 val resourceSlug = sourceTranslation.resourceSlug
                 val existingTranslation = getTargetTranslation(
                     TargetTranslation.generateTargetTranslationId(
-                        targetLanguage.slug, projectId, ResourceType.TEXT, resourceSlug
+                        targetLanguageSlug = targetLanguage.slug,
+                        projectSlug = projectId,
+                        resourceType = ResourceType.TEXT,
+                        resourceSlug = resourceSlug
                     )
                 )
 
@@ -212,7 +215,10 @@ class DefaultNewTranslationComponent(
                     sourceTranslation.changeTargetLanguage(targetLanguage)
                     sourceTranslation.normalizePath()
                     val newId = sourceTranslation.id
-                    moveTargetTranslationAppSettings(originalId, newId)
+                    preference.moveTargetTranslationAppSettings(
+                        originalId,
+                        newId
+                    )
                     withContext(Dispatchers.Main) {
                         onResult(NewTranslationComponent.Result.Success)
                     }
@@ -555,28 +561,6 @@ class DefaultNewTranslationComponent(
 
     private suspend fun getTargetTranslation(translationId: String): TargetTranslation? {
         return translator.getTargetTranslation(translationId)
-    }
-
-    private fun moveTargetTranslationAppSettings(
-        targetTranslationId: String,
-        newTargetTranslationId: String
-    ) {
-        val sources = preference.getOpenSourceTranslations(targetTranslationId)
-        for (source in sources) {
-            preference.addOpenSourceTranslation(newTargetTranslationId, source)
-        }
-
-        val source = preference.getSelectedSourceTranslationId(targetTranslationId)
-        preference.setSelectedSourceTranslation(newTargetTranslationId, source)
-
-        val lastFocusChapterId = preference.getLastFocusChapterId(targetTranslationId)
-        val lastFocusFrameId = preference.getLastFocusFrameId(targetTranslationId)
-        preference.setLastFocus(newTargetTranslationId, lastFocusChapterId, lastFocusFrameId)
-
-        val lastViewMode = preference.getLastViewMode(targetTranslationId)
-        preference.setLastViewMode(newTargetTranslationId, lastViewMode)
-
-        preference.clearTargetTranslationSettings(targetTranslationId)
     }
 
     private suspend fun createTargetTranslation(

@@ -14,10 +14,11 @@ import org.bibletranslationtools.writer.core.TranslationFormat
 import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.core.Translator
 import org.bibletranslationtools.writer.core.Validation
+import org.bibletranslationtools.writer.core.WORDS_CHAPTER
+import org.bibletranslationtools.writer.core.WORD_PATTERN
 import org.bibletranslationtools.writer.utils.StringUtilities
 import org.bibletranslationtools.writer.utils.sortedNumerically
 import org.jetbrains.compose.resources.getString
-import java.util.regex.Pattern
 
 class ValidateProject(
     private val catalogClient: ResourceCatalogClient,
@@ -410,10 +411,5 @@ class ValidateProject(
     ): String {
         val title = container.readChunk(chapterSlug, chunkSlug)
         return title.trim() + " - " + type
-    }
-
-    companion object {
-        private const val WORDS_CHAPTER = "01"
-        private val WORD_PATTERN: Pattern = Pattern.compile("#+([^\\n]+)\\n+([\\s\\S]*)")
     }
 }

@@ -4,6 +4,7 @@ import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.resourcecatalog.library.models.TargetLanguage
 import org.bibletranslationtools.resourcecatalog.library.models.Translation
 import org.bibletranslationtools.resourcecontainer.ContainerTools
+import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.resourcecontainer.ResourceContainer
 import org.bibletranslationtools.writer.DirectoryProvider
 import org.bibletranslationtools.writer.Platform
@@ -531,6 +532,16 @@ class TargetTranslation private constructor(
         targetLanguageName = targetLanguage.name
     }
 
+    fun changeResourceType(resourceSlug: String) {
+        if (translationType != ResourceType.TEXT) return
+        val resourceName = getResourceName(resourceSlug)
+        manifestAccessor.save(
+            manifest.copy(resource = Manifest.Resource(resourceSlug, resourceName))
+        )
+        this.resourceSlug = resourceSlug
+        this.resourceName = resourceName
+    }
+
     fun unlockRepo(): Boolean {
         var cleaned = false
         val gitDir = File(path.absolutePath, ".git")
@@ -714,7 +725,6 @@ class TargetTranslation private constructor(
         const val LICENSE_FILE = "LICENSE.md"
 
         const val APPLICATION_NAME = "ts-android"
-        const val OBS_PROJECT_TYPE = "obs"
 
         fun generateTargetTranslationId(
             targetLanguageSlug: String,
@@ -730,7 +740,7 @@ class TargetTranslation private constructor(
         }
 
         fun isObsProject(projectId: String): Boolean =
-            OBS_PROJECT_TYPE.equals(projectId, ignoreCase = true)
+            Resource.OBS_SLUG.equals(projectId, ignoreCase = true)
 
         suspend fun open(targetTranslationDir: File, onError: (suspend () -> Unit)? = null): TargetTranslation? {
             if (targetTranslationDir.exists()) {

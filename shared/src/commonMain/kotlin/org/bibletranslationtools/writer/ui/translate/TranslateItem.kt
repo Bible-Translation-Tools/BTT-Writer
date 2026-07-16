@@ -1,5 +1,6 @@
 package org.bibletranslationtools.writer.ui.translate
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import btt_writer.shared.generated.resources.Res
@@ -17,7 +18,7 @@ import org.bibletranslationtools.writer.core.ProjectTypeClass
 import org.bibletranslationtools.writer.core.TranslationHelp
 import org.bibletranslationtools.writer.ui.translate.review.TargetMode
 import org.bibletranslationtools.writer.usecases.ParseMergeConflicts
-import org.bibletranslationtools.writer.utils.getStringBlocking
+import org.jetbrains.compose.resources.stringResource
 
 
 interface Swipable {
@@ -69,17 +70,18 @@ abstract class TranslateItem {
     // "Project Title", "<book> <ch> Title", "<book> <ch>:<verses>") —
     // never from pt/ct content, which for helps projects holds JSON
     open val targetTitle: String
+        @Composable
         get() {
             val language = chunk.target.targetLanguage.name
             val book = chunk.source.project.name.trim()
             val chapter = chunk.chapterSlug.toIntOrNull() ?: chunk.chapterSlug
+
             return when {
                 chunk.isProjectTitle ->
-                    "${getStringBlocking(Res.string.project_title)} - $language"
-                chunk.isChapterTitle ->
-                    "${getStringBlocking(Res.string.project_chapter_title, book, chapter)} - $language"
+                    "${stringResource(Res.string.project_title)} - $language"
+                chunk.isChapterTitle -> "${stringResource(Res.string.project_chapter_title, book, chapter)} - $language"
                 chunk.isChapterReference ->
-                    "$book $chapter ${getStringBlocking(Res.string.reference)} - $language"
+                    "$book $chapter ${stringResource(Res.string.reference)} - $language"
                 else -> {
                     val verseSpan = Frame.parseVerseTitle(sourceText, chunk.sourceTranslationFormat)
                     val span = verseSpan.ifEmpty {
@@ -163,6 +165,7 @@ data class ReadItem(
         }
 
     override val targetTitle: String
+        @Composable
         get() = "${sourceTitle.trim()} - ${chunk.target.targetLanguage.name}"
 }
 
@@ -210,6 +213,7 @@ data class ReviewItem(
         get() = customSourceTitle ?: super.sourceTitle
 
     override val targetTitle: String
+        @Composable
         get() = if (projectTypeClass == ProjectTypeClass.EXTANT) {
             // words are titled by the word itself, not chapter:verse
             "$sourceTitle - ${chunk.target.targetLanguage.name}"
