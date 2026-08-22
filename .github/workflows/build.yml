@@ -4,8 +4,76 @@ on: [ push, pull_request ]
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096M -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true"
+  HELPDESK_TOKEN: ${{ secrets.HELPDESK_TOKEN }}
 
 jobs:
+  test-android-e2e:
+    name: Android E2E (Maestro)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test
+    steps:
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: false
+          tool-cache: true
+          dotnet: true
+          haskell: true
+          swap-storage: true
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gradle setup
+        uses: ./.github/actions/gradle-setup
+      
+      - name: Build debug APK for E2E
+        run: ./gradlew :androidApp:assembleDebug --daemon
+
+      - name: Run Maestro smoke flows
+        id: maestro
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_tablet
+          disable-animations: true
+          disk-size: 6000M
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-boot-timeout: 900
+          pre-emulator-launch-script: bash .github/scripts/setup-android-emulator.sh
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -memory 3072
+          script: |
+            set -e
+            bash .github/scripts/wait-for-emulator-ready.sh
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+            adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
+            mkdir -p maestro-artifacts
+            set +e
+            "$HOME/.maestro/bin/maestro" test --test-output-dir maestro-artifacts --debug-output maestro-artifacts --flatten-debug-output .maestro/flows/smoke.yaml
+            MAESTRO_EXIT=$?
+            set -e
+            exit $MAESTRO_EXIT
+
+      - name: Upload Maestro E2E artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: maestro-e2e-artifacts
+          path: maestro-artifacts/
+          if-no-files-found: ignore
+          retention-days: 2
+
   test:
     name: Run tests
     runs-on: ubuntu-latest
@@ -16,22 +84,63 @@ jobs:
       - name: Gradle setup
         uses: ./.github/actions/gradle-setup
 
+      - name: Start Xvfb
+        run: Xvfb :99 -screen 0 1024x768x24 &
+
       - name: Run tests
-        run: |
-          Xvfb :99 -screen 0 1024x768x24 &
-          DISPLAY=:99 ./gradlew jvmTest
+        env:
+          DISPLAY: ":99"
+        run: ./gradlew :shared:jvmTest
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-reports
-          path: "**/build/reports/tests/"
+          path: "**/build/reports/tests/jvmTest/"
+
+  test-desktop-smoke:
+    name: Desktop smoke
+    runs-on: ubuntu-latest
+    # Own runner so HOME/config/temp are not shared with jvmTest or Maestro.
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gradle setup
+        uses: ./.github/actions/gradle-setup
+
+      - name: Prepare isolated smoke storage
+        run: |
+          mkdir -p \
+            "${{ runner.temp }}/btt-writer-smoke/home" \
+            "${{ runner.temp }}/btt-writer-smoke/config" \
+            "${{ runner.temp }}/btt-writer-smoke/tmp"
+
+      - name: Run desktop smoke tests
+        env:
+          HOME: ${{ runner.temp }}/btt-writer-smoke/home
+          XDG_CONFIG_HOME: ${{ runner.temp }}/btt-writer-smoke/config
+          TMPDIR: ${{ runner.temp }}/btt-writer-smoke/tmp
+          TMP: ${{ runner.temp }}/btt-writer-smoke/tmp
+          TEMP: ${{ runner.temp }}/btt-writer-smoke/tmp
+        run: |
+          Xvfb :99 -screen 0 1024x768x24 &
+          DISPLAY=:99 ./gradlew :shared:jvmSmokeTest
+
+      - name: Upload smoke test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-reports
+          path: "**/build/reports/tests/jvmSmokeTest/"
+          if-no-files-found: ignore
 
   build-android:
     name: Build Android
     runs-on: ubuntu-latest
-    needs: test
+    needs: test-android-e2e
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,7 +176,7 @@ jobs:
   build-desktop-macos:
     name: Build Desktop macOS
     runs-on: macos-latest
-    needs: test
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -76,19 +185,19 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build macOS DMG
-        run: ./gradlew :composeApp:packageDmg
+        run: ./gradlew :desktopApp:packageDmg
 
       - name: Upload macOS DMG
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/dmg
+          source-dir: desktopApp/build/compose/binaries/main/dmg
           extension: dmg
           platform-suffix: macos
 
   build-desktop-windows:
     name: Build Desktop Windows
     runs-on: windows-latest
-    needs: test
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -97,19 +206,19 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build Windows MSI
-        run: ./gradlew :composeApp:packageMsi
+        run: ./gradlew :desktopApp:packageMsi
 
       - name: Upload Windows MSI
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/msi
+          source-dir: desktopApp/build/compose/binaries/main/msi
           extension: msi
           platform-suffix: windows
 
   build-desktop-linux:
     name: Build Desktop Linux
     runs-on: ubuntu-latest
-    needs: test
+    needs: test-desktop-smoke
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -118,11 +227,70 @@ jobs:
         uses: ./.github/actions/gradle-setup
 
       - name: Build Linux DEB
-        run: ./gradlew :composeApp:packageDeb
+        run: ./gradlew :desktopApp:packageDeb
 
       - name: Upload Linux DEB
         uses: ./.github/actions/upload-release-artifact
         with:
-          source-dir: composeApp/build/compose/binaries/main/deb
+          source-dir: desktopApp/build/compose/binaries/main/deb
           extension: deb
           platform-suffix: linux
+
+  publish:
+    name: Publish artifacts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs:
+      - build-android
+      - build-desktop-macos
+      - build-desktop-windows
+      - build-desktop-linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: btt-writer-*
+          merge-multiple: true
+
+      - name: Read app version
+        id: app-version
+        run: |
+          versionName=$(grep -E '^app-version-name' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          versionCode=$(grep -E '^app-version-code' gradle/libs.versions.toml | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version-name=$versionName" >> "$GITHUB_OUTPUT"
+          echo "version-code=$versionCode" >> "$GITHUB_OUTPUT"
+
+      - name: Set S3 destination
+        run: echo "CURRENT_S3_DESTINATION=${{ github.repository_owner }}/${{ github.event.repository.name }}/${{ github.ref_name }}/${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Set release tag
+        if: github.ref == 'refs/heads/default'
+        run: echo "GIT_RELEASE_TAG=v${{ steps.app-version.outputs.version-name }}+${{ steps.app-version.outputs.version-code }}" >> $GITHUB_ENV
+
+      - name: Upload artifacts to S3
+        uses: shallwefootball/s3-upload-action@v1.1.3
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: ./release
+          destination_dir: ${{ env.CURRENT_S3_DESTINATION }}
+
+      - name: Publish GitHub release
+        if: github.ref == 'refs/heads/default'
+        uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          automatic_release_tag: ${{ env.GIT_RELEASE_TAG }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          files: release/*.*
+
+      - name: Delete workflow artifacts
+        if: always()
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: btt-writer-*

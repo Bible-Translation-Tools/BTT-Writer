@@ -1,0 +1,43 @@
+package org.bibletranslationtools.writer.di
+
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.russhwolf.settings.ExperimentalSettingsApi
+import com.russhwolf.settings.ExperimentalSettingsImplementation
+import com.russhwolf.settings.ObservableSettings
+import com.russhwolf.settings.coroutines.toBlockingObservableSettings
+import com.russhwolf.settings.datastore.DataStoreSettings
+import okio.Path.Companion.toPath
+import org.bibletranslationtools.writer.DesktopBackupNotifier
+import org.bibletranslationtools.writer.DesktopBackupScheduler
+import org.bibletranslationtools.writer.DesktopDirectoryProvider
+import org.bibletranslationtools.writer.DesktopPlatform
+import org.bibletranslationtools.writer.DirectoryProvider
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.BackupNotifier
+import org.bibletranslationtools.writer.core.BackupScheduler
+import org.bibletranslationtools.writer.core.DesktopSystemFontProvider
+import org.bibletranslationtools.writer.core.SystemFontProvider
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import java.io.File
+
+actual val platformModule = module {
+    singleOf(::DesktopPlatform).bind<Platform>()
+    singleOf(::DesktopDirectoryProvider).bind<DirectoryProvider>()
+    singleOf(::DesktopBackupScheduler).bind<BackupScheduler>()
+    singleOf(::DesktopBackupNotifier).bind<BackupNotifier>()
+    singleOf(::DesktopSystemFontProvider).bind<SystemFontProvider>()
+
+    @OptIn(ExperimentalSettingsApi::class, ExperimentalSettingsImplementation::class)
+    single<ObservableSettings> {
+        val directoryProvider: DirectoryProvider = get()
+        val configFile = File(directoryProvider.internalAppDir, "settings.preferences_pb")
+        configFile.parentFile?.mkdirs()
+
+        val dataStore = PreferenceDataStoreFactory.createWithPath {
+            configFile.absolutePath.toPath()
+        }
+        DataStoreSettings(dataStore).toBlockingObservableSettings()
+    }
+}

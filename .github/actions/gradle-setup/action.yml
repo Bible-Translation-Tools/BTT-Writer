@@ -13,7 +13,7 @@ runs:
     - name: Refresh bundled resources
       shell: bash
       run: |
-        DIR=composeApp/src/commonMain/composeResources/files
+        DIR=shared/src/commonMain/composeResources/files
         BASE=https://writer-resources.bibletranslationtools.org
         curl -fsSL -o "$DIR/containers.zip" "$BASE/containers.zip"
         curl -fsSL -o "$DIR/index.sqlite" "$BASE/index.sqlite"

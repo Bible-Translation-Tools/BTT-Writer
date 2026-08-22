@@ -1,0 +1,6 @@
+appId: org.bibletranslationtools.writer
+---
+- tapOn:
+    text: "Wait"
+    optional: true
+    waitToSettleTimeoutMs: 200

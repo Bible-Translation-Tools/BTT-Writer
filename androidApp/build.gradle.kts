@@ -37,7 +37,13 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
             val releaseSigning = signingConfigs.getByName("release")
             if (releaseSigning.storeFile != null) {
                 signingConfig = releaseSigning
@@ -55,7 +61,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.foundation)
-    implementation(projects.composeApp)
+    implementation(projects.shared)
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.uiTooling)
 

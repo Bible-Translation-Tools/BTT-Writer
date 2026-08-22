@@ -1,0 +1,102 @@
+package org.bibletranslationtools.writer.usecases
+
+import org.bibletranslationtools.logger.Logger
+import org.bibletranslationtools.resourcecatalog.ResourceCatalogClient
+import org.bibletranslationtools.resourcecatalog.library.models.Translation
+import org.bibletranslationtools.resourcecontainer.ResourceContainer
+import org.bibletranslationtools.writer.Platform
+import org.bibletranslationtools.writer.core.ProjectTypeClass
+import org.bibletranslationtools.writer.core.TargetTranslation
+import org.bibletranslationtools.writer.data.Preference
+
+class TranslationProgress(
+    private val catalogClient: ResourceCatalogClient,
+    private val preference: Preference
+) {
+    companion object {
+        private const val TAG = "TranslationProgress"
+    }
+
+    fun execute(targetTranslation: TargetTranslation): Float {
+        var progress: Float
+
+        // find matching source
+        val sourceTranslation = getSourceTranslation(targetTranslation) ?: return 0f
+
+        // load source
+        val container = try {
+            catalogClient.openResourceContainer(sourceTranslation.resourceContainerSlug)
+        } catch (e: Exception) {
+            Logger.w(TAG, "Could not open resource container ${sourceTranslation.resourceContainerSlug}", e)
+            return 0f
+        }
+
+        // count chunks
+        val numSourceChunks = countChunks(container)
+        val numTargetChunks = countChunks(targetTranslation)
+
+        progress = if (numSourceChunks == 0) {
+            0f
+        } else {
+            numTargetChunks / numSourceChunks.toFloat()
+        }
+
+        // correct invalid values
+        if (progress > 1) progress = 1f
+
+        return progress
+    }
+
+    /**
+     * Counts the number of chunks in a target translation.
+     * TODO: once target translations become resource containers we can use the method below instead.
+     * @param targetTranslation the target translation to count
+     * @return the number of completed chunks in the target translation
+     */
+    private fun countChunks(targetTranslation: TargetTranslation): Int {
+        return targetTranslation.numFinished
+    }
+
+    /**
+     * Counts how many chunks are in a resource container
+     * @param container the resource container to be counted
+     * @return the number of chunks in the resource container
+     */
+    private fun countChunks(container: ResourceContainer): Int {
+        var count = 0
+        for (chapterSlug in container.chapters()) {
+            count += container.chunks(chapterSlug).size
+        }
+        return count
+    }
+
+    /**
+     * Returns a single source translation that corresponds to the target translation
+     * @param targetTranslation the target translation to match against
+     * @return a matching source translation or null
+     */
+    private fun getSourceTranslation(targetTranslation: TargetTranslation): Translation? {
+        val selectedSourceId = preference.getSelectedSourceTranslationId(targetTranslation.id)
+
+        // word projects (tw) translate a dictionary, not a book
+        val sourceType = when (targetTranslation.projectTypeClass) {
+            ProjectTypeClass.EXTANT -> "dict"
+            else -> "book"
+        }
+        val translations = catalogClient.library.findTranslations(
+            null,
+            targetTranslation.projectId,
+            null,
+            sourceType,
+            null,
+            Platform.MIN_CHECKING_LEVEL,
+            -1
+        )
+
+        return translations.find {
+            it.resourceContainerSlug == selectedSourceId
+        } ?: translations.find {
+            it.language.slug == "en" && it.resource.slug == "ulb"
+        } ?: translations.find { it.language.slug == "en" }
+    }
+}
