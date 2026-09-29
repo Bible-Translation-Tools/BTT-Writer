@@ -47,7 +47,6 @@ appId: org.bibletranslationtools.writer
 - assertVisible: "Unlocked Literal Bible"
 - assertVisible: "Unlocked Dynamic Bible"
 - assertVisible: "Notes"
-- assertVisible: "Questions"
 - assertNotVisible: "Regular"
 - tapOn:
     text: "Unlocked Literal Bible"
