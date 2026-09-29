@@ -56,7 +56,6 @@ import btt_writer.shared.generated.resources.target_language
 import btt_writer.shared.generated.resources.title_cancel
 import btt_writer.shared.generated.resources.translators
 import btt_writer.shared.generated.resources.type_label
-import btt_writer.shared.generated.resources.udb_type
 import btt_writer.shared.generated.resources.ulb_type
 import org.bibletranslationtools.resourcecontainer.Resource
 import org.bibletranslationtools.writer.DirectoryProvider
@@ -359,7 +358,8 @@ private fun ResourceOptionsDialog(
 ) {
     val options = listOf(
         Resource.ULB_SLUG to stringResource(Res.string.ulb_type),
-        Resource.UDB_SLUG to stringResource(Res.string.udb_type),
+        // UDB hidden from UI
+        // Resource.UDB_SLUG to stringResource(Res.string.udb_type),
         Resource.REGULAR_SLUG to stringResource(Res.string.reg_type)
     )
 

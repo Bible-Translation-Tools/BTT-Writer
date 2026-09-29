@@ -1,7 +1,7 @@
 appId: org.bibletranslationtools.writer
 ---
 # Gateway Language mode:
-# - toggle the setting on, verify the type step offers ulb/udb (no reg) + helps
+# - toggle the setting on, verify the type step offers ulb (no reg) + helps
 # - create ulb text, notes and words projects
 # - notes project opens review-only (no read/chunk mode buttons)
 # - toggle the setting off, verify words project disappears from the list
@@ -45,7 +45,6 @@ appId: org.bibletranslationtools.writer
     visible: "Choose a type"
     timeout: 5000
 - assertVisible: "Unlocked Literal Bible"
-- assertVisible: "Unlocked Dynamic Bible"
 - assertVisible: "Notes"
 - assertVisible: "Questions"
 - assertNotVisible: "Regular"
