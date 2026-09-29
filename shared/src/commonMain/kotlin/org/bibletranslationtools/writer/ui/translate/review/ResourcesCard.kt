@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import btt_writer.shared.generated.resources.Res
 import btt_writer.shared.generated.resources.label_translation_notes
-import btt_writer.shared.generated.resources.questions
 import btt_writer.shared.generated.resources.translation_words
 import org.bibletranslationtools.resourcecontainer.Language
 import org.bibletranslationtools.resourcecontainer.Link
@@ -78,7 +77,7 @@ fun ResourcesCard(
 
     val notesStr = stringResource(Res.string.label_translation_notes)
     val wordsStr = stringResource(Res.string.translation_words)
-    val questionsStr = stringResource(Res.string.questions)
+//    val questionsStr = stringResource(Res.string.questions)
 
     var notes by remember { mutableStateOf(emptyList<TranslationHelp>()) }
     var words by remember { mutableStateOf(emptyList<Link>()) }
@@ -108,7 +107,8 @@ fun ResourcesCard(
         tabs = buildList {
             if (notes.isNotEmpty()) add(HelpTab(tag = "notes", title = notesStr))
             if (words.isNotEmpty()) add(HelpTab(tag = "words", title = wordsStr))
-            if (questions.isNotEmpty()) add(HelpTab(tag = "questions", title = questionsStr))
+            // TQ hidden from helps pane
+            // if (questions.isNotEmpty()) add(HelpTab(tag = "questions", title = questionsStr))
         }
 
         selectedTag = tabs.firstOrNull()?.tag ?: ""
