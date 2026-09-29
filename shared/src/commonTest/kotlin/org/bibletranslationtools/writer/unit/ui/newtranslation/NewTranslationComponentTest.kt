@@ -143,7 +143,7 @@ class NewTranslationComponentTest : BaseComponentTest() {
             val options = component.state.value.typeOptions
             // gateway language mode offers only published resources, not reg
             assertEquals(
-                listOf("ulb", "udb"),
+                listOf("ulb"),
                 options.filter { it.resourceType == ResourceType.TEXT }.map { it.resourceSlug }
             )
             // helps types are disabled until a text translation exists
