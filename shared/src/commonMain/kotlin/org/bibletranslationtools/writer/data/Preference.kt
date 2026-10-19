@@ -62,6 +62,7 @@ class Preference(private val settings: ObservableSettings) {
         const val KEY_PREF_BACKUP_INTERVAL = "backup_interval"
         const val KEY_PREF_LOGGING_LEVEL = "logging_level"
         const val KEY_PREF_MIGRATE_OLD_APP = "migrate_old_app"
+        const val KEY_PREF_HIDE_EDIT_LIBRARY_WARNING = "hide_edit_library_warning"
 
         // Default values
         const val GITHUB_REPO_API_URL = "https://api.github.com/repos/Bible-Translation-Tools/BTT-Writer-Android"
