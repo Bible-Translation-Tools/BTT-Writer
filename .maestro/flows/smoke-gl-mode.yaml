@@ -46,7 +46,6 @@ appId: org.bibletranslationtools.writer
     timeout: 5000
 - assertVisible: "Unlocked Literal Bible"
 - assertVisible: "Notes"
-- assertVisible: "Questions"
 - assertNotVisible: "Regular"
 - tapOn:
     text: "Unlocked Literal Bible"

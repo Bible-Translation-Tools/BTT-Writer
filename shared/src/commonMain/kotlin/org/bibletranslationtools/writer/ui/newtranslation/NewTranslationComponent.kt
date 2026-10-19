@@ -334,12 +334,13 @@ class DefaultNewTranslationComponent(
             format = TranslationFormat.MARKDOWN,
             enabled = textExists
         )
-        options += TranslationTypeOption(
-            resourceType = ResourceType.TRANSLATION_QUESTION,
-            resourceSlug = "",
-            format = TranslationFormat.MARKDOWN,
-            enabled = textExists
-        )
+        // TQ hidden from UI
+        // options += TranslationTypeOption(
+        //     resourceType = ResourceType.TRANSLATION_QUESTION,
+        //     resourceSlug = "",
+        //     format = TranslationFormat.MARKDOWN,
+        //     enabled = textExists
+        // )
 
         return options.map { option ->
             val id = TargetTranslation.generateTargetTranslationId(

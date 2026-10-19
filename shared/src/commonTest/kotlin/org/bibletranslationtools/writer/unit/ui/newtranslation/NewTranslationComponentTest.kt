@@ -148,7 +148,7 @@ class NewTranslationComponentTest : BaseComponentTest() {
             )
             // helps types are disabled until a text translation exists
             assertEquals(
-                listOf(false, false),
+                listOf(false),
                 options.filter { it.resourceType != ResourceType.TEXT }.map { it.enabled }
             )
         }
@@ -205,7 +205,7 @@ class NewTranslationComponentTest : BaseComponentTest() {
 
             val options = component.state.value.typeOptions
             assertEquals(
-                listOf(true, true),
+                listOf(true),
                 options.filter { it.resourceType != ResourceType.TEXT }.map { it.enabled }
             )
         }
