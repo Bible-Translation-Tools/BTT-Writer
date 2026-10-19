@@ -236,7 +236,7 @@ class DefaultSelectSourcesComponent(
                     null,
                     Platform.MIN_CHECKING_LEVEL,
                     -1
-                )
+                ).filter { it.resource.slug != "udb" } // UDB hidden from UI
                 for (sourceTranslation in availableTranslations) {
                     handle.update(-1f, sourceTranslation.resourceContainerSlug)
                     if (!items.map { it.containerSlug }.contains(sourceTranslation.resourceContainerSlug)) {

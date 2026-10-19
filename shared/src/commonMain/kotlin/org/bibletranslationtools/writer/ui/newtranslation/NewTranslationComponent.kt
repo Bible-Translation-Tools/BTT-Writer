@@ -317,7 +317,8 @@ class DefaultNewTranslationComponent(
             )
         } else {
             // gateway languages translate the published resources, not reg
-            for (slug in listOf(Resource.ULB_SLUG, Resource.UDB_SLUG)) {
+            // UDB hidden from UI: Resource.UDB_SLUG
+            for (slug in listOf(Resource.ULB_SLUG)) {
                 options += TranslationTypeOption(
                     resourceType = ResourceType.TEXT,
                     resourceSlug = slug,
