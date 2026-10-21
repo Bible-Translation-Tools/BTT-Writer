@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,9 +26,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -38,12 +34,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.bibletranslationtools.writer.label
-import org.bibletranslationtools.writer.textClipEntry
-import org.bibletranslationtools.writer.textOrNull
 import org.bibletranslationtools.writer.ui.translate.components.footnote.FootnoteOutputTransformation
 import org.bibletranslationtools.writer.ui.translate.components.footnote.NOTE_CHAR
-import org.bibletranslationtools.writer.ui.translate.components.footnote.visualToRaw
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
@@ -79,12 +71,6 @@ fun UsfmEditText(
     val iconPainter = rememberVectorPainter(Icons.Default.Description)
     val iconColorFilter = remember(noteColor) { ColorFilter.tint(noteColor) }
     val layoutResult = remember { mutableStateOf<(() -> TextLayoutResult?)?>(null) }
-
-    // Clipboard interception: copy raw USFM instead of visual text with placeholders
-    val platformClipboard = LocalClipboard.current
-    val rawClipboard = remember(platformClipboard) {
-        RawUsfmClipboard(platformClipboard, textFieldState)
-    }
 
     // Sync external text into TextFieldState only for genuine external changes
     // (e.g., footnote dialog, undo from viewmodel), not echoed-back values from our own edits
@@ -127,7 +113,8 @@ fun UsfmEditText(
         }
     }
 
-    CompositionLocalProvider(LocalClipboard provides rawClipboard) {
+    // Copy/cut must put raw USFM on the clipboard, not the footnote placeholders
+    RawUsfmCopyHandler(textFieldState) { copyModifier ->
         BasicTextField(
             state = textFieldState,
             outputTransformation = FootnoteOutputTransformation,
@@ -140,6 +127,7 @@ fun UsfmEditText(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .focusRequester(focusRequester)
+                .then(copyModifier)
                 .drawWithContent {
                     // Draw search highlights behind text
                     if (!searchQuery.isNullOrEmpty()) {
@@ -196,33 +184,3 @@ fun UsfmEditText(
     }
 }
 
-/**
- * Clipboard wrapper that intercepts copy/cut operations to preserve raw USFM
- * footnote blocks instead of the visual placeholder characters.
- */
-private class RawUsfmClipboard(
-    private val delegate: Clipboard,
-    private val textFieldState: TextFieldState
-) : Clipboard {
-
-    override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-        if (clipEntry == null) {
-            delegate.setClipEntry(null)
-            return
-        }
-
-        val visualText = clipEntry.textOrNull()
-        if (visualText != null && NOTE_CHAR in visualText) {
-            val rawText = textFieldState.text.toString()
-            val reconstructed = visualToRaw(visualText, rawText)
-            delegate.setClipEntry(textClipEntry(reconstructed, clipEntry.label))
-            return
-        }
-
-        delegate.setClipEntry(clipEntry)
-    }
-
-    override suspend fun getClipEntry(): ClipEntry? = delegate.getClipEntry()
-
-    override val nativeClipboard get() = delegate.nativeClipboard
-}
