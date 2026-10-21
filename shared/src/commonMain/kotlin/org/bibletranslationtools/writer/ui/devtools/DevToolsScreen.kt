@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,15 +43,21 @@ import btt_writer.shared.generated.resources.app_version_code
 import btt_writer.shared.generated.resources.app_version_name
 import btt_writer.shared.generated.resources.copied_to_clipboard
 import btt_writer.shared.generated.resources.dismiss
+import btt_writer.shared.generated.resources.edit_library_dont_show_again
+import btt_writer.shared.generated.resources.edit_library_warning_message
+import btt_writer.shared.generated.resources.edit_library_warning_title
+import btt_writer.shared.generated.resources.label_continue
 import btt_writer.shared.generated.resources.label_close
 import btt_writer.shared.generated.resources.no_logs
 import btt_writer.shared.generated.resources.ssh_keys_generated
 import btt_writer.shared.generated.resources.success
 import btt_writer.shared.generated.resources.system_resources_check
 import btt_writer.shared.generated.resources.title_activity_developer
+import btt_writer.shared.generated.resources.title_cancel
 import kotlinx.coroutines.launch
 import org.bibletranslationtools.logger.Logger
 import org.bibletranslationtools.writer.textClipEntry
+import org.bibletranslationtools.writer.ui.components.LabeledCheckbox
 import org.bibletranslationtools.writer.ui.dialogs.BaseDialog
 import org.bibletranslationtools.writer.ui.dialogs.ProgressDialog
 import org.jetbrains.compose.resources.stringResource
@@ -79,6 +86,7 @@ fun DevToolsScreen(
 
     var showLogDialog by rememberSaveable { mutableStateOf(false) }
     var systemResourcesMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var showEditLibraryWarning by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         component.loadTools()
@@ -93,6 +101,9 @@ fun DevToolsScreen(
                 }
                 is DevToolsComponent.Event.CheckSystemResources -> {
                     systemResourcesMessage = component.calculateSystemResources()
+                }
+                is DevToolsComponent.Event.EditLibrary -> {
+                    if (event.showWarning) showEditLibraryWarning = true else component.openEditLibrary()
                 }
             }
         }
@@ -211,6 +222,16 @@ fun DevToolsScreen(
         }
     }
 
+    if (showEditLibraryWarning) {
+        EditLibraryWarningDialog(
+            onContinue = { hideWarning ->
+                showEditLibraryWarning = false
+                component.openEditLibrary(hideWarning)
+            },
+            onDismiss = { showEditLibraryWarning = false }
+        )
+    }
+
     progress?.let { progress ->
         ProgressDialog(
             message = progress.message,
@@ -256,4 +277,35 @@ fun ToolListItem(tool: ToolItem) {
             }
         }
     }
+}
+@Composable
+private fun EditLibraryWarningDialog(
+    onContinue: (hideWarning: Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var dontShowAgain by rememberSaveable { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.edit_library_warning_title)) },
+        text = {
+            Column {
+                Text(stringResource(Res.string.edit_library_warning_message))
+                LabeledCheckbox(
+                    label = stringResource(Res.string.edit_library_dont_show_again),
+                    checked = dontShowAgain,
+                    onCheckedChange = { dontShowAgain = it }
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onContinue(dontShowAgain) }) {
+                Text(stringResource(Res.string.label_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.title_cancel))
+            }
+        }
+    )
 }

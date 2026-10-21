@@ -84,7 +84,7 @@ class DevToolsComponentTest : BaseComponentTest() {
 
             delayYield()
 
-            assertEquals(5, component.state.value.tools.size)
+            assertEquals(6, component.state.value.tools.size)
             assertEquals("Regenerate SSH keys", component.state.value.tools[0].name)
             assertEquals("Read debugging log", component.state.value.tools[1].name)
         }

@@ -3,6 +3,7 @@ package org.bibletranslationtools.writer.ui.devtools
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Warning
 import btt_writer.shared.generated.resources.Res
@@ -11,6 +12,8 @@ import btt_writer.shared.generated.resources.check_system_resources_hint
 import btt_writer.shared.generated.resources.delete_library
 import btt_writer.shared.generated.resources.delete_library_hint
 import btt_writer.shared.generated.resources.deleting_library
+import btt_writer.shared.generated.resources.edit_library
+import btt_writer.shared.generated.resources.edit_library_hint
 import btt_writer.shared.generated.resources.please_wait
 import btt_writer.shared.generated.resources.read_debug_log
 import btt_writer.shared.generated.resources.read_debug_log_hint
@@ -49,6 +52,7 @@ import org.bibletranslationtools.writer.core.TaskHandle
 import org.bibletranslationtools.writer.core.launchWithProgress
 import org.bibletranslationtools.writer.data.Preference
 import org.bibletranslationtools.writer.data.getPref
+import org.bibletranslationtools.writer.data.setPref
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -67,6 +71,7 @@ interface DevToolsComponent {
     fun readErrorLog()
     fun clearKeysRegenerated()
     fun calculateSystemResources(): String
+    fun openEditLibrary(hideWarning: Boolean = false)
 
     fun navigateBack()
 
@@ -82,10 +87,12 @@ interface DevToolsComponent {
     sealed class Event {
         data object ReadLog : Event()
         data object CheckSystemResources : Event()
+        data class EditLibrary(val showWarning: Boolean) : Event()
     }
 
     sealed interface Result {
         data object NavigateBack : Result
+        data object OpenEditLibrary : Result
     }
 }
 
@@ -137,6 +144,7 @@ class DefaultDevToolsComponent(
                 readLogItem(),
                 simulateCrashItem(),
                 checkSystemResourcesItem(),
+                editLibraryItem(),
                 deleteLibraryItem()
             )
             _state.update { it.copy(tools = list) }
@@ -163,6 +171,11 @@ class DefaultDevToolsComponent(
 
     override fun calculateSystemResources(): String {
         return platform.calculateSystemResources()
+    }
+
+    override fun openEditLibrary(hideWarning: Boolean) {
+        if (hideWarning) preference.setPref(Preference.KEY_PREF_HIDE_EDIT_LIBRARY_WARNING, true)
+        onResult(DevToolsComponent.Result.OpenEditLibrary)
     }
 
     override fun navigateBack() {
@@ -209,6 +222,19 @@ class DefaultDevToolsComponent(
         ) {
             coroutineScope.launch {
                 _event.send(DevToolsComponent.Event.CheckSystemResources)
+            }
+        }
+    }
+
+    private suspend fun editLibraryItem(): ToolItem {
+        return ToolItem(
+            getString(Res.string.edit_library),
+            getString(Res.string.edit_library_hint),
+            Icons.Outlined.Edit
+        ) {
+            val hideWarning = preference.getPref(Preference.KEY_PREF_HIDE_EDIT_LIBRARY_WARNING, false)
+            coroutineScope.launch {
+                _event.send(DevToolsComponent.Event.EditLibrary(showWarning = !hideWarning))
             }
         }
     }

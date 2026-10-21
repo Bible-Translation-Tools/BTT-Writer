@@ -37,6 +37,12 @@ class FakeDevToolsComponent : DevToolsComponent {
         return "Calculated mock system resources"
     }
 
+    var openEditLibraryCalled = false
+
+    override fun openEditLibrary(hideWarning: Boolean) {
+        openEditLibraryCalled = true
+    }
+
     override fun navigateBack() {
         navigateBackCalled = true
     }
