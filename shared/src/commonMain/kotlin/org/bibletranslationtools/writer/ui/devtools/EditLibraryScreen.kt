@@ -24,7 +24,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -66,10 +65,6 @@ import org.jetbrains.compose.resources.stringResource
 fun EditLibraryScreen(component: EditLibraryComponent) {
     val state by component.state.collectAsStateWithLifecycle()
     val progress by component.progress.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        component.loadLanguages()
-    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,

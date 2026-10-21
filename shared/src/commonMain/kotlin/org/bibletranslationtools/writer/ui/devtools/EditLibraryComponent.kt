@@ -4,6 +4,7 @@ import btt_writer.shared.generated.resources.Res
 import btt_writer.shared.generated.resources.edit_library_saving
 import btt_writer.shared.generated.resources.please_wait
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,6 @@ interface EditLibraryComponent {
     val state: StateFlow<State>
     val progress: StateFlow<Progress?>
 
-    fun loadLanguages()
     fun onSearch(query: String)
     fun onLanguageSelected(language: TargetLanguage)
     fun clearSelected()
@@ -81,17 +81,22 @@ class DefaultEditLibraryComponent(
     private val _state = MutableStateFlow(EditLibraryComponent.State())
     override val state: StateFlow<EditLibraryComponent.State> = _state.asStateFlow()
 
+    // system back returns from the form to the list, like the top-bar arrow
+    private val backCallback = BackCallback(isEnabled = false) { clearSelected() }
+
     init {
+        backHandler.register(backCallback)
         lifecycle.doOnDestroy {
             coroutineScope.cancel()
         }
+        loadLanguages()
     }
 
     override suspend fun runTask(message: String?, block: suspend (TaskHandle) -> Unit) {
         progressManager.runTask(message, block)
     }
 
-    override fun loadLanguages() {
+    private fun loadLanguages() {
         launchWithProgress(Res.string.please_wait) {
             val languages = withContext(Dispatchers.IO) {
                 catalogClient.library.getTargetLanguages().sortedBy { it.slug }
@@ -119,10 +124,12 @@ class DefaultEditLibraryComponent(
 
     override fun onLanguageSelected(language: TargetLanguage) {
         _state.update { it.copy(selected = language) }
+        backCallback.isEnabled = true
     }
 
     override fun clearSelected() {
         _state.update { it.copy(selected = null) }
+        backCallback.isEnabled = false
     }
 
     override fun save(language: TargetLanguage) {
