@@ -45,7 +45,7 @@ class GetAvailableSources(
             -1
         )
 
-        allSources.addAll(sources)
+        allSources.addAll(sources.filter { it.resource.slug != "udb" }) // UDB hidden from UI
         allSources.addAll(tw)
 
         val byLanguage = TreeMap<String, ArrayList<Int>>()
