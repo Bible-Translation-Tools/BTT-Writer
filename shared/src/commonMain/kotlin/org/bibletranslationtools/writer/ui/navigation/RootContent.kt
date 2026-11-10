@@ -14,6 +14,7 @@ import org.bibletranslationtools.writer.ui.splash.SplashScreen
 import org.bibletranslationtools.writer.ui.translate.TargetTranslationScreen
 import org.bibletranslationtools.writer.ui.crash.CrashReporterScreen
 import org.bibletranslationtools.writer.ui.devtools.DevToolsScreen
+import org.bibletranslationtools.writer.ui.devtools.EditLibraryScreen
 import org.bibletranslationtools.writer.ui.draft.DraftScreen
 import org.bibletranslationtools.writer.ui.home.HomeScreen
 
@@ -45,6 +46,9 @@ fun RootContent(
                 component = instance.component
             )
             is RootComponent.Child.DevTools -> DevToolsScreen(
+                component = instance.component
+            )
+            is RootComponent.Child.EditLibrary -> EditLibraryScreen(
                 component = instance.component
             )
             is RootComponent.Child.Draft -> DraftScreen(

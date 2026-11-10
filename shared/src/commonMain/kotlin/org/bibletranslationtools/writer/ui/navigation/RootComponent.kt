@@ -33,6 +33,8 @@ import org.bibletranslationtools.writer.ui.crash.CrashComponent
 import org.bibletranslationtools.writer.ui.crash.DefaultCrashComponent
 import org.bibletranslationtools.writer.ui.devtools.DefaultDevToolsComponent
 import org.bibletranslationtools.writer.ui.devtools.DevToolsComponent
+import org.bibletranslationtools.writer.ui.devtools.DefaultEditLibraryComponent
+import org.bibletranslationtools.writer.ui.devtools.EditLibraryComponent
 import org.bibletranslationtools.writer.ui.draft.DefaultDraftComponent
 import org.bibletranslationtools.writer.ui.draft.DraftComponent
 import org.bibletranslationtools.writer.ui.home.DefaultHomeComponent
@@ -72,6 +74,7 @@ interface RootComponent {
         data class Profile(val component: ProfileComponent) : Child
         data class Settings(val component: SettingsComponent) : Child
         data class DevTools(val component: DevToolsComponent) : Child
+        data class EditLibrary(val component: EditLibraryComponent) : Child
         data class NewTranslation(val component: NewTranslationComponent) : Child
         data class Draft(val component: DraftComponent) : Child
         data class Publish(val component: PublishComponent) : Child
@@ -109,6 +112,9 @@ interface RootComponent {
 
         @Serializable
         data object DevTools : Config
+
+        @Serializable
+        data object EditLibrary : Config
 
         @Serializable
         data class Profile(val thenLogin: Boolean = false) : Config
@@ -230,6 +236,12 @@ class DefaultRootComponent(
                 onResult = ::onDevToolsResult
             )
         )
+        is Config.EditLibrary -> RootComponent.Child.EditLibrary(
+            component = DefaultEditLibraryComponent(
+                componentContext = componentContext,
+                onResult = ::onEditLibraryResult
+            )
+        )
         is Config.Draft -> RootComponent.Child.Draft(
             component = DefaultDraftComponent(
                 componentContext = componentContext,
@@ -342,6 +354,14 @@ class DefaultRootComponent(
     private fun onDevToolsResult(result: DevToolsComponent.Result) {
         when (result) {
             is DevToolsComponent.Result.NavigateBack -> navigation.pop()
+            is DevToolsComponent.Result.OpenEditLibrary -> navigation.bringToFront(Config.EditLibrary)
+        }
+    }
+
+    private fun onEditLibraryResult(result: EditLibraryComponent.Result) {
+        when (result) {
+            is EditLibraryComponent.Result.NavigateBack -> navigation.pop()
+            is EditLibraryComponent.Result.Restart -> restart()
         }
     }
 
