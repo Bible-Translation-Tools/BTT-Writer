@@ -41,6 +41,7 @@ import org.bibletranslationtools.writer.usecases.TranslationProgress
 import org.bibletranslationtools.writer.usecases.UpdateApp
 import org.bibletranslationtools.writer.usecases.UpdateCatalogs
 import org.bibletranslationtools.writer.usecases.UpdateSource
+import org.bibletranslationtools.writer.usecases.UpdateTargetLanguage
 import org.bibletranslationtools.writer.usecases.UploadCrashReport
 import org.bibletranslationtools.writer.usecases.UploadFeedback
 import org.bibletranslationtools.writer.usecases.ValidateProject
@@ -95,6 +96,7 @@ val sharedModule = module {
     singleOf(::GogsLogout)
     singleOf(::RenderHelps)
     singleOf(::ValidateProject)
+    singleOf(::UpdateTargetLanguage)
     singleOf(::GetAvailableSources)
     singleOf(::RenderingProvider)
 
